@@ -1,4 +1,4 @@
-# Trabalho 02
+# Trabalho/Avaliação #02 - Programação 02
 Neste trabalho, vamos implementar uma versão alternativa do Space Impact, particularmente baseada no Space Impact 303 (com as mesmas dinâmicas).
 
 ## Requisitos mínimos 
