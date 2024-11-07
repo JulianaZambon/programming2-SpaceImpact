@@ -3,10 +3,13 @@
 #include <allegro5/allegro_image.h>
 #include <stdio.h>
 
-#define X_SCREEN 1200
-#define Y_SCREEN 650
+#include "jogador.h"
 
-int main() {
+#define X_SCREEN 1140
+#define Y_SCREEN 640
+
+int main()
+{
     al_init();
     al_install_keyboard();
     al_init_image_addon();
@@ -16,8 +19,9 @@ int main() {
     ALLEGRO_FONT *font = al_create_builtin_font();
     ALLEGRO_DISPLAY *disp = al_create_display(X_SCREEN, Y_SCREEN);
 
-    ALLEGRO_BITMAP *background = al_load_bitmap("cenario1.png");
-    if (!background) {
+    ALLEGRO_BITMAP *background = al_load_bitmap("cenario2.png");
+    if (!background)
+    {
         fprintf(stderr, "Erro ao carregar a imagem de fundo.\n");
         return -1;
     }
@@ -31,15 +35,18 @@ int main() {
     ALLEGRO_EVENT event;
     al_start_timer(timer);
 
-    while (1) {
+    while (1)
+    {
         al_wait_for_event(queue, &event);
 
-        if (event.type == ALLEGRO_EVENT_TIMER) {
+        if (event.type == ALLEGRO_EVENT_TIMER)
+        {
             // Atualiza a posição da imagem de fundo
             background_x -= 2; // Valor negativo para mover para a esquerda; ajuste conforme necessário
 
             // Reseta a posição quando a imagem sair da tela
-            if (background_x <= -al_get_bitmap_width(background)) {
+            if (background_x <= -al_get_bitmap_width(background))
+            {
                 background_x = 0;
             }
 
@@ -49,7 +56,9 @@ int main() {
 
             al_flip_display();
             al_clear_to_color(al_map_rgb(0, 0, 0)); // Limpa a tela antes do próximo desenho
-        } else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+        }
+        else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+        {
             break;
         }
     }
