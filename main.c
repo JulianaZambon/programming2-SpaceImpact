@@ -8,7 +8,7 @@
 
 #define X_SCREEN 1140
 #define Y_SCREEN 640
-#define ANIMATION_DELAY 10 // Ajuste a velocidade da animação (quanto maior, mais lento)
+#define ANIMATION_DELAY_PLAYER 3 // Ajuste a velocidade da animação (quanto maior, mais lento)
 
 int main()
 {
@@ -88,8 +88,8 @@ int main()
     al_register_event_source(queue, al_get_display_event_source(disp));
     al_register_event_source(queue, al_get_timer_event_source(timer));
 
-    player *player_1 = player_create(1, 1, (Y_SCREEN - 512) / 2, X_SCREEN, Y_SCREEN);
-    if (!player_1 || !(player_1->sprite = al_load_bitmap("assets/jogador/sprite-player2.png")))
+    player *player_1 = player_create(60, 80, 300, X_SCREEN, Y_SCREEN);
+    if (!player_1 || !(player_1->sprite = al_load_bitmap("assets/jogador/sprite_jogador.png")))
     {
         fprintf(stderr, "Erro ao criar o jogador 1 ou carregar o sprite.\n");
         al_destroy_bitmap(background);
@@ -118,7 +118,7 @@ int main()
             al_clear_to_color(al_map_rgb(0, 0, 0));
 
             // Atualiza a posição da imagem de fundo
-            background_x -= 2; // Valor negativo para mover para a esquerda; ajuste conforme necessário
+            background_x -= 3; //(quanto maior o valor, mais rápido o fundo se moverá)
 
             // Reseta a posição quando a imagem sair da tela
             if (background_x <= -al_get_bitmap_width(background))
@@ -132,7 +132,7 @@ int main()
 
             // Atualiza o contador para animar o jogador
             animation_counter++;
-            if (animation_counter >= ANIMATION_DELAY)
+            if (animation_counter >= ANIMATION_DELAY_PLAYER)
             {
                 // Atualiza o quadro do jogador a cada N ciclos do timer
                 player_1->current_frame = (player_1->current_frame + 1) % 72; // Cicla entre 0 e 71
