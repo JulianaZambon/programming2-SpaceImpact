@@ -3,8 +3,6 @@
 #include <allegro5/allegro_image.h>
 #include "jogador.h"
 
-#define Y_SCREEN 640
-
 player *player_create(unsigned char side, unsigned short x, unsigned short y, unsigned short max_x, unsigned short max_y)
 {
     if ((x - side / 2 < 0) || (x + side / 2 > max_x) || (y - side / 2 < 0) || (y + side / 2 > max_y))
@@ -19,7 +17,7 @@ player *player_create(unsigned char side, unsigned short x, unsigned short y, un
     new_player->y = y;       // Insere a posição inicial central de Y
 
     // Carrega o sprite para o jogador
-    new_player->sprite = al_load_bitmap("assets/jogador/sprite-player2.png");
+    new_player->sprite = al_load_bitmap("assets/jogador/sprite_jogador.png");
     if (!new_player->sprite)
     {
         free(new_player); // Libera a memória caso o carregamento do sprite falhe
