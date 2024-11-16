@@ -126,25 +126,6 @@ int main()
                 joystick_down(player_1->control);
             }
         }
-        else if (event.type == ALLEGRO_EVENT_KEY_DOWN)
-        {
-            if (event.keyboard.keycode == ALLEGRO_KEY_LEFT)
-            {
-                joystick_left(player_1->control);
-            }
-            else if (event.keyboard.keycode == ALLEGRO_KEY_RIGHT)
-            {
-                joystick_right(player_1->control);
-            }
-            else if (event.keyboard.keycode == ALLEGRO_KEY_UP)
-            {
-                joystick_up(player_1->control);
-            }
-            else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN)
-            {
-                joystick_down(player_1->control);
-            }
-        }
         else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
             break;
     }
