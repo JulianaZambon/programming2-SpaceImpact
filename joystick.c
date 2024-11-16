@@ -14,14 +14,30 @@ joystick *joystick_create()
 	return element; // Retorna o novo controle
 }
 
-void joystick_destroy(joystick *element) { free(element); } // libera a memória do elemento na heap
+// libera a memória do elemento na heap
+void joystick_destroy(joystick *element)
+{
+	free(element);
+}
 
-void joystick_left(joystick *element) { element->left = element->left ^ 1; } // muda o estado do botão
-
-void joystick_right(joystick *element) { element->right = element->right ^ 1; } // muda o estado do botão
-
-void joystick_up(joystick *element) { element->up = element->up ^ 1; } // muda o estado do botão
-
-void joystick_down(joystick *element) { element->down = element->down ^ 1; } // muda o estado do botão
-
-void joystick_fire(joystick *element) { element->fire = element->fire ^ 1; } // muda o estado do botão
+// muda o estado do botão
+void joystick_left(joystick *element)
+{
+	element->left = element->left ^ 1;
+}
+void joystick_right(joystick *element)
+{
+	element->right = element->right ^ 1;
+}
+void joystick_up(joystick *element)
+{
+	element->up = element->up ^ 1;
+}
+void joystick_down(joystick *element)
+{
+	element->down = element->down ^ 1;
+}
+void joystick_fire(joystick *element)
+{
+	element->fire = element->fire ^ 1;
+}
