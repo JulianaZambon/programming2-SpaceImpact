@@ -37,6 +37,7 @@ int main()
     al_init();
     al_init_image_addon();
     al_install_keyboard();
+    al_install_joystick();
     al_init_primitives_addon();
 
     ALLEGRO_TIMER *timer = al_create_timer(1.0 / 30.0); // Timer de 30 FPS
@@ -47,10 +48,13 @@ int main()
 
     float background_x = 0; // Posição inicial da imagem de fundo
 
+    // Registra as fontes de eventos
     al_register_event_source(queue, al_get_keyboard_event_source());
+    al_register_event_source(queue, al_get_joystick_event_source());
     al_register_event_source(queue, al_get_display_event_source(disp));
     al_register_event_source(queue, al_get_timer_event_source(timer));
 
+    // Cria o jogador
     player *player_1 = player_create(60, 80, 300, X_SCREEN, Y_SCREEN);
     if (!player_1 || !(player_1->sprite = al_load_bitmap("assets/jogador/sprite_jogador.png")))
     {
@@ -102,40 +106,47 @@ int main()
                 animation_counter = 0;                                        // Reseta o contador
             }
 
+            // Atualiza a posição do jogador com base nas entradas do teclado e joystick
+            update_position(player_1);
+
             // Chama a função para desenhar o jogador
             player_draw(player_1);
 
             al_flip_display();
         }
+        // Eventos de teclado para mover o jogador
         else if (event.type == ALLEGRO_EVENT_KEY_UP || event.type == ALLEGRO_EVENT_KEY_DOWN)
         {
-            if (event.keyboard.keycode == ALLEGRO_KEY_LEFT)
+            switch (event.keyboard.keycode)
             {
-                joystick_left(player_1->control);
-            }
-            else if (event.keyboard.keycode == ALLEGRO_KEY_RIGHT)
-            {
-                joystick_right(player_1->control);
-            }
-            else if (event.keyboard.keycode == ALLEGRO_KEY_UP)
-            {
-                joystick_up(player_1->control);
-            }
-            else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN)
-            {
-                joystick_down(player_1->control);
+            case ALLEGRO_KEY_LEFT:
+                player_1->control->left = (event.type == ALLEGRO_EVENT_KEY_DOWN);
+                break;
+            case ALLEGRO_KEY_RIGHT:
+                player_1->control->right = (event.type == ALLEGRO_EVENT_KEY_DOWN);
+                break;
+            case ALLEGRO_KEY_UP:
+                player_1->control->up = (event.type == ALLEGRO_EVENT_KEY_DOWN);
+                break;
+            case ALLEGRO_KEY_DOWN:
+                player_1->control->down = (event.type == ALLEGRO_EVENT_KEY_DOWN);
+                break;
             }
         }
         else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+        {
             break;
+        }
     }
 
-    // Libera recursos
+    // Limpeza dos recursos
+    al_destroy_bitmap(player_1->sprite);
     al_destroy_bitmap(background);
-    al_destroy_font(font);
     al_destroy_display(disp);
-    al_destroy_timer(timer);
+    al_destroy_font(font);
     al_destroy_event_queue(queue);
-    player_destroy(player_1); 
+    al_destroy_timer(timer);
+    player_destroy(player_1);
+
     return 0;
 }
