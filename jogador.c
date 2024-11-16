@@ -8,13 +8,14 @@ player *player_create(unsigned char side, unsigned short x, unsigned short y, un
     if ((x - side / 2 < 0) || (x + side / 2 > max_x) || (y - side / 2 < 0) || (y + side / 2 > max_y))
         return NULL; // Verifica se a posição inicial é válida; caso não seja, retorna NULL
 
-    player *new_player = (player *)malloc(sizeof(player)); // Aloca memória na heap para um novo quadrado
+    player *new_player = (player *)malloc(sizeof(player)); // Aloca memória na heap para um novo jogador
     if (!new_player)
         return NULL; // Verifica se a alocação de memória foi bem-sucedida
 
-    new_player->side = side; // Insere o tamanho do lado de um quadrado
-    new_player->x = x;       // Insere a posição inicial central de X
-    new_player->y = y;       // Insere a posição inicial central de Y
+    new_player->side = side;                 // Insere o tamanho do lado de um quadrado
+    new_player->x = x;                       // Insere a posição inicial central de X
+    new_player->y = y;                       // Insere a posição inicial central de Y
+    new_player->control = joystick_create(); // Insere o elemento de controle na nave do jogador
 
     // Carrega o sprite para o jogador
     new_player->sprite = al_load_bitmap("assets/jogador/sprite_jogador.png");
@@ -60,7 +61,7 @@ void player_draw(player *element)
     int sprite_height = 189; // Altura do quadro no sprite sheet
 
     // Calcula a posição do quadro no sprite sheet
-    int frame_x = (element->current_frame % 3) * sprite_width; // Coluna
+    int frame_x = (element->current_frame % 3) * sprite_width;  // Coluna
     int frame_y = (element->current_frame / 3) * sprite_height; // Linha
 
     // Desenha o quadro do sprite na tela
@@ -68,15 +69,15 @@ void player_draw(player *element)
                           element->x - sprite_width / 2, element->y - sprite_height / 2, 0);
 }
 
-// Função para atualizar o quadro
 void player_update(player *element)
 {
     // Atualiza o quadro do jogador
-    element->current_frame = (element->current_frame + 1) % 69; // Cicla entre 0 e 68
+    element->current_frame = (element->current_frame + 1) % 69; // Cicla entre 0 e 68 quadros
 }
 
 void player_destroy(player *element)
 {
+    joystick_destroy(element->control); // Destrói o controle do jogador
     if (element)
     {
         if (element->sprite)
