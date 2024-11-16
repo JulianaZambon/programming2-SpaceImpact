@@ -3,16 +3,17 @@
 #include <allegro5/allegro_image.h>
 #include "jogador.h"
 
-player *player_create(unsigned char side, unsigned short x, unsigned short y, unsigned short max_x, unsigned short max_y)
+player *player_create(unsigned char side, unsigned short x, unsigned short y,
+                      unsigned short max_x, unsigned short max_y)
 {
     if ((x - side / 2 < 0) || (x + side / 2 > max_x) || (y - side / 2 < 0) || (y + side / 2 > max_y))
-        return NULL; // Verifica se a posição inicial é válida; caso não seja, retorna NULL
+        return NULL; // Verifica se a posição inicial é válida
 
     player *new_player = (player *)malloc(sizeof(player)); // Aloca memória na heap para um novo jogador
     if (!new_player)
-        return NULL; // Verifica se a alocação de memória foi bem-sucedida
+        return NULL;
 
-    new_player->side = side;                 // Insere o tamanho do lado de um quadrado
+    new_player->side = side;                 // Insere o tamanho do lado do jogador
     new_player->x = x;                       // Insere a posição inicial central de X
     new_player->y = y;                       // Insere a posição inicial central de Y
     new_player->control = joystick_create(); // Insere o elemento de controle na nave do jogador
@@ -25,10 +26,11 @@ player *player_create(unsigned char side, unsigned short x, unsigned short y, un
         return NULL;
     }
 
-    return new_player; // Retorna o novo jogador
+    return new_player;
 }
 
-void player_move(player *element, unsigned char steps, unsigned char trajectory, unsigned short max_x, unsigned short max_y)
+void player_move(player *element, unsigned char steps, unsigned char trajectory,
+                 unsigned short max_x, unsigned short max_y)
 {
     if (!trajectory)
     {
