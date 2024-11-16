@@ -86,6 +86,6 @@ void player_destroy(player *element)
         {
             al_destroy_bitmap(element->sprite); // Libera o sprite do jogador
         }
-        free(element); // Libera a memória do jogador na heap
+        free(element); 
     }
 }
