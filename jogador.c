@@ -3,7 +3,7 @@
 #include <allegro5/allegro_image.h>
 #include "jogador.h"
 
-player *player_create(unsigned char side, unsigned short x, unsigned short y,
+player *player_create(unsigned char side, unsigned char face, unsigned short x, unsigned short y,
                       unsigned short max_x, unsigned short max_y)
 {
     if ((x - side / 2 < 0) || (x + side / 2 > max_x) || (y - side / 2 < 0) || (y + side / 2 > max_y))
@@ -14,9 +14,11 @@ player *player_create(unsigned char side, unsigned short x, unsigned short y,
         return NULL;
 
     new_player->side = side;                 // Insere o tamanho do lado do jogador
+    new_player->face = face;                 // Insere a indicação da face principal do jogador
     new_player->x = x;                       // Insere a posição inicial central de X
     new_player->y = y;                       // Insere a posição inicial central de Y
     new_player->control = joystick_create(); // Insere o elemento de controle na nave do jogador
+    new_player->arma = arma_create();        // Insere o elemento de disparos do jogador
 
     // Carrega o sprite para o jogador
     new_player->sprite = al_load_bitmap("assets/jogador/sprite_jogador.png");
@@ -71,21 +73,29 @@ void player_draw(player *element)
                           element->x - sprite_width / 2, element->y - sprite_height / 2, 0);
 }
 
-void player_update(player *element)
+void player_shot(player *element)
 {
-    // Atualiza o quadro do jogador
-    element->current_frame = (element->current_frame + 1) % 69; // Cicla entre 0 e 68 quadros
+    projetil *shot;
+
+    if (!element->face) // Se a face for 0, o jogador atira para a esquerda
+        shot = arma_shot(element->x - element->side / 2, element->y, element->face, element->arma);
+    else if (element->face == 1) // Se a face for 1, o jogador atira para a direita
+        shot = arma_shot(element->x + element->side / 2, element->y, element->face, element->arma);
+    if (shot) // Se o tiro foi realizado com sucesso, insere na lista de tiros
+        element->arma->shots = shot;
 }
 
 void player_destroy(player *element)
 {
+    arma_destroy(element->arma);        // Destrói a arma do jogador
     joystick_destroy(element->control); // Destrói o controle do jogador
+
     if (element)
     {
         if (element->sprite)
         {
             al_destroy_bitmap(element->sprite); // Libera o sprite do jogador
         }
-        free(element); 
+        free(element);
     }
 }
