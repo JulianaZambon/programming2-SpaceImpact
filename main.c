@@ -75,7 +75,7 @@ int main()
     {
         al_wait_for_event(queue, &event);
 
-        if (event.type == 30)
+        if (event.type == ALLEGRO_EVENT_TIMER)
         {
             // Limpa a tela antes de desenhar
             al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -107,18 +107,45 @@ int main()
 
             al_flip_display();
         }
-        else if ((event.type == 10) || (event.type == 12))
-        { // Verifica se o evento é de botão do teclado abaixado ou levantado
-            if (event.keyboard.keycode == 1)
-                joystick_left(player_1->control); // Indica o evento correspondente no controle do primeiro jogador (botão de movimentação à esquerda)
-            else if (event.keyboard.keycode == 4)
-                joystick_right(player_1->control); // Indica o evento correspondente no controle do primeiro jogador (botão de movimentação à direita)
-            else if (event.keyboard.keycode == 23)
-                joystick_up(player_1->control); // Indica o evento correspondente no controle do primeiro jogador (botão de movimentação para cima)
-            else if (event.keyboard.keycode == 19)
-                joystick_down(player_1->control); // Indica o evento correspondente no controle do primeiro jogador (botão de movimentação para baixo) 																													//Indica o evento correspondente no controle do segundo jogador (botão de movimentação para baixo) (!)
+        else if (event.type == ALLEGRO_EVENT_KEY_UP || event.type == ALLEGRO_EVENT_KEY_DOWN)
+        {
+            if (event.keyboard.keycode == ALLEGRO_KEY_LEFT)
+            {
+                joystick_left(player_1->control);
+            }
+            else if (event.keyboard.keycode == ALLEGRO_KEY_RIGHT)
+            {
+                joystick_right(player_1->control);
+            }
+            else if (event.keyboard.keycode == ALLEGRO_KEY_UP)
+            {
+                joystick_up(player_1->control);
+            }
+            else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN)
+            {
+                joystick_down(player_1->control);
+            }
         }
-        else if (event.type == 42)
+        else if (event.type == ALLEGRO_EVENT_KEY_DOWN)
+        {
+            if (event.keyboard.keycode == ALLEGRO_KEY_LEFT)
+            {
+                joystick_left(player_1->control);
+            }
+            else if (event.keyboard.keycode == ALLEGRO_KEY_RIGHT)
+            {
+                joystick_right(player_1->control);
+            }
+            else if (event.keyboard.keycode == ALLEGRO_KEY_UP)
+            {
+                joystick_up(player_1->control);
+            }
+            else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN)
+            {
+                joystick_down(player_1->control);
+            }
+        }
+        else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
             break;
     }
 
