@@ -1,4 +1,4 @@
-// Compilação: gcc main.c jogador.c joystick.c -o SpaceImpact  $(pkg-config allegro-5 allegro_main-5 allegro_font-5 allegro_image-5 allegro_primitives-5 --libs --cflags)
+// Compilação: gcc main.c jogador.c joystick.c -o SpaceImpact $(pkg-config allegro-5 allegro_main-5 allegro_font-5 allegro_image-5 allegro_primitives-5 --libs --cflags)
 
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_font.h>
