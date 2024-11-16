@@ -136,7 +136,6 @@ int main()
     al_destroy_display(disp);
     al_destroy_timer(timer);
     al_destroy_event_queue(queue);
-    player_destroy(player_1); // Libera o jogador corretamente
-
+    player_destroy(player_1); 
     return 0;
 }
