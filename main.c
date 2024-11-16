@@ -10,77 +10,40 @@
 #define Y_SCREEN 640
 #define ANIMATION_DELAY_PLAYER 3 // Ajuste a velocidade da animação (quanto maior, mais lento)
 
+// Função para atualizar a posição do jogador conforme os comandos do controle
+void update_position(player *player_1)
+{
+    if (player_1->control->left)
+    {
+        player_move(player_1, 1, 0, X_SCREEN, Y_SCREEN);
+    }
+    if (player_1->control->right)
+    {
+        player_move(player_1, 1, 1, X_SCREEN, Y_SCREEN);
+    }
+    if (player_1->control->up)
+    {
+        player_move(player_1, 1, 2, X_SCREEN, Y_SCREEN);
+    }
+    if (player_1->control->down)
+    {
+        player_move(player_1, 1, 3, X_SCREEN, Y_SCREEN);
+    }
+}
+
 int main()
 {
-    // Inicializa os addons do Allegro e verifica se foram carregados corretamente
-    if (!al_init())
-    {
-        fprintf(stderr, "Falha ao inicializar o Allegro.\n");
-        return -1;
-    }
-
-    if (!al_init_image_addon())
-    {
-        fprintf(stderr, "Falha ao inicializar o addon de imagens.\n");
-        return -1;
-    }
-
-    if (!al_install_keyboard())
-    {
-        fprintf(stderr, "Falha ao instalar o teclado.\n");
-        return -1;
-    }
-
-    if (!al_init_primitives_addon())
-    {
-        fprintf(stderr, "Falha ao inicializar o addon de primitivas.\n");
-        return -1;
-    }
+    // Inicializa os addons do Allegro
+    al_init();
+    al_init_image_addon();
+    al_install_keyboard();
+    al_init_primitives_addon();
 
     ALLEGRO_TIMER *timer = al_create_timer(1.0 / 30.0); // Timer de 30 FPS
-    if (!timer)
-    {
-        fprintf(stderr, "Falha ao criar o timer.\n");
-        return -1;
-    }
-
     ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
-    if (!queue)
-    {
-        fprintf(stderr, "Falha ao criar a fila de eventos.\n");
-        al_destroy_timer(timer);
-        return -1;
-    }
-
     ALLEGRO_FONT *font = al_create_builtin_font();
-    if (!font)
-    {
-        fprintf(stderr, "Falha ao criar a fonte.\n");
-        al_destroy_event_queue(queue);
-        al_destroy_timer(timer);
-        return -1;
-    }
-
     ALLEGRO_DISPLAY *disp = al_create_display(X_SCREEN, Y_SCREEN);
-    if (!disp)
-    {
-        fprintf(stderr, "Falha ao criar a tela.\n");
-        al_destroy_font(font);
-        al_destroy_event_queue(queue);
-        al_destroy_timer(timer);
-        return -1;
-    }
-
     ALLEGRO_BITMAP *background = al_load_bitmap("assets/cenarios/cenario2.png");
-    if (!background)
-    {
-        fprintf(stderr, "Erro ao carregar a imagem de fundo.\n");
-        al_destroy_display(disp);
-        al_destroy_font(font);
-        al_destroy_event_queue(queue);
-        al_destroy_timer(timer);
-        return -1;
-    }
 
     float background_x = 0; // Posição inicial da imagem de fundo
 
@@ -112,7 +75,7 @@ int main()
     {
         al_wait_for_event(queue, &event);
 
-        if (event.type == ALLEGRO_EVENT_TIMER)
+        if (event.type == 30)
         {
             // Limpa a tela antes de desenhar
             al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -144,10 +107,19 @@ int main()
 
             al_flip_display();
         }
-        else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
-        {
-            break;
+        else if ((event.type == 10) || (event.type == 12))
+        { // Verifica se o evento é de botão do teclado abaixado ou levantado
+            if (event.keyboard.keycode == 1)
+                joystick_left(player_1->control); // Indica o evento correspondente no controle do primeiro jogador (botão de movimentação à esquerda)
+            else if (event.keyboard.keycode == 4)
+                joystick_right(player_1->control); // Indica o evento correspondente no controle do primeiro jogador (botão de movimentação à direita)
+            else if (event.keyboard.keycode == 23)
+                joystick_up(player_1->control); // Indica o evento correspondente no controle do primeiro jogador (botão de movimentação para cima)
+            else if (event.keyboard.keycode == 19)
+                joystick_down(player_1->control); // Indica o evento correspondente no controle do primeiro jogador (botão de movimentação para baixo) 																													//Indica o evento correspondente no controle do segundo jogador (botão de movimentação para baixo) (!)
         }
+        else if (event.type == 42)
+            break;
     }
 
     // Libera recursos
