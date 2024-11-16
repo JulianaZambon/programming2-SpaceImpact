@@ -10,6 +10,20 @@
 #define Y_SCREEN 640
 #define ANIMATION_DELAY_PLAYER 3 // Ajuste a velocidade da animação (quanto maior, mais lento)
 
+// // Função para verificar a colisão entre o jogador e os inimigos
+// unsigned char collision_2D(player *element_first, enemy *element_second);
+
+// // função que verifica se um projétil acertou um inimigo ou chefe
+// unsigned char check_kill(player *killer, enemy *victim);
+
+// // função que atualiza o posicionamento de projéteis conforme o movimento dos mesmos
+// void update_projeteis(player *player_1);
+
+// // Função para atualizar a posição do jogador conforme os comandos do controle e conforme colisões
+// void update_position(player *player_1, enemy *enemy_1, enemy *enemy_2, boss *boss_1);
+
+/*----------------------------------------------------------------------------------*/
+
 // Função para atualizar a posição do jogador conforme os comandos do controle
 void update_position(player *player_1)
 {
@@ -55,7 +69,7 @@ int main()
     al_register_event_source(queue, al_get_timer_event_source(timer));
 
     // Cria o jogador
-    player *player_1 = player_create(60, 80, 300, X_SCREEN, Y_SCREEN);
+    player *player_1 = player_create(20, 60, 80, Y_SCREEN / 2, X_SCREEN, Y_SCREEN);
     if (!player_1 || !(player_1->sprite = al_load_bitmap("assets/jogador/sprite_jogador.png")))
     {
         fprintf(stderr, "Erro ao criar o jogador 1 ou carregar o sprite.\n");
