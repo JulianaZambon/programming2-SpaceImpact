@@ -4,6 +4,8 @@
 #include <allegro5/allegro.h> // Inclusão necessária para usar ALLEGRO_BITMAP
 #include "arma.h"             // Inclusão necessária para usar a estrutura arma
 
+#define NUM_INIMIGOS 4
+
 typedef struct
 {
     unsigned char side;           // Tamanho da lateral de um inimigo
