@@ -1,5 +1,3 @@
-// Compilação: gcc main.c jogador.c joystick.c -o SpaceImpact $(pkg-config allegro-5 allegro_main-5 allegro_font-5 allegro_image-5 allegro_primitives-5 --libs --cflags)
-
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_image.h>
@@ -7,6 +5,7 @@
 #include <stdio.h>
 
 #include "jogador.h"
+#include "inimigos.h"
 
 #define X_SCREEN 1140
 #define Y_SCREEN 640
@@ -83,6 +82,21 @@ int main()
         return -1;
     }
 
+    // Cria os inimigos
+    enemy *enemy_1 = enemy_create(20, 60, X_SCREEN - 20, Y_SCREEN / 2, 0, X_SCREEN, Y_SCREEN);
+    if (!enemy_1 || !(enemy_1->enemy_sprite = al_load_bitmap("assets/inimigos/fase1/sprite-enemy2.png")))
+    {
+        fprintf(stderr, "Erro ao criar o inimigo 1 ou carregar o sprite.\n");
+        al_destroy_bitmap(player_1->sprite);
+        al_destroy_bitmap(background);
+        al_destroy_display(disp);
+        al_destroy_font(font);
+        al_destroy_event_queue(queue);
+        al_destroy_timer(timer);
+        player_destroy(player_1);
+        return -1;
+    }
+
     ALLEGRO_EVENT event;
     al_start_timer(timer);
 
@@ -127,6 +141,12 @@ int main()
 
             // Chama a função para desenhar o jogador
             player_draw(player_1);
+
+            // Move o inimigo 
+            enemy_move(enemy_1, 1, 0, X_SCREEN, Y_SCREEN);
+
+            // Chama a função para desenhar o inimigo
+            enemy_draw(enemy_1);
 
             al_flip_display();
         }
