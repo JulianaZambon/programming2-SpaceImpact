@@ -3,13 +3,12 @@
 #include <allegro5/allegro_image.h>
 #include "jogador.h"
 
-player *player_create(unsigned char side, unsigned char face, unsigned short x, unsigned short y,
-                      unsigned short max_x, unsigned short max_y)
+player *player_create(unsigned char side, unsigned char face, short x, unsigned short y, unsigned short max_x, unsigned short max_y)
 {
     if ((x - side / 2 < 0) || (x + side / 2 > max_x) || (y - side / 2 < 0) || (y + side / 2 > max_y))
         return NULL; // Verifica se a posição inicial é válida
 
-    player *new_player = (player *)malloc(sizeof(player)); // Aloca memória na heap para um novo jogador
+    player *new_player = (player *)malloc(sizeof(*new_player)); // Aloca memória na heap para um novo jogador
     if (!new_player)
         return NULL;
 
