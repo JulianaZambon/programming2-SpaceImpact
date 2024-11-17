@@ -13,8 +13,6 @@ typedef struct
     ALLEGRO_BITMAP *background;  // Imagem de fundo
 } fase;
 
-// função de criação do loop do background
-void draw_moving_background(ALLEGRO_BITMAP *background, float *offset, float speed, int screen_width);
 // função de criação da fase 1
 fase *criar_fase1();
 // função de criação da fase 2
