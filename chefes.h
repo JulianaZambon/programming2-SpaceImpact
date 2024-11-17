@@ -8,14 +8,15 @@
 
 typedef struct
 {
-    unsigned char side;          // Tamanho da lateral de um chefe
-    unsigned char face;          // A face principal do chefe, algo como a sua "frente"
-    unsigned char hp;            // Quantidade de vida do chefe (HP maior que dos inimigos)
-    unsigned short x;            // Posição X do centro do chefe
-    unsigned short y;            // Posição Y do centro do chefe
-    int type;                    // Tipo de chefe (diferencia os 2 chefes)
-    ALLEGRO_BITMAP *boss_sprite; // Sprite do chefe
-    arma *arma;                  // Elemento para realizar disparos no jogo
+    unsigned char side;           // Tamanho da lateral de um chefe
+    unsigned char face;           // A face principal do chefe, algo como a sua "frente"
+    unsigned char hp;             // Quantidade de vida do chefe (HP maior que dos inimigos)
+    unsigned short x;             // Posição X do centro do chefe
+    unsigned short y;             // Posição Y do centro do chefe
+    int type;                     // Tipo de chefe (diferencia os 2 chefes)
+    ALLEGRO_BITMAP *boss_sprite;  // Sprite do chefe
+    unsigned short current_frame; // Quadro atual (índice no sprite sheet)
+    arma *arma;                   // Elemento para realizar disparos no jogo
 } boss;
 
 // função de criação de um chefe
