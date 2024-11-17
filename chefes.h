@@ -4,11 +4,13 @@
 #include <allegro5/allegro.h> // Inclusão necessária para usar ALLEGRO_BITMAP
 #include "arma.h"             // Inclusão necessária para usar a estrutura arma
 
+#define NUM_BOSSES 2
+
 typedef struct
 {
     unsigned char side;          // Tamanho da lateral de um chefe
     unsigned char face;          // A face principal do chefe, algo como a sua "frente"
-    unsigned char hp;            // Quantidade de vida do chefe, em unidades
+    unsigned char hp;            // Quantidade de vida do chefe (HP maior que dos inimigos)
     unsigned short x;            // Posição X do centro do chefe
     unsigned short y;            // Posição Y do centro do chefe
     int type;                    // Tipo de chefe (diferencia os 2 chefes)
