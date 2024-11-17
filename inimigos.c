@@ -17,7 +17,34 @@ enemy *create_enemy(float x, float y, float speed, int hp, int type, const char 
     new_enemy->speed = speed;
     new_enemy->hp = hp;
     new_enemy->type = type;
-    new_enemy->sprite = al_load_bitmap(sprite_path);
+    
+    // sprites dos inimigos de acordo com o tipo
+    switch (type) {
+        // fase 1
+        case 0:
+            new_enemy->sprite = al_load_bitmap("assets/inimigos/fase1/sprite-enemy2.png");
+            break;
+        case 1:
+            new_enemy->sprite = al_load_bitmap("assets/inimigos/fase1/sprite-enemy4.png");
+            break;
+        // fase 2
+        case 2:
+            new_enemy->sprite = al_load_bitmap("assets/inimigos/fase2/sprite-enemy.png");
+            break;
+        case 3:
+            new_enemy->sprite = al_load_bitmap("assets/inimigos/fase2/sprite-enemy3.png");
+            break;
+        default:
+            fprintf(stderr, "Tipo de inimigo desconhecido.\n");
+            free(new_enemy);
+            return NULL;
+    }
+
+    if (!new_enemy->sprite) {
+        fprintf(stderr, "Erro ao carregar o sprite do inimigo do tipo %d.\n", type);
+        free(new_enemy);
+        return NULL;
+    }
 
     return new_enemy;
 }
