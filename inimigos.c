@@ -18,7 +18,7 @@ enemy *enemy_create(unsigned char side, unsigned char face, short x, unsigned sh
     if ((x - side / 2 < 0) || (x + side / 2 > max_x) || (y - side / 2 < 0) || (y + side / 2 > max_y))
         return NULL; // Verifica se a posição inicial é válida
 
-    enemy *new_enemy = (enemy *)malloc(sizeof(*new_enemy)); // Aloca memória na heap para um novo inimigo
+    enemy *new_enemy = (enemy *)malloc(sizeof(enemy)); // Aloca memória na heap para um novo inimigo
     if (!new_enemy)
         return NULL;
 
@@ -50,7 +50,9 @@ enemy *enemy_create(unsigned char side, unsigned char face, short x, unsigned sh
 
     if (!new_enemy->enemy_sprite)
     {
-        free(new_enemy); // Libera a memória caso o carregamento do sprite falhe
+        al_destroy_bitmap(new_enemy->enemy_sprite); // Libera a memória alocada para o sprite
+        arma_destroy(new_enemy->arma);              // Libera a memória alocada para a arma
+        free(new_enemy);                            // Libera a memória alocada para o inimigo
         return NULL;
     }
 
@@ -66,31 +68,53 @@ void enemy_move(enemy *element, unsigned char steps, unsigned char trajectory, u
     switch (element->type)
     {
     case 0: // Tipo 0 de inimigo
-        // Padrão de movimentação: mover para a esquerda
+        // Verifica movimento para a esquerda
         if ((element->x - steps * ENEMY_STEP) - element->side / 2 >= 0)
-            element->x = element->x - steps * ENEMY_STEP;
+            element->x -= steps * ENEMY_STEP;
+
+        // Verifica limite à direita
+        if ((element->x + element->side / 2) > max_x)
+            element->x = max_x - element->side / 2;
         break;
 
     case 1: // Tipo 1 de inimigo
-        // Padrão de movimentação: mover para a esquerda
+        // Verifica movimento para a esquerda
         if ((element->x - steps * ENEMY1_STEP) - element->side / 2 >= 0)
-            element->x = element->x - steps * ENEMY1_STEP;
+            element->x -= steps * ENEMY1_STEP;
+
+        // Verifica limite à direita
+        if ((element->x + element->side / 2) > max_x)
+            element->x = max_x - element->side / 2;
         break;
 
-        // FASE 02
-
-    case 2: // Tipo 2 de inimigo
-        // Padrão de movimentação: mover para cima e para baixo em direção ao jogador (esquerda)
+    case 2: // Tipo 2 de inimigo (movimento horizontal e vertical)
+        // Verifica movimento para a esquerda
         if ((element->x - steps * ENEMY2_STEP) - element->side / 2 >= 0)
-            element->x = element->x - steps * ENEMY2_STEP;
+            element->x -= steps * ENEMY2_STEP;
+        // Verifica limite à direita
+        if ((element->x + element->side / 2) > max_x)
+            element->x = max_x - element->side / 2;
+
+        // Verifica movimento para cima
         if ((element->y - steps * ENEMY2_STEP) - element->side / 2 >= 0)
-            element->y = element->y - steps * ENEMY2_STEP;
+            element->y -= steps * ENEMY2_STEP;
+        // Verifica movimento para baixo
+        if ((element->y + element->side / 2) < max_y)
+            element->y += steps * ENEMY2_STEP;
+
+        // Verifica limite inferior
+        if ((element->y + element->side / 2) > max_y)
+            element->y = max_y - element->side / 2;
         break;
 
     case 3: // Tipo 3 de inimigo
-        // Padrão de movimentação: mover para a esquerda
+        // Verifica movimento para a esquerda
         if ((element->x - steps * ENEMY3_STEP) - element->side / 2 >= 0)
-            element->x = element->x - steps * ENEMY3_STEP;
+            element->x -= steps * ENEMY3_STEP;
+
+        // Verifica limite à direita
+        if ((element->x + element->side / 2) > max_x)
+            element->x = max_x - element->side / 2;
         break;
 
     default:
@@ -98,20 +122,71 @@ void enemy_move(enemy *element, unsigned char steps, unsigned char trajectory, u
     }
 }
 
+// Função para desenhar o inimigo na tela com o recorte correto do sprite
 void enemy_draw(enemy *element)
 {
-    if (element && element->enemy_sprite)
+    // FASE 01
+    //  INIMIGO 01 DA FASE 01
+    // Definições do tamanho de cada quadro no sprite sheet
+    int sprite_width = 100;  // Largura do quadro no sprite sheet
+    int sprite_height = 100; // Altura do quadro no sprite sheet
+
+    // Calcula a posição do quadro no sprite sheet
+    int frame_x = (element->current_frame % 5) * sprite_width;  // Coluna
+    int frame_y = (element->current_frame / 5) * sprite_height; // Linha
+
+    //  INIMIGO 02 DA FASE 01
+    int sprite1_width = 110;
+    int sprite1_height = 110;
+
+    int frame1_x = (element->current_frame % 4) * sprite_width;
+    int frame1_y = (element->current_frame / 4) * sprite_height;
+    /*------------------------------------------------------------------------------*/
+    // FASE 02
+    //  INIMIGO 01 DA FASE 02
+    int sprite2_width = 118;
+    int sprite2_height = 118;
+
+    int frame2_x = (element->current_frame % 6) * sprite_width;
+    int frame2_y = (element->current_frame / 6) * sprite_height;
+
+    //  INIMIGO 02 DA FASE 02
+    int sprite3_width = 110;
+    int sprite3_height = 110;
+
+    int frame3_x = (element->current_frame % 4) * sprite_width;
+    int frame3_y = (element->current_frame / 4) * sprite_height;
+    /*------------------------------------------------------------------------------*/
+
+    switch (element->type)
     {
-        al_draw_bitmap(element->enemy_sprite, element->x - element->side / 2, element->y - element->side / 2, 0);
+    case 0:
+        al_draw_bitmap_region(element->enemy_sprite, frame_x, frame_y, sprite_width, sprite_height,
+                       element->x - sprite_width / 2, element->y - sprite_height / 2, 0);
+        break;
+    case 1:
+        al_draw_bitmap_region(element->enemy_sprite, frame1_x, frame1_y, sprite1_width, sprite1_height,
+                       element->x - sprite1_width / 2, element->y - sprite1_height / 2, 0);
+        break;
+    case 2:
+        al_draw_bitmap_region(element->enemy_sprite, frame2_x, frame2_y, sprite2_width, sprite2_height,
+                       element->x - sprite2_width / 2, element->y - sprite2_height / 2, 0);
+        break;
+    case 3:
+        al_draw_bitmap_region(element->enemy_sprite, frame3_x, frame3_y, sprite3_width, sprite3_height,
+                       element->x - sprite3_width / 2, element->y - sprite3_height / 2, 0);
+        break;
+    default:
+        break;
     }
 }
 
 void enemy_shot(enemy *element)
 {
-    if (element && element->arma)
-    {
-        arma_shot(element->arma, element->x, element->y, element->face);
-    }
+    if (!element)
+        return;
+
+    arma_shot(element->x, element->y, element->face, element->arma);
 }
 
 void enemy_destroy(enemy *element)
