@@ -1,24 +1,30 @@
 #ifndef __CHEFES__ // Guardas de inclusão
 #define __CHEFES__ // Guardas de inclusão
 
+#include <allegro5/allegro.h> // Inclusão necessária para usar ALLEGRO_BITMAP
+#include "arma.h"             // Inclusão necessária para usar a estrutura arma
+
 typedef struct
 {
-    float x;                // Posição X do chefe
-    float y;                // Posição Y do chefe
-    float speed;            // Velocidade do movimento
-    int hp;                 // Pontos de vida (mais altos que os inimigos comuns)
-    int damage;             // Dano causado pelo chefe
-    ALLEGRO_BITMAP *sprite; // Sprite do chefe
-    int phase;              // Indica a fase do chefe (ex: fase 1 ou 2)
+    unsigned char side;          // Tamanho da lateral de um chefe
+    unsigned char face;          // A face principal do chefe, algo como a sua "frente"
+    unsigned char hp;            // Quantidade de vida do chefe, em unidades
+    unsigned short x;            // Posição X do centro do chefe
+    unsigned short y;            // Posição Y do centro do chefe
+    int type;                    // Tipo de chefe (diferencia os 2 chefes)
+    ALLEGRO_BITMAP *boss_sprite; // Sprite do chefe
+    arma *arma;                  // Elemento para realizar disparos no jogo
 } boss;
 
-// Função para criar o chefe
-void create_boss(boss *b, float x, float y, float speed, int hp, int damage, const char *sprite_path);
-// Função para desenhar o chefe
-void draw_boss(const boss *b);
-// Função para mover o chefe
-void move_boss(boss *b);
-// Função para destruir o chefe
-void destroy_boss(boss *b);
+// função de criação de um chefe
+boss *boss_create(unsigned char side, unsigned char face, short x, unsigned short y, unsigned short max_x, unsigned short max_y);
+// função de movimentação do chefe
+void boss_move(boss *element, unsigned char steps, unsigned char trajectory, unsigned short max_x, unsigned short max_y);
+// função de desenho do chefe
+void boss_draw(boss *element);
+// funcao de disparo do chefe
+void boss_shot(boss *element);
+// função de destruição do chefe
+void boss_destroy(boss *element);
 
 #endif // Guardas de inclusão
