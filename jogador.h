@@ -12,6 +12,7 @@ typedef struct
 {
 	unsigned char side;			  // Tamanho da lateral de um jogador
 	unsigned char face;			  // A face principal do jogador, algo como a sua "frente"
+	unsigned char hp;			  // Quantidade de vida do jogador, em unidades 
 	unsigned short x;			  // Posição X do centro do jogador
 	unsigned short y;			  // Posição Y do centro do jogador
 	ALLEGRO_BITMAP *sprite;		  // Adicionado: ponteiro para o sprite do jogador
