@@ -2,12 +2,13 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <stdio.h>
+#include <math.h>
 
 #include "inimigos.h"
 
 // Define o passo de movimentação dos inimigos
 // fase 1
-#define ENEMY_STEP 20
+#define ENEMY_STEP 2
 #define ENEMY1_STEP 30
 // fase 2
 #define ENEMY2_STEP 35
@@ -67,52 +68,53 @@ void enemy_move(enemy *element, unsigned char steps, unsigned char trajectory, u
 
     switch (element->type)
     {
-    case 0: // Tipo 0 de inimigo
-        // Verifica movimento para a esquerda
+    case 0: // Tipo 0 de inimigo (movimento simples para a esquerda)
         if ((element->x - steps * ENEMY_STEP) - element->side / 2 >= 0)
             element->x -= steps * ENEMY_STEP;
-
-        // Verifica limite à direita
         if ((element->x + element->side / 2) > max_x)
             element->x = max_x - element->side / 2;
         break;
 
-    case 1: // Tipo 1 de inimigo
-        // Verifica movimento para a esquerda
-        if ((element->x - steps * ENEMY1_STEP) - element->side / 2 >= 0)
+    case 1: // Tipo 1 de inimigo (movimento de vai-e-vem horizontal)
+        if (trajectory % 2 == 0)
+        {
+            // Movendo para a direita
+            element->x += steps * ENEMY1_STEP;
+            if ((element->x + element->side / 2) > max_x)
+            {
+                element->x = max_x - element->side / 2;
+                trajectory++; // Muda a direção
+            }
+        }
+        else
+        {
+            // Movendo para a esquerda
             element->x -= steps * ENEMY1_STEP;
+            if ((element->x - element->side / 2) <= 0)
+            {
+                element->x = element->side / 2;
+                trajectory++; // Muda a direção
+            }
+        }
+        break;
 
-        // Verifica limite à direita
+    case 2: // Tipo 2 de inimigo (movimento sinusoidal)
+        element->x += steps * ENEMY2_STEP;
+        element->y = (unsigned short)(max_y / 2 + 50 * sin(element->x * 0.1)); // Movimento em onda
+
         if ((element->x + element->side / 2) > max_x)
             element->x = max_x - element->side / 2;
         break;
 
-    case 2: // Tipo 2 de inimigo (movimento horizontal e vertical)
-        // Verifica movimento para a esquerda
-        if ((element->x - steps * ENEMY2_STEP) - element->side / 2 >= 0)
-            element->x -= steps * ENEMY2_STEP;
-        // Verifica limite à direita
-        if ((element->x + element->side / 2) > max_x)
-            element->x = max_x - element->side / 2;
-
-        // Verifica movimento para cima
-        if ((element->y - steps * ENEMY2_STEP) - element->side / 2 >= 0)
-            element->y -= steps * ENEMY2_STEP;
-        // Verifica movimento para baixo
-        if ((element->y + element->side / 2) < max_y)
-            element->y += steps * ENEMY2_STEP;
-
-        // Verifica limite inferior
-        if ((element->y + element->side / 2) > max_y)
-            element->y = max_y - element->side / 2;
-        break;
-
-    case 3: // Tipo 3 de inimigo
-        // Verifica movimento para a esquerda
-        if ((element->x - steps * ENEMY3_STEP) - element->side / 2 >= 0)
+    case 3: // Tipo 3 de inimigo (movimento aleatório ou zig-zag)
+        if (rand() % 2 == 0)
+            element->x += steps * ENEMY3_STEP;
+        else
             element->x -= steps * ENEMY3_STEP;
 
-        // Verifica limite à direita
+        // Limites horizontais
+        if ((element->x - element->side / 2) < 0)
+            element->x = element->side / 2;
         if ((element->x + element->side / 2) > max_x)
             element->x = max_x - element->side / 2;
         break;
