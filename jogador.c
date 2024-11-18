@@ -14,6 +14,7 @@ player *player_create(unsigned char side, unsigned char face, short x, unsigned 
 
     new_player->side = side;                 // Insere o tamanho do lado do jogador
     new_player->face = face;                 // Insere a indicação da face principal do jogador
+    new_player->hp = 5;                      // Insere o total de pontos de vida de um jogador
     new_player->x = x;                       // Insere a posição inicial central de X
     new_player->y = y;                       // Insere a posição inicial central de Y
     new_player->control = joystick_create(); // Insere o elemento de controle na nave do jogador
