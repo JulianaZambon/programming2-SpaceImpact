@@ -4,7 +4,7 @@
 - `arma.h` ok
 <br>
 
-- `chefes.c` ok, funcionando (acho)!
+- `chefes.c` ok, (falta fazer ele andar sozinho)
 - `chefes.h` ok
 <br>
 
