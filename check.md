@@ -4,11 +4,11 @@
 - `arma.h` ok
 <br>
 
-- `chefes.c`
+- `chefes.c` ok, funcionando (acho)!
 - `chefes.h` ok
 <br>
 
-- `configuracoes.h`
+- `configuracoes.h` atualizando!
 <br>
 
 - `fase1.c`
@@ -16,7 +16,7 @@
 - `fases.h`
 <br>
 
-- `inimigos.c`
+- `inimigos.c` ok, funcionando (acho)!
 - `inimigos.h` ok
 <br>
  
