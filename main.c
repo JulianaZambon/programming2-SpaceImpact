@@ -42,7 +42,7 @@ void update_projeteis(player *player_1)
     }
 }
 
-// Função para atualizar a posição do jogador
+// Função que atualiza a posição do jogador conforme os comandos do controle
 void update_position(player *player_1)
 {
     if (player_1->control->left)
@@ -106,7 +106,7 @@ int main()
     player_1->sprite = al_load_bitmap("assets/jogador/sprite_jogador.png");
     if (!player_1)
         return 1;
-    
+
     // Variáveis de controle da animação do sprite do jogador
     int animation_counter = 0;
     player_1->current_frame = 0;
