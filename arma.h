@@ -1,17 +1,21 @@
-#ifndef __ARMA__ 																												//Guardas de inclusão (!)
-#define __ARMA__																												//Guardas de inclusão (!)
+#ifndef __ARMA__ // Guardas de inclusão
+#define __ARMA__ // Guardas de inclusão
 
 #include "projetil.h"
 
-#define ARMA_COOLDOWN 10																										//Tamanho, em frames, do tempo entre um tiro e outro (!)
+#define ARMA_COOLDOWN 10  //Tamanho, em frames, do tempo entre um tiro e outro
 
-typedef struct {																												//Definição da estrutura de uma armaa (!)
-	unsigned char timer;																										//Relógio de intervalo entre tiros (!)
-	projetil *shots;																												//Lista de balas ativas no campo disparadas pelas arma	 (!)
-} arma;																														//Definição do nome da estrutura (!)
+typedef struct
+{
+	unsigned char timer; // Relógio de intervalo entre tiros
+	projetil *shots;	 // Lista de balas ativas no campo disparadas pelas arma
+} arma;
 
-arma* arma_create();																										//Protótipo da função de criação de uma armaa (!)
-projetil* arma_shot(unsigned short x, unsigned short y, unsigned char trajectory, arma *gun);									//Protótipo da função de disparo de uma armaa (!)
-void arma_destroy(arma *element);																							//Protótipo da função de destruição de uma armaa (!)
+// função de criação de uma arma
+arma *arma_create();
+// função de disparo de uma arma
+projetil *arma_shot(unsigned short x, unsigned short y, unsigned char trajectory, arma *gun);
+// função de destruição de uma arma
+void arma_destroy(arma *element);
 
-#endif																															//Guardas de inclusão (!)
+#endif // Guardas de inclusão
