@@ -1,6 +1,6 @@
 ## Desenvolvimento dos Módulos
 
-- `arma.c` ok, funcionando!
+- `arma.c` 
 - `arma.h` ok
 <br>
 
@@ -31,5 +31,5 @@
 - `main.c`
 <br>
 
-- `projetil.c` ok, funcionando!
+- `projetil.c`
 - `projetil.h` ok
