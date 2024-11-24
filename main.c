@@ -47,29 +47,28 @@ void update_position(player *player_1)
 {
     if (player_1->control->left)
     {
-        player_move(player_1, 1, 0, X_SCREEN, Y_SCREEN); // corrigir limites da tela
+        player_move(player_1, 1, 0, X_SCREEN, Y_SCREEN);
     }
     if (player_1->control->right)
     {
-        player_move(player_1, 1, 1, X_SCREEN - 40, Y_SCREEN - 40);
+        player_move(player_1, 1, 1, X_SCREEN, Y_SCREEN);
     }
     if (player_1->control->up)
     {
-        player_move(player_1, 1, 2, X_SCREEN, Y_SCREEN); // corrigir limites da tela
+        player_move(player_1, 1, 2, X_SCREEN, Y_SCREEN); 
     }
     if (player_1->control->down)
     {
-        player_move(player_1, 1, 3, X_SCREEN - 40, Y_SCREEN - 40);
+        player_move(player_1, 1, 3, X_SCREEN, Y_SCREEN);
     }
-    if (player_1->control->fire)
-    { // Verifica se o primeiro jogador está atirando
-        if (!player_1->arma->timer)
-        {                                          // Verifica se a arma do jogador não está em cooldown
+    if (player_1->control->fire) // Verifica se o jogador está atirando
+    { 
+        if (!player_1->arma->timer) // Verifica se a arma do jogador não está em cooldown
+        {                                          
             player_shot(player_1);                 // Se não estiver, faz um disparo
             player_1->arma->timer = ARMA_COOLDOWN; // Inicia o cooldown da arma
         }
     }
-
     update_projeteis(player_1); // Atualiza os disparos do jogador
 }
 
@@ -143,6 +142,14 @@ int main()
 
             player_draw(player_1); // Desenha o jogador na tela
 
+            // Desenha os projéteis na tela
+            for (projetil *index = player_1->arma->shots; index != NULL; index = (projetil *)index->next)
+            {
+                al_draw_filled_circle(index->x, index->y, 2, al_map_rgb(255, 0, 0)); // Desenha o projétil
+            }
+
+            update_projeteis(player_1);
+
             al_flip_display(); // Insere as modificações realizadas nos buffers de tela
         }
 
@@ -155,7 +162,6 @@ int main()
         //     if (player_1->arma->timer)
         //         player_1->arma->timer--; // Atualiza o cooldown da arma do primeiro jogador
         // }
-
 
         // Eventos de teclado para mover o jogador
         else if (event.type == ALLEGRO_EVENT_KEY_UP || event.type == ALLEGRO_EVENT_KEY_DOWN) // Verifica se o evento é de botão do teclado abaixado ou levantado
@@ -174,7 +180,7 @@ int main()
             case ALLEGRO_KEY_DOWN:
                 joystick_down(player_1->control);
                 break;
-            case ALLEGRO_KEY_W:
+            case ALLEGRO_KEY_0:
                 joystick_fire(player_1->control);
                 break;
             }
