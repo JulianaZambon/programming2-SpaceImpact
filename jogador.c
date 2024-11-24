@@ -1,7 +1,10 @@
 #include <stdlib.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
+#include <stdio.h>
+
 #include "jogador.h"
+#include "configuracoes.h"
 
 player *player_create(unsigned char side, unsigned char face, short x, unsigned short y, unsigned short max_x, unsigned short max_y)
 {
@@ -31,29 +34,28 @@ player *player_create(unsigned char side, unsigned char face, short x, unsigned 
     return new_player;
 }
 
-void player_move(player *element, unsigned char steps, unsigned char trajectory,
-                 unsigned short max_x, unsigned short max_y)
+void player_move(player *element, char steps, unsigned char trajectory, unsigned short max_x, unsigned short max_y)
 {
     if (!trajectory)
     {
-        if ((element->x - steps * PLAYER_STEP) - element->side / 2 >= 0)
+        if ((element->x - steps * PLAYER_STEP) - 189 / 2 >= 0)
             element->x = element->x - steps * PLAYER_STEP;
-    }
+    } // Verifica se a movimentação para a esquerda é desejada e possível; se sim, efetiva a mesma
     else if (trajectory == 1)
     {
-        if ((element->x + steps * PLAYER_STEP) + element->side / 2 <= max_x)
+        if ((element->x + steps * PLAYER_STEP) + 90 / 2 <= max_x)
             element->x = element->x + steps * PLAYER_STEP;
-    }
+    } // Verifica se a movimentação para a direita é desejada e possível; se sim, efetiva a mesma
     else if (trajectory == 2)
     {
-        if ((element->y - steps * PLAYER_STEP) - element->side / 2 >= 0)
+        if ((element->y - steps * PLAYER_STEP) - 90 / 2 >= 0)
             element->y = element->y - steps * PLAYER_STEP;
-    }
+    } // Verifica se a movimentação para cima é desejada e possível; se sim, efetiva a mesma
     else if (trajectory == 3)
     {
-        if ((element->y + steps * PLAYER_STEP) + element->side / 2 <= max_y)
+        if ((element->y + steps * PLAYER_STEP) + 90 / 2 <= max_y)
             element->y = element->y + steps * PLAYER_STEP;
-    }
+    } // Verifica se a movimentação para baixo é desejada e possível; se sim, efetiva a mesma
 }
 
 // Função para desenhar o jogador na tela com o recorte correto do sprite
