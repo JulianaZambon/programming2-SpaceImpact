@@ -75,33 +75,14 @@ void player_draw(player *element)
                           element->x - sprite_width / 2, element->y - sprite_height / 2, 0);
 }
 
+// Função para realizar o disparo do jogador
 void player_shot(player *element)
 {
-    // Verifica se a arma está inicializada
-    if (!element->arma) {
-        fprintf(stderr, "Erro: Arma não inicializada.\n");
-        return;
+    if (!element->arma->timer)
+    { // Verifica se a arma do jogador está pronta para disparar
+        arma_shot(element->x, element->y, element->face, element->arma); // Realiza o disparo
+        element->arma->timer = ARMA_COOLDOWN;                          // Inicia o cooldown da arma
     }
-
-    // Determina a posição inicial do projétil com base na direção do jogador
-    projetil *shot = NULL;
-    if (element->face == 0) // Se a face for 0, atira para a esquerda
-        shot = arma_shot(element->x - element->side / 2, element->y, element->face, element->arma);
-    else if (element->face == 1) // Se a face for 1, atira para a direita
-        shot = arma_shot(element->x + element->side / 2, element->y, element->face, element->arma);
-
-    if (!shot) {
-        fprintf(stderr, "Erro: Falha ao criar o projétil.\n");
-        return;
-    }
-
-    // Insere o novo projétil na lista de tiros da arma
-    // Conecta o projétil novo ao início da lista
-    shot->next = element->arma->shots;
-    element->arma->shots = shot;
-
-    fprintf(stderr, "Projétil criado na posição (%d, %d) na direção %d.\n", 
-            shot->x, shot->y, shot->trajectory);
 }
 
 void player_destroy(player *element)
