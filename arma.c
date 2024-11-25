@@ -17,15 +17,26 @@ projetil *arma_shot(unsigned short x, unsigned short y, unsigned char trajectory
 {
     projetil *new_projetil = projetil_create(x, y, trajectory, gun->shots); // Cria uma nova instância de projétil a ser disparado
     if (!new_projetil)
-        return NULL; // Verifica o sucesso da alocação de memória; retorna NULL em caso de falha
-    return new_projetil;
+        return NULL;     // Verifica o sucesso da alocação de memória; retorna NULL em caso de falha
+    return new_projetil; // Retorna uma nova instância de projétil
+}
+
+void update_arma(arma *gun)
+{
+    if (!gun)
+        return;
+
+    if (gun->timer > 0)
+    {
+        gun->timer--; // Diminui o cooldown a cada frame
+    }
 }
 
 void arma_destroy(arma *element)
 {
-    projetil *sentinel = NULL; 
+    projetil *sentinel = NULL;
     for (projetil *index = element->shots; index != NULL; index = sentinel)
-    {                                       
+    {
         sentinel = (projetil *)index->next; // Armazena o próximo projétil
         projetil_destroy(index);            // Chama o destrutor do projétil atual
     }
