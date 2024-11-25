@@ -13,6 +13,7 @@ projetil *projetil_create(unsigned short x, unsigned short y, unsigned char traj
     new_projetil->y = y;                          // Armazena a posição Y informada
     new_projetil->trajectory = trajectory;        // Armazena a trajetória informada
     new_projetil->next = (struct projetil *)next; // Armazena o próximo projétil informado
+    
     return new_projetil;                          // Retorna a instância criada de projétil
 }
 
