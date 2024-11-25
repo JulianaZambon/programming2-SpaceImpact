@@ -4,7 +4,7 @@
 - `arma.h` ok
 <br>
 
-- `chefes.c` ok, (falta fazer ele andar sozinho)
+- `chefes.c` (falta fazer ele andar sozinho)
 - `chefes.h` ok
 <br>
 
@@ -16,7 +16,7 @@
 - `fases.h`
 <br>
 
-- `inimigos.c` ok, funcionando (acho)!
+- `inimigos.c` 
 - `inimigos.h` ok
 <br>
  
