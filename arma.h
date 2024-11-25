@@ -3,7 +3,7 @@
 
 #include "projetil.h"
 
-#define ARMA_COOLDOWN 10  //Tamanho, em frames, do tempo entre um tiro e outro
+#define ARMA_COOLDOWN 10 // Tamanho, em frames, do tempo entre um tiro e outro
 
 typedef struct
 {
@@ -15,6 +15,8 @@ typedef struct
 arma *arma_create();
 // função de disparo de uma arma
 projetil *arma_shot(unsigned short x, unsigned short y, unsigned char trajectory, arma *gun);
+// função para atualizar o cooldown da arma no loop do jogo
+void update_arma(arma *gun);
 // função de destruição de uma arma
 void arma_destroy(arma *element);
 
