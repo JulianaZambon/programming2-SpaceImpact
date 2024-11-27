@@ -1,14 +1,14 @@
 ## Desenvolvimento dos Módulos
 
-- `arma.c` 
-- `arma.h` ok
+- `arma.c` ok, funcionando!
+- `arma.h` ok, funcionando!
 <br>
 
-- `chefes.c` (falta fazer ele andar sozinho)
-- `chefes.h` ok
+- `chefes.c` 
+- `chefes.h` 
 <br>
 
-- `configuracoes.h` atualizando!
+- `configuracoes.h` 
 <br>
 
 - `fase1.c`
@@ -17,19 +17,19 @@
 <br>
 
 - `inimigos.c` 
-- `inimigos.h` ok
+- `inimigos.h` 
 <br>
  
 - `jogador.c` ok, funcionando!
-- `jogador.h` ok
+- `jogador.h` ok, funcionando!
 <br>
 
 - `joystick.c` ok, funcionando!
-- `joystick.h` ok
+- `joystick.h` ok, funcionando!
 <br>
 
 - `main.c`
 <br>
 
-- `projetil.c`
-- `projetil.h` ok
+- `projetil.c` ok, funcionando! (CONFIRMAR A COLISAO AINDA) (LEMBRAR DO ATAQUE ESPECIAL)
+- `projetil.h` ok, funcionando!
