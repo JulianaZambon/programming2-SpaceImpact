@@ -1,40 +1,90 @@
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_primitives.h>
 #include <stdlib.h>
+
 #include "projetil.h"
 #include "configuracoes.h"
 
 // função de criação de um projetil
-projetil *projetil_create(unsigned short x, unsigned short y, unsigned char trajectory, projetil *next)
+projetil *criar_projetil(unsigned short x, unsigned short y, unsigned char trajetoria, projetil *proximo)
 {
-    projetil *new_proj = (projetil *)malloc(sizeof(projetil)); // Aloca memória para um novo projétil
-    if (!new_proj)
-        return NULL; // Verifica se a alocação foi bem-sucedida
+    projetil *novo_projetil = (projetil *)malloc(sizeof(*novo_projetil)); // Aloca memória na heap para um novo projetil
+    if (!novo_projetil)
+        return NULL;
 
-    new_proj->x = x;             // Insere a posição inicial de X
-    new_proj->y = y;             // Insere a posição inicial de Y
-    new_proj->trajectory = trajectory; // Insere a trajetória do projétil
-    new_proj->next = next;       // Insere o próximo projétil
+    novo_projetil->x = x;                   // Insere a posição inicial de X
+    novo_projetil->y = y;                   // Insere a posição inicial de Y
+    novo_projetil->trajetoria = trajetoria; // Insere a trajetória do projetil
+    novo_projetil->proximo = proximo;       // Insere o próximo projetil na lista
 
-    return new_proj;
+    return novo_projetil;
 }
+
+// // função de desenho de um projetil
+void desenhar_projetil(projetil *projetil)
+{
+    // futuramente usar uma imagem
+    // ALLEGRO_BITMAP *imagem = projetil->imagem;
+    // al_draw_bitmap(imagem, projetil->x, projetil->y, 0);
+
+    // Desenha um círculo vermelho representando o projétil
+    al_draw_filled_circle(projetil->x, projetil->y, 7, al_map_rgb(255, 0, 0));
+}
+
 // função de movimentação de um projetil
-void projetil_move(projetil *elements)
+// Função de movimentação de um projetil
+void mover_projetil(projetil **elements)
 {
-    if (!elements->trajectory)
+    projetil *anterior = NULL;
+    projetil *atual = *elements; // Começa a partir do primeiro projetil na lista
+
+    while (atual != NULL)
     {
-        if (elements->x - PROJETIL_MOVE >= 0)
-            elements->x -= PROJETIL_MOVE;
-    } // Verifica se a movimentação para a esquerda é desejada e possível; se sim, efetiva a mesma
-    else if (elements->trajectory == 1)
-    {
-        if (elements->x + PROJETIL_MOVE <= X_SCREEN)
-            elements->x += PROJETIL_MOVE;
-    } // Verifica se a movimentação para a direita é desejada e possível; se sim, efetiva a mesma
-}
-// função de destruição de um projetil
-void projetil_destroy(projetil *element)
-{
-    if (element)
-    {
-        free(element); // Libera a memória do projétil
+        // Movimenta o projetil baseado na sua trajetória
+        if (atual->trajetoria == 0) // Esquerda
+        {
+            atual->x -= PROJETIL_MOVE; // Move o projetil para a esquerda
+        }
+        else if (atual->trajetoria == 1) // Direita
+        {
+            atual->x += PROJETIL_MOVE; // Move o projetil para a direita
+        }
+
+        // Verifica se o projetil saiu da tela (no eixo X)
+        if (atual->x < 0 || atual->x > X_SCREEN)
+        {
+            projetil *proximo = atual->proximo;
+
+            if (anterior)
+                anterior->proximo = proximo; // Remove o projetil da lista
+            else
+                *elements = proximo; // Atualiza o início da lista
+
+            destruir_projetil(atual); // Libera memória do projetil fora da tela
+            atual = proximo;          // Atualiza para o próximo projetil
+        }
+        else
+        {
+            // Avança para o próximo projetil
+            anterior = atual;
+            atual = atual->proximo;
+        }
     }
+}
+
+// função de verificação de colisão de um projetil
+int verificar_colisao_projetil(projetil *projetil, unsigned short x, unsigned short y, unsigned short side)
+{
+    if ((projetil->x >= x - side / 2) && (projetil->x <= x + side / 2) && // Verique se houve colisão com a vítima no eixo X
+        (projetil->y >= y - side / 2) && (projetil->y <= y + side / 2))
+    {             // Verifique se houve colisão com a vítima no eixo Y
+        return 1; // Se houve colisão, retorne verdadeiro
+    }
+    return 0; // Se não houve colisão, retorne falso
+}
+
+// função de destruição de um projetil
+void destruir_projetil(projetil *element)
+{
+    free(element); // Libera a memória alocada para o projetil
 }
