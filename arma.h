@@ -9,12 +9,12 @@ typedef struct arma {
 } arma;
 
 // Função de criação de uma nova arma
-arma *arma_create();
+arma *criar_arma();
 // Função de disparo de um projétil
-projetil *arma_shot(unsigned short x, unsigned short y, unsigned char trajectory, arma *gun);
+projetil *disparo_arma(unsigned short x, unsigned short y, unsigned char trajetoria, arma *arma);
 // Função para atualizar o cooldown da arma
-void update_arma(arma *gun);
+void atualiza_arma(arma *arma);
 // Função para destruir a arma e seus projéteis
-void arma_destroy(arma *gun);
+void destroi_arma(arma *arma);
 
 #endif // __ARMA__
