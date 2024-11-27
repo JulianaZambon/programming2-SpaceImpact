@@ -1,47 +1,47 @@
 #include <stdlib.h>
 #include "arma.h"
+#include "configuracoes.h"
 
 // Função de criação de uma nova arma
-arma *arma_create()
+arma *criar_arma()
 {
-    arma *new_arma = (arma *)malloc(sizeof(arma)); // Aloca memória para uma nova arma
-    if (!new_arma)
-        return NULL; // Verifica se a alocação foi bem-sucedida
+    arma *nova_arma = (arma *)malloc(sizeof(*nova_arma)); // Aloca memória na heap para uma nova arma
+    if (!nova_arma)
+        return NULL;
 
-    new_arma->timer = 0;    // Inicializa o timer de cooldown
-    new_arma->shots = NULL; // Inicializa a lista de projéteis disparados
+    nova_arma->timer = ARMA_COOLDOWN; // Define o tempo de cooldown da arma
+    nova_arma->shots = NULL;          // Inicializa a lista de projéteis disparados
 
-    return new_arma;
+    return nova_arma;
 }
 // Função de disparo de um projétil
-projetil *arma_shot(unsigned short x, unsigned short y, unsigned char trajectory, arma *gun)
+projetil *disparo_arma(unsigned short x, unsigned short y, unsigned char trajetoria, arma *arma)
 {
-    projetil *new_shot = projetil_create(x, y, trajectory, gun->shots); // Cria um novo projétil
-    if (!new_shot)
-        return NULL; // Verifica se a criação foi bem-sucedida
+    projetil *novo_projetil = criar_projetil((x + 60), y, trajetoria, NULL); // Cria um novo projétil
+    if (!novo_projetil)
+        return NULL;
 
-    gun->shots = new_shot; // Insere o novo projétil na lista de projéteis disparados
+    novo_projetil->proximo = arma->shots; // Insere o novo projétil no início da lista
+    arma->shots = novo_projetil;
 
-    return new_shot;
+    return novo_projetil;
 }
+
 // Função para atualizar o cooldown da arma
-void update_arma(arma *gun)
+void atualiza_arma(arma *arma)
 {
-    if (gun->timer)
-        gun->timer--; // Atualiza o cooldown da arma
+    if (arma->timer)
+        arma->timer--; // Decrementa o cooldown da arma
 }
 // Função para destruir a arma e seus projéteis
-void arma_destroy(arma *gun)
+void destroi_arma(arma *arma)
 {
-    if (gun)
+    projetil *current = arma->shots;
+    while (current != NULL)
     {
-        projetil *index = gun->shots; // Variável auxiliar para percorrer a lista de projéteis
-        while (index)
-        {
-            projetil *next = index->next; // Salva o próximo projétil
-            projetil_destroy(index);      // Destrói o projétil atual
-            index = next;                 // Atualiza para o próximo projétil
-        }
-        free(gun); // Libera a memória da arma
+        projetil *next = current->proximo;
+        destruir_projetil(current); // Libera a memória do projétil
+        current = next;
     }
+    free(arma); // Libera a memória da arma
 }
