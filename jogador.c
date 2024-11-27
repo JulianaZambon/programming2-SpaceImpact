@@ -6,96 +6,89 @@
 #include "jogador.h"
 #include "configuracoes.h"
 
-player *player_create(unsigned char side, unsigned char face, short x, unsigned short y, unsigned short max_x, unsigned short max_y)
+jogador *criar_jogador(unsigned char tam_lateral, unsigned char face, short x, unsigned short y, unsigned short max_x, unsigned short max_y)
 {
-    if ((x - side / 2 < 0) || (x + side / 2 > max_x) || (y - side / 2 < 0) || (y + side / 2 > max_y))
+    if ((x - tam_lateral / 2 < 0) || (x + tam_lateral / 2 > max_x) || (y - tam_lateral / 2 < 0) || (y + tam_lateral / 2 > max_y))
         return NULL; // Verifica se a posição inicial é válida
 
-    player *new_player = (player *)malloc(sizeof(*new_player)); // Aloca memória na heap para um novo jogador
-    if (!new_player)
+    jogador *new_jogador = (jogador *)malloc(sizeof(*new_jogador)); // Aloca memória na heap para um novo jogador
+    if (!new_jogador)
         return NULL;
 
-    new_player->side = side;                 // Insere o tamanho do lado do jogador
-    new_player->face = face;                 // Insere a indicação da face principal do jogador
-    new_player->hp = 5;                      // Insere o total de pontos de vida de um jogador
-    new_player->x = x;                       // Insere a posição inicial central de X
-    new_player->y = y;                       // Insere a posição inicial central de Y
-    new_player->control = joystick_create(); // Insere o elemento de controle na nave do jogador
-    new_player->arma = arma_create();        // Insere o elemento de disparos do jogador
+    new_jogador->tam_lateral = tam_lateral;   // Insere o tamanho do lado do jogador
+    new_jogador->face = face;                 // Insere a indicação da face principal do jogador
+    new_jogador->hp = 5;                      // Insere o total de pontos de vida de um jogador
+    new_jogador->x = x;                       // Insere a posição inicial central de X
+    new_jogador->y = y;                       // Insere a posição inicial central de Y
+    new_jogador->controle = criar_joystick(); // Insere o elementoo de controle do jogador
+    new_jogador->arma = criar_arma();         // Insere o elementoo de disparos do jogador
 
     // Carrega o sprite para o jogador
-    new_player->sprite = al_load_bitmap("assets/jogador/sprite_jogador.png");
-    if (!new_player->sprite)
+    new_jogador->sprite = al_load_bitmap("assets/jogador/sprite_jogador.png");
+    if (!new_jogador->sprite)
     {
-        free(new_player); // Libera a memória caso o carregamento do sprite falhe
+        free(new_jogador); // Libera a memória caso o carregamento do sprite falhe
         return NULL;
     }
 
-    return new_player;
+    return new_jogador;
 }
 
-void player_move(player *element, char steps, unsigned char trajectory, unsigned short max_x, unsigned short max_y)
+void mover_jogador(jogador *elemento, char steps, unsigned char trajetoria, unsigned short max_x, unsigned short max_y)
 {
-    if (!trajectory)
+    if (!trajetoria)
     {
-        if ((element->x - steps * PLAYER_STEP) - 90 / 2 >= 0)
-            element->x = element->x - steps * PLAYER_STEP;
+        if ((elemento->x - steps * JOGADOR_STEP) - 90 / 2 >= 0)
+            elemento->x = elemento->x - steps * JOGADOR_STEP;
     } // Verifica se a movimentação para a esquerda é desejada e possível; se sim, efetiva a mesma
-    else if (trajectory == 1)
+    else if (trajetoria == 1)
     {
-        if ((element->x + steps * PLAYER_STEP) + 90 / 2 <= max_x)
-            element->x = element->x + steps * PLAYER_STEP;
+        if ((elemento->x + steps * JOGADOR_STEP) + 90 / 2 <= max_x)
+            elemento->x = elemento->x + steps * JOGADOR_STEP;
     } // Verifica se a movimentação para a direita é desejada e possível; se sim, efetiva a mesma
-    else if (trajectory == 2)
+    else if (trajetoria == 2)
     {
-        if ((element->y - steps * PLAYER_STEP) - 90 / 2 >= 0)
-            element->y = element->y - steps * PLAYER_STEP;
+        if ((elemento->y - steps * JOGADOR_STEP) - 90 / 2 >= 0)
+            elemento->y = elemento->y - steps * JOGADOR_STEP;
     } // Verifica se a movimentação para cima é desejada e possível; se sim, efetiva a mesma
-    else if (trajectory == 3)
+    else if (trajetoria == 3)
     {
-        if ((element->y + steps * PLAYER_STEP) + 90 / 2 <= max_y)
-            element->y = element->y + steps * PLAYER_STEP;
+        if ((elemento->y + steps * JOGADOR_STEP) + 90 / 2 <= max_y)
+            elemento->y = elemento->y + steps * JOGADOR_STEP;
     } // Verifica se a movimentação para baixo é desejada e possível; se sim, efetiva a mesma
 }
 
 // Função para desenhar o jogador na tela com o recorte correto do sprite
 // São 3 colunas e 24 linhas no sprite sheet
-void player_draw(player *element)
+void desenhar_jogador(jogador *elemento)
 {
     // Definições do tamanho de cada quadro no sprite sheet
-    int sprite_width = 189;  // Largura do quadro no sprite sheet
-    int sprite_height = 189; // Altura do quadro no sprite sheet
+    int largura_sprite = 189; // Largura do quadro no sprite sheet
+    int altura_sprite = 189;  // Altura do quadro no sprite sheet
 
     // Calcula a posição do quadro no sprite sheet
-    int frame_x = (element->current_frame % 3) * sprite_width;  // Coluna
-    int frame_y = (element->current_frame / 3) * sprite_height; // Linha
+    int frame_x = (elemento->frame_atual % 3) * largura_sprite; // Coluna
+    int frame_y = (elemento->frame_atual / 3) * altura_sprite;  // Linha
 
     // Desenha o quadro do sprite na tela
-    al_draw_bitmap_region(element->sprite, frame_x, frame_y, sprite_width, sprite_height,
-                          element->x - sprite_width / 2, element->y - sprite_height / 2, 0);
+    al_draw_bitmap_region(elemento->sprite, frame_x, frame_y, largura_sprite, altura_sprite,
+                          elemento->x - largura_sprite / 2, elemento->y - altura_sprite / 2, 0);
 }
 
 // Função para realizar o disparo do jogador
-void player_shot(player *player_1)
+void jogador_atira(jogador *jogador_1)
 {
-    if (!player_1->arma->timer)
-    { // Verifica se a arma do jogador não está em cooldown
-        arma_shot(player_1->x, player_1->y, player_1->face, player_1->arma); // Realiza o disparo
-        player_1->arma->timer = ARMA_COOLDOWN;                              // Inicia o cooldown da arma
+    if (!jogador_1->arma->timer)
+    {                                                                 // Verifica se a arma do jogador não está em cooldown
+        disparo_arma(jogador_1->x, jogador_1->y, 1, jogador_1->arma); // Realiza o disparo
+        jogador_1->arma->timer = ARMA_COOLDOWN;                       // Inicia o cooldown da arma
     }
 }
 
-void player_destroy(player *element)
+void destroi_jogador(jogador *elemento)
 {
-    arma_destroy(element->arma);        // Destrói a arma do jogador
-    joystick_destroy(element->control); // Destrói o controle do jogador
-
-    if (element)
-    {
-        if (element->sprite)
-        {
-            al_destroy_bitmap(element->sprite); // Libera o sprite do jogador
-        }
-        free(element);
-    }
+    al_destroy_bitmap(elemento->sprite);  // Libera a memória do sprite
+    destroi_joystick(elemento->controle); // Libera a memória do elementoo de controle
+    destroi_arma(elemento->arma);         // Libera a memória do elementoo de disparos
+    free(elemento);                       // Libera a memória do jogador
 }
