@@ -2,8 +2,7 @@
 #define __PROJETIL__ // Guardas de inclusão
 
 #include <allegro5/allegro.h> // Biblioteca base do Allegro
-
-#define PROJETIL_MOVE 5
+#include "configuracoes.h" // Biblioteca de configurações
 
 typedef struct projetil
 {
