@@ -1,14 +1,27 @@
 #ifndef __ARMA__ // Guardas de inclusão
-#define __ARMA__ 
+#define __ARMA__
 
+// Inclusões de bibliotecas locais
 #include "projetil.h"
-#define ARMA_COOLDOWN 10 // Ajuste o tempo de cooldown da arma (quanto maior, mais lento)
+
+/*-----------------------------------------------------------------------------------------*/
+/* DEFINIÇÕES */
+
+#define ARMA_COOLDOWN 10 // tempo de cooldown da arma (quanto maior, mais lento)
 #define ARMA_COOLDOWN_INIMIGO 90
 
-typedef struct arma {
-    int timer;        // Timer de cooldown entre disparos
-    projetil *shots;  // Lista encadeada de projéteis disparados
+/*-----------------------------------------------------------------------------------------*/
+/* ESTRUTURAS */
+
+// Estrutura para a arma
+typedef struct arma
+{
+    int timer;       // Timer de cooldown entre disparos
+    projetil *shots; // Lista encadeada de projéteis disparados
 } arma;
+
+/*-----------------------------------------------------------------------------------------*/
+/* PROTÓTIPOS DE FUNÇÕES */
 
 // Função de criação de uma nova arma
 arma *criar_arma();
