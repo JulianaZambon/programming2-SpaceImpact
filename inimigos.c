@@ -1,11 +1,16 @@
-#include <stdlib.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include <math.h>
 
+// Libs locais
 #include "inimigos.h"
+/*-----------------------------------------------------------------------------------------*/
+/* FUNÇÕES INIMIGO */
 
+// Função de criação de um inimigo
 inimigo *criar_inimigo(unsigned char side, unsigned char face, short x, unsigned short y, unsigned short type, unsigned short max_x, unsigned short max_y)
 {
     if ((x - side / 2 < 0) || (x + side / 2 > max_x) || (y - side / 2 < 0) || (y + side / 2 > max_y))
@@ -72,6 +77,7 @@ inimigo *criar_inimigo(unsigned char side, unsigned char face, short x, unsigned
     return novo_inimigo;
 }
 
+// Função de movimentação de um inimigo
 void mover_inimigo(inimigo *elemento, unsigned char steps, unsigned char *trajetoria, unsigned short max_x, unsigned short max_y)
 {
     if (!elemento)
@@ -127,7 +133,7 @@ void mover_inimigo(inimigo *elemento, unsigned char steps, unsigned char *trajet
     // Disparo automático com cooldown
     if (elemento->arma->timer == 0)
     {
-        inimigo_atira(elemento);               // Inimigo realiza o disparo
+        inimigo_atira(elemento);                       // Inimigo realiza o disparo
         elemento->arma->timer = ARMA_COOLDOWN_INIMIGO; // Define um cooldown para o próximo disparo
     }
     else
@@ -137,7 +143,7 @@ void mover_inimigo(inimigo *elemento, unsigned char steps, unsigned char *trajet
 
     mover_projetil(&elemento->arma->shots); // Atualiza a posição dos projéteis do inimigo
 }
-
+// Função de desenho de um inimigo
 void desenhar_inimigo(inimigo *elemento)
 {
     if (!elemento || !elemento->sprite_info)
@@ -154,7 +160,7 @@ void desenhar_inimigo(inimigo *elemento)
     al_draw_bitmap_region(elemento->sprite_info->sprite, frame_x, frame_y, sprite_largura, sprite_altura,
                           elemento->x - sprite_largura / 2, elemento->y - sprite_altura / 2, 0);
 }
-
+// Função de atualização da animação do inimigo
 void atualizar_animacao_inimigo(inimigo *elemento, unsigned int *animation_counter, unsigned int delay)
 {
     if (!elemento || !elemento->sprite_info)
@@ -167,42 +173,7 @@ void atualizar_animacao_inimigo(inimigo *elemento, unsigned int *animation_count
         *animation_counter = 0; // Reseta o contador de animação
     }
 }
-
-// Função que cria uma onda de inimigos
-void criar_onda_inimigos(inimigo **lista_inimigos, unsigned short max_x, unsigned short max_y, unsigned short tipo)
-{
-    for (int i = 0; i < NUM_INIMIGOS_ORDA; i++)
-    {
-        lista_inimigos[i] = criar_inimigo(50, 0, max_x - 50, 80 + i * 200, tipo, max_x, max_y);
-    }
-}
-
-void desenhar_onda_inimigos(inimigo **lista_inimigos, unsigned short max_x, unsigned short max_y)
-{
-    for (int i = 0; i < NUM_INIMIGOS_ORDA; i++)
-    {
-        if (lista_inimigos[i])
-        {
-            desenhar_inimigo(lista_inimigos[i]);
-        }
-    }
-}
-
-void atualizar_onda_inimigos(inimigo **lista_inimigos, unsigned short max_x, unsigned short max_y, int *animation_counter)
-{
-    for (int i = 0; i < NUM_INIMIGOS_ORDA; i++)
-    {
-        if (lista_inimigos[i])
-        {
-            // Move o inimigo na tela
-            mover_inimigo(lista_inimigos[i], 1, 0, max_x, max_y);
-
-            // Atualiza a animação do inimigo
-            atualizar_animacao_inimigo(lista_inimigos[i], animation_counter, ANIMATION_DELAY_INIMIGO);
-        }
-    }
-}
-
+// Função de disparo do inimigo
 void inimigo_atira(inimigo *elemento)
 {
     if (!elemento->arma->timer)
@@ -211,7 +182,7 @@ void inimigo_atira(inimigo *elemento)
         elemento->arma->timer = ARMA_COOLDOWN_INIMIGO;                  // Inicia o cooldown da arma
     }
 }
-
+// Função de destruição do inimigo
 void destroi_inimigo(inimigo *elemento)
 {
     if (elemento)
@@ -222,3 +193,6 @@ void destroi_inimigo(inimigo *elemento)
         free(elemento);                                   // Libera a memória alocada para o inimigo
     }
 }
+
+/*-----------------------------------------------------------------------------------------*/
+/* FUNÇÕES ONDA DE INIMIGOS */
