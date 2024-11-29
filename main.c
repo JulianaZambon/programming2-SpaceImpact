@@ -17,6 +17,47 @@
 /*-----------------------------------------------------------------------------------------*/
 /* FUNÇÕES AUXILIARES */
 
+unsigned char verifica_morte(jogador *jogador_1, inimigo *inimigo_1)
+{
+    projetil *previous = NULL;
+    for (projetil *index = jogador_1->arma->shots; index != NULL; index = index->proximo)
+    {
+        // Verifica colisão do projétil com a vítima
+        if ((index->x >= inimigo_1->x - inimigo_1->tam_lateral / 2) && (index->x <= inimigo_1->x + inimigo_1->tam_lateral / 2) &&
+            (index->y >= inimigo_1->y - inimigo_1->tam_lateral / 2) && (index->y <= inimigo_1->y + inimigo_1->tam_lateral / 2))
+        {
+            inimigo_1->hp--; // Diminui o HP da vítima
+
+            // Verifica se a vítima ainda tem HP
+            if (inimigo_1->hp > 0)
+            {
+                // Se não for o primeiro projétil, atualiza o ponteiro anterior
+                if (previous)
+                {
+                    previous->proximo = index->proximo; // Remove o projétil da lista
+                    destruir_projetil(index);            // Destroi o projétil
+                    index = previous->proximo;          // Atualiza para o próximo projétil
+                }
+                else
+                {
+                    // Se for o primeiro projétil da lista, atualiza a cabeça da lista
+                    jogador_1->arma->shots = index->proximo; // Atualiza a lista de projéteis
+                    destruir_projetil(index);                // Destroi o projétil
+                    index = jogador_1->arma->shots;          // Atualiza para o próximo
+                }
+            }
+            else
+            {
+                // A vítima morreu
+                destruir_projetil(index); // Destroi o projétil
+                return 1;                // A vítima morreu
+            }
+        }
+        previous = index; // Atualiza o projétil anterior
+    }
+    return 0; // Nenhum projétil acertou a vítima
+}
+
 // Atualiza a posição e ações do jogador
 void atualiza_posicao(jogador *jogador_1)
 {
@@ -124,12 +165,42 @@ int main()
             // Desenha os projéteis do jogador
             for (projetil *p = jogador_1->arma->shots; p != NULL; p = (projetil *)p->proximo)
             {
-                desenhar_projetil(p);
+                if (verificar_colisao_projetil(p, inimigo_1->x, inimigo_1->y, inimigo_1->tam_lateral))
+                {
+                    inimigo_1->hp--;
+                    projetil *proximo = p->proximo;
+                    destruir_projetil(p);
+                    p = proximo;
+                }
+                else
+                    desenhar_projetil(p);
             }
 
             // Atualiza a arma do jogador
             if (jogador_1->arma->timer)
                 atualiza_arma(jogador_1->arma);
+
+            for (projetil *p = inimigo_1->arma->shots; p != NULL; p = p->proximo)
+            {
+                if (verificar_colisao_projetil(p, jogador_1->x, jogador_1->y, jogador_1->tam_lateral))
+                {
+                    jogador_1->hp--;
+
+                    // Armazena o próximo projétil antes de destruir o atual
+                    projetil *proximo = p->proximo;
+
+                    // Destrói o projétil
+                    destruir_projetil(p);
+
+                    // Atualiza o ponteiro p para o próximo projétil
+                    p = proximo;
+                }
+                else
+                {
+                    // Desenha o projétil se não houver colisão
+                    desenhar_projetil(p);
+                }
+            }
 
             al_flip_display();
         }
