@@ -4,8 +4,8 @@
 - `arma.h` ok, funcionando!
 <br>
 
-- `chefes.c` 
-- `chefes.h` 
+- `chefes.c` ok, funcionando!
+- `chefes.h` ok, funcionando!
 <br>
 
 - `configuracoes.h` 
