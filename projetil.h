@@ -2,8 +2,15 @@
 #define __PROJETIL__ // Guardas de inclusão
 
 #include <allegro5/allegro.h> // Biblioteca base do Allegro
-#include "configuracoes.h" // Biblioteca de configurações
 
+/*-----------------------------------------------------------------------------------------*/
+/* DEFINIÇÕES */
+#define PROJETIL_MOVE 5 // Ajuste a velocidade do projetil (quanto maior, mais rápido)
+
+/*-----------------------------------------------------------------------------------------*/
+/* ESTRUTURA */
+
+// Estrutura para o projetil
 typedef struct projetil
 {
     unsigned short x;          // Local, no eixo x, onde se localiza o projetil
@@ -14,15 +21,18 @@ typedef struct projetil
     // ALLEGRO_BITMAP *imagem;    // Imagem do projétil (feature futura)
 } projetil;
 
-// função de criação de um projetil
+/*-----------------------------------------------------------------------------------------*/
+/* PROTÓTIPOS DE FUNÇÕES */
+
+// Função de criação de um projetil
 projetil *criar_projetil(unsigned short x, unsigned short y, unsigned char trajectory, projetil *proximo);
-// função de desenho de um projetil
+// Função de desenho de um projetil
 void desenhar_projetil(projetil *projetil);
-// função de movimentação de um projetil
+// Função de movimentação de um projetil
 void mover_projetil(projetil **elements);
-// função de verificação de colisão de um projetil
+// Função de verificação de colisão de um projetil
 int verificar_colisao_projetil(projetil *projetil, unsigned short x, unsigned short y, unsigned short side);
-// função de destruição de um projetil
+// Função de destruição de um projetil
 void destruir_projetil(projetil *element);
 
 #endif // Guardas de inclusão
