@@ -2,10 +2,14 @@
 #include <allegro5/allegro_primitives.h>
 #include <stdlib.h>
 
+// Libs locais
 #include "projetil.h"
 #include "configuracoes.h"
 
-// função de criação de um projetil
+/*-----------------------------------------------------------------------------------------*/
+/* FUNÇÕES */
+
+// Função de criação de um projetil
 projetil *criar_projetil(unsigned short x, unsigned short y, unsigned char trajetoria, projetil *proximo)
 {
     projetil *novo_projetil = (projetil *)malloc(sizeof(*novo_projetil)); // Aloca memória na heap para um novo projetil
@@ -20,7 +24,7 @@ projetil *criar_projetil(unsigned short x, unsigned short y, unsigned char traje
     return novo_projetil;
 }
 
-// // função de desenho de um projetil
+// Função de desenho de um projetil
 void desenhar_projetil(projetil *projetil)
 {
     // futuramente usar uma imagem
@@ -31,7 +35,6 @@ void desenhar_projetil(projetil *projetil)
     al_draw_filled_circle(projetil->x, projetil->y, 7, al_map_rgb(255, 0, 0));
 }
 
-// função de movimentação de um projetil
 // Função de movimentação de um projetil
 void mover_projetil(projetil **elements)
 {
@@ -72,18 +75,19 @@ void mover_projetil(projetil **elements)
     }
 }
 
-// função de verificação de colisão de um projetil
+// Função de verificação de colisão de um projetil
 int verificar_colisao_projetil(projetil *projetil, unsigned short x, unsigned short y, unsigned short side)
 {
-    if ((projetil->x >= x - side / 2) && (projetil->x <= x + side / 2) && // Verique se houve colisão com a vítima no eixo X
-        (projetil->y >= y - side / 2) && (projetil->y <= y + side / 2))
-    {             // Verifique se houve colisão com a vítima no eixo Y
-        return 1; // Se houve colisão, retorne verdadeiro
+    // Verifique se o projétil está dentro dos limites da área (centro em x, y, com lado 'side')
+    if ((projetil->x >= x - side / 2) && (projetil->x <= x + side / 2) && // Verificação no eixo X
+        (projetil->y >= y - side / 2) && (projetil->y <= y + side / 2))     // Verificação no eixo Y
+    {
+        return 1; // Se a colisão for detectada, retorne 1 (verdadeiro)
     }
-    return 0; // Se não houve colisão, retorne falso
+    return 0; // Se não houve colisão, retorne 0 (falso)
 }
 
-// função de destruição de um projetil
+// Função de destruição de um projetil
 void destruir_projetil(projetil *element)
 {
     free(element); // Libera a memória alocada para o projetil
