@@ -16,7 +16,7 @@
 - `fases.h`
 <br>
 
-- `inimigos.c` 
+- `inimigos.c` (AJEITAR ONDA DE CRIAÇÃO DE INIMIGOS)
 - `inimigos.h` 
 <br>
  
