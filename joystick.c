@@ -1,42 +1,55 @@
 #include <stdlib.h>
+
+// Libs locais
 #include "joystick.h"
 
-joystick *joystick_create()
+/*-----------------------------------------------------------------------------------------*/
+/* FUNÇÕES */
+
+// Cria um novo controle
+joystick *criar_joystick()
 {
-	joystick *element = (joystick *)malloc(sizeof(joystick)); // Aloca memória na heap para um novo controle
-	if (!element)
+	joystick *elemento = (joystick *)malloc(sizeof(joystick)); // Aloca memória na heap para um novo controle
+	if (!elemento)
 		return NULL;
-	element->right = 0; // Insere o estado de desligado para o botão de movimentação à esquerda
-	element->left = 0;	// Insere o estado de desligado para o botão de movimentação à direita
-	element->up = 0;	// Insere o estado de desligado para o botão de movimentação para cima
-	element->down = 0;	// Insere o estado de desligado para o botão de movimentação para baixo
-	element->fire = 0;
-	return element; // Retorna o novo controle
+
+	elemento->direita = 0;	// Insere o estado de desligado para o botão de movimentação à esquerda
+	elemento->esquerda = 0; // Insere o estado de desligado para o botão de movimentação à direita
+	elemento->cima = 0;		// Insere o estado de desligado para o botão de movimentação para cima
+	elemento->baixo = 0;	// Insere o estado de desligado para o botão de movimentação para baixo
+	elemento->fogo = 0;		// Insere o estado de desligado para o botão de disparo
+
+	return elemento;		// Retorna o novo controle
 }
 
-// libera a memória do elemento na heap
-void joystick_destroy(joystick *element)
+// Libera a memória do elemento na heap
+void destroi_joystick(joystick *elemento)
 {
-	free(element);
+	free(elemento);
 }
-// muda o estado do botão
-void joystick_left(joystick *element)
+
+// Mudam o estado do botão
+void joystick_esquerda(joystick *elemento)
 {
-	element->left = element->left ^ 1;
+	elemento->esquerda = elemento->esquerda ^ 1;
 }
-void joystick_right(joystick *element)
+
+void joystick_direita(joystick *elemento)
 {
-	element->right = element->right ^ 1;
+	elemento->direita = elemento->direita ^ 1;
 }
-void joystick_up(joystick *element)
+
+void joystick_cima(joystick *elemento)
 {
-	element->up = element->up ^ 1;
+	elemento->cima = elemento->cima ^ 1;
 }
-void joystick_down(joystick *element)
+
+void joystick_baixo(joystick *elemento)
 {
-	element->down = element->down ^ 1;
+	elemento->baixo = elemento->baixo ^ 1;
 }
-void joystick_fire(joystick *element)
+
+void joystick_fogo(joystick *elemento)
 {
-	element->fire = element->fire ^ 1;
+	elemento->fogo = elemento->fogo ^ 1;
 }
