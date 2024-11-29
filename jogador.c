@@ -3,9 +3,14 @@
 #include <allegro5/allegro_image.h>
 #include <stdio.h>
 
+// Libs locais
 #include "jogador.h"
 #include "configuracoes.h"
 
+/*-----------------------------------------------------------------------------------------*/
+/* FUNÇÕES */
+
+// Função de criação de um jogador
 jogador *criar_jogador(unsigned char tam_lateral, unsigned char face, short x, unsigned short y, unsigned short max_x, unsigned short max_y)
 {
     if ((x - tam_lateral / 2 < 0) || (x + tam_lateral / 2 > max_x) || (y - tam_lateral / 2 < 0) || (y + tam_lateral / 2 > max_y))
@@ -24,16 +29,26 @@ jogador *criar_jogador(unsigned char tam_lateral, unsigned char face, short x, u
     new_jogador->arma = criar_arma();         // Insere o elementoo de disparos do jogador
 
     // Carrega o sprite para o jogador
-    new_jogador->sprite = al_load_bitmap("assets/jogador/sprite_jogador.png");
+    new_jogador->sprite = al_load_bitmap(PATH_JOGADOR);
     if (!new_jogador->sprite)
     {
         free(new_jogador); // Libera a memória caso o carregamento do sprite falhe
         return NULL;
     }
 
-    return new_jogador;
+    // Carrega o sprite para o coração de HP
+    new_jogador->hp_sprite = al_load_bitmap(PATH_HP);
+    if (!new_jogador->hp_sprite)
+    {
+        al_destroy_bitmap(new_jogador->sprite); // Libera a memória do sprite
+        free(new_jogador);                      // Libera a memória do jogador
+        return NULL;
+    }
+
+    return new_jogador; // Retorna o jogador criado
 }
 
+// Função para mover o jogador
 void mover_jogador(jogador *elemento, char steps, unsigned char trajetoria, unsigned short max_x, unsigned short max_y)
 {
     if (!trajetoria)
@@ -75,6 +90,36 @@ void desenhar_jogador(jogador *elemento)
                           elemento->x - largura_sprite / 2, elemento->y - altura_sprite / 2, 0);
 }
 
+// Função para desenhar os corações de HP na tela
+// São 5 colunas e 2 linhas no sprite sheet (10 frames no total)
+void desenhar_hp(jogador *elemento, int x, int y)
+{
+    int largura_sprite = SPRITE_HP; // Largura do quadro no sprite sheet
+    int altura_sprite = SPRITE_HP;  // Altura do quadro no sprite sheet
+
+    for (int i = 0; i < elemento->hp; i++)
+    {
+        int frame_atual = (elemento->frame_atual + i) % NUM_FRAMES_HP;
+        int frame_x = (frame_atual % 5) * largura_sprite; // Coluna no sprite sheet
+        int frame_y = (frame_atual / 5) * altura_sprite;  // Linha no sprite sheet
+
+        // Desenha o coração na posição (x + deslocamento horizontal, y)
+        al_draw_bitmap_region(elemento->hp_sprite, frame_x, frame_y, largura_sprite, altura_sprite,
+                              x + i * largura_sprite, y, 0);
+    }
+}
+
+// Função para atualizar a animação do jogador
+void atualizar_animacao_jogador(jogador *elemento, unsigned int *animation_counter, unsigned int delay)
+{
+    // Atualiza contador de animação
+    if (++(*animation_counter) >= delay)
+    {
+        elemento->frame_atual = (elemento->frame_atual + 1) % NUM_FRAMES_JOGADOR;
+        *animation_counter = 0; // Reseta o contador de animação
+    }
+}
+
 // Função para realizar o disparo do jogador
 void jogador_atira(jogador *jogador_1)
 {
@@ -85,6 +130,7 @@ void jogador_atira(jogador *jogador_1)
     }
 }
 
+// Função para destruir o jogador
 void destroi_jogador(jogador *elemento)
 {
     al_destroy_bitmap(elemento->sprite);  // Libera a memória do sprite
