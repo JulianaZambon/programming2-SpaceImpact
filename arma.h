@@ -2,6 +2,8 @@
 #define __ARMA__ 
 
 #include "projetil.h"
+#define ARMA_COOLDOWN 10 // Ajuste o tempo de cooldown da arma (quanto maior, mais lento)
+#define ARMA_COOLDOWN_INIMIGO 90
 
 typedef struct arma {
     int timer;        // Timer de cooldown entre disparos
