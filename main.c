@@ -6,7 +6,6 @@
 
 // Inclusão de bibliotecas locais
 #include "configuracoes.h"
-#include "background.h"
 #include "jogador.h"
 #include "inimigos.h"
 
