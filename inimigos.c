@@ -6,194 +6,219 @@
 
 #include "inimigos.h"
 
-// Define o passo de movimentação dos inimigos
-// fase 1
-#define ENEMY_STEP 2
-#define ENEMY1_STEP 30
-// fase 2
-#define ENEMY2_STEP 35
-#define ENEMY3_STEP 45
-
-enemy *enemy_create(unsigned char side, unsigned char face, short x, unsigned short y, unsigned short type, unsigned short max_x, unsigned short max_y)
+inimigo *criar_inimigo(unsigned char side, unsigned char face, short x, unsigned short y, unsigned short type, unsigned short max_x, unsigned short max_y)
 {
     if ((x - side / 2 < 0) || (x + side / 2 > max_x) || (y - side / 2 < 0) || (y + side / 2 > max_y))
         return NULL; // Verifica se a posição inicial é válida
 
-    enemy *new_enemy = (enemy *)malloc(sizeof(enemy)); // Aloca memória na heap para um novo inimigo
-    if (!new_enemy)
+    inimigo *novo_inimigo = (inimigo *)malloc(sizeof(*novo_inimigo));
+    if (!novo_inimigo)
         return NULL;
 
-    new_enemy->side = side;          // Insere o tamanho do lado do inimigo
-    new_enemy->face = face;          // Insere a indicação da face principal do inimigo
-    new_enemy->x = x;                // Insere a posição inicial central de X
-    new_enemy->y = y;                // Insere a posição inicial central de Y
-    new_enemy->type = type;          // Insere o tipo de inimigo
-    new_enemy->arma = arma_create(); // Insere o elemento de disparos do inimigo
+    novo_inimigo->tam_lateral = side;  // Insere o tamanho do lado do inimigo
+    novo_inimigo->face = face;         // Insere a indicação da face principal do inimigo
+    novo_inimigo->x = x;               // Insere a posição inicial central de X
+    novo_inimigo->y = y;               // Insere a posição inicial central de Y
+    novo_inimigo->tipo = type;         // Insere o tipo de inimigo
+    novo_inimigo->arma = criar_arma(); // Insere o elemento de disparos do inimigo
 
-    // Carrega o sprite para o inimigo
-    switch (new_enemy->type)
+    // Inicializa as informações do sprite do inimigo
+    novo_inimigo->sprite_info = (inimigo_sprite *)malloc(sizeof(inimigo_sprite));
+    if (!novo_inimigo->sprite_info)
+    {
+        free(novo_inimigo);
+        return NULL;
+    }
+
+    switch (novo_inimigo->tipo)
     {
     case 0:
-        new_enemy->enemy_sprite = al_load_bitmap("assets/inimigos/fase1/sprite-enemy2.png");
+        novo_inimigo->sprite_info->sprite = al_load_bitmap(PATH_INIMIGO_0);
+        novo_inimigo->sprite_info->largura = 100;
+        novo_inimigo->sprite_info->altura = 100;
+        novo_inimigo->sprite_info->num_frames = 5;
         break;
     case 1:
-        new_enemy->enemy_sprite = al_load_bitmap("assets/inimigos/fase1/sprite-enemy4.png");
+        novo_inimigo->sprite_info->sprite = al_load_bitmap(PATH_INIMIGO_1);
+        novo_inimigo->sprite_info->largura = 110;
+        novo_inimigo->sprite_info->altura = 110;
+        novo_inimigo->sprite_info->num_frames = 4;
         break;
     case 2:
-        new_enemy->enemy_sprite = al_load_bitmap("assets/inimigos/fase2/sprite-enemy.png");
+        novo_inimigo->sprite_info->sprite = al_load_bitmap(PATH_INIMIGO_2);
+        novo_inimigo->sprite_info->largura = 118;
+        novo_inimigo->sprite_info->altura = 118;
+        novo_inimigo->sprite_info->num_frames = 6;
         break;
     case 3:
-        new_enemy->enemy_sprite = al_load_bitmap("assets/inimigos/fase2/sprite-enemy3.png");
+        novo_inimigo->sprite_info->sprite = al_load_bitmap(PATH_INIMIGO_3);
+        novo_inimigo->sprite_info->largura = 110;
+        novo_inimigo->sprite_info->altura = 110;
+        novo_inimigo->sprite_info->num_frames = 4;
         break;
     default:
-        break;
-    }
-
-    if (!new_enemy->enemy_sprite)
-    {
+        free(novo_inimigo->sprite_info);
+        free(novo_inimigo);
         return NULL;
     }
 
-    return new_enemy;
+    if (!novo_inimigo->sprite_info->sprite)
+    {
+        free(novo_inimigo->sprite_info);
+        free(novo_inimigo);
+        return NULL;
+    }
+
+    return novo_inimigo;
 }
 
-// devem ter algum padrão de movimentação
-void enemy_move(enemy *element, unsigned char steps, unsigned char trajectory, unsigned short max_x, unsigned short max_y)
+void mover_inimigo(inimigo *elemento, unsigned char steps, unsigned char *trajetoria, unsigned short max_x, unsigned short max_y)
 {
-    if (!element)
+    if (!elemento)
         return;
 
-    switch (element->type)
+    switch (elemento->tipo)
     {
-    case 0: // Tipo 0 de inimigo (movimento simples para a esquerda)
-        if ((element->x - steps * ENEMY_STEP) - element->side / 2 >= 0)
-            element->x -= steps * ENEMY_STEP;
-        if ((element->x + element->side / 2) > max_x)
-            element->x = max_x - element->side / 2;
+    case 0: // Movimento simples para a esquerda (somente no eixo X)
+        elemento->x -= INIMIGO_STEP * steps;
         break;
-
-    case 1: // Tipo 1 de inimigo (movimento de vai-e-vem horizontal)
-        if (trajectory % 2 == 0)
+    case 1: // Movimento em zigue-zague
+        if (*trajetoria == 0)
         {
-            // Movendo para a direita
-            element->x += steps * ENEMY1_STEP;
-            if ((element->x + element->side / 2) > max_x)
-            {
-                element->x = max_x - element->side / 2;
-                trajectory++; // Muda a direção
-            }
+            elemento->x -= INIMIGO1_STEP * steps;
+            elemento->y += INIMIGO1_STEP * steps;
+            if (elemento->y >= max_y - elemento->tam_lateral / 2)
+                *trajetoria = 1;
         }
         else
         {
-            // Movendo para a esquerda
-            element->x -= steps * ENEMY1_STEP;
-            if ((element->x - element->side / 2) <= 0)
-            {
-                element->x = element->side / 2;
-                trajectory++; // Muda a direção
-            }
+            elemento->x -= INIMIGO1_STEP * steps;
+            elemento->y -= INIMIGO1_STEP * steps;
+            if (elemento->y <= elemento->tam_lateral / 2)
+                *trajetoria = 0;
         }
         break;
-
-    case 2: // Tipo 2 de inimigo (movimento sinusoidal)
-        element->x += steps * ENEMY2_STEP;
-        element->y = (unsigned short)(max_y / 2 + 50 * sin(element->x * 0.1)); // Movimento em onda
-
-        if ((element->x + element->side / 2) > max_x)
-            element->x = max_x - element->side / 2;
+    case 2: // Movimento em círculo
+        // Movimento contínuo no eixo X
+        elemento->x -= INIMIGO2_STEP * steps; // Movimento para a esquerda (pode ajustar a velocidade conforme necessário)
+        // Se o inimigo sair da tela pela esquerda, ele reaparece no lado direito
+        if (elemento->x + elemento->tam_lateral / 2 < 0)
+        {
+            elemento->x = max_x; // Reposiciona no lado direito da tela
+        }
+        // Movimento circular no eixo Y com função seno
+        // Para dar um efeito de círculo, usamos um valor de X para calcular Y de forma contínua
+        elemento->y = max_y / 2 + 100 * sin(elemento->x / 50.0); // Ajuste o 50.0 para controlar a frequência da oscilação no Y
         break;
-
-    case 3: // Tipo 3 de inimigo (movimento aleatório ou zig-zag)
-        if (rand() % 2 == 0)
-            element->x += steps * ENEMY3_STEP;
-        else
-            element->x -= steps * ENEMY3_STEP;
-
-        // Limites horizontais
-        if ((element->x - element->side / 2) < 0)
-            element->x = element->side / 2;
-        if ((element->x + element->side / 2) > max_x)
-            element->x = max_x - element->side / 2;
+    case 3:                                   // Movimento em onda
+        elemento->x -= INIMIGO3_STEP * steps; // Movimento contínuo para a esquerda
+        // Garante que o inimigo não saia da tela pela esquerda
+        if (elemento->x + elemento->tam_lateral / 2 < 0)
+        {
+            elemento->x = max_x; // Reposiciona no lado direito da tela
+        }
+        // Movimento em onda (efeito suave no eixo Y)
+        elemento->y = max_y / 2 + 100 * sin(elemento->x / 100.0); // Função seno para onda suave
         break;
-
     default:
-        break;
+        return;
     }
+
+    // Disparo automático com cooldown
+    if (elemento->arma->timer == 0)
+    {
+        inimigo_atira(elemento);               // Inimigo realiza o disparo
+        elemento->arma->timer = ARMA_COOLDOWN_INIMIGO; // Define um cooldown para o próximo disparo
+    }
+    else
+    {
+        elemento->arma->timer--; // Decrementa o cooldown a cada frame
+    }
+
+    mover_projetil(&elemento->arma->shots); // Atualiza a posição dos projéteis do inimigo
 }
 
-// Função para desenhar o inimigo na tela com o recorte correto do sprite
-void enemy_draw(enemy *element)
+void desenhar_inimigo(inimigo *elemento)
 {
-    // FASE 01
-    //  INIMIGO 01 DA FASE 01
-    // Definições do tamanho de cada quadro no sprite sheet
-    int sprite_width = 100;  // Largura do quadro no sprite sheet
-    int sprite_height = 100; // Altura do quadro no sprite sheet
+    if (!elemento || !elemento->sprite_info)
+        return;
+
+    int sprite_largura = elemento->sprite_info->largura;
+    int sprite_altura = elemento->sprite_info->altura;
 
     // Calcula a posição do quadro no sprite sheet
-    int frame_x = (element->current_frame % 5) * sprite_width;  // Coluna
-    int frame_y = (element->current_frame / 5) * sprite_height; // Linha
+    int frame_x = (elemento->frame_atual % elemento->sprite_info->num_frames) * sprite_largura;
+    int frame_y = (elemento->frame_atual / elemento->sprite_info->num_frames) * sprite_altura;
 
-    //  INIMIGO 02 DA FASE 01
-    int sprite1_width = 110;
-    int sprite1_height = 110;
+    // Desenha a região do sprite correspondente
+    al_draw_bitmap_region(elemento->sprite_info->sprite, frame_x, frame_y, sprite_largura, sprite_altura,
+                          elemento->x - sprite_largura / 2, elemento->y - sprite_altura / 2, 0);
+}
 
-    int frame1_x = (element->current_frame % 4) * sprite_width;
-    int frame1_y = (element->current_frame / 4) * sprite_height;
-    /*------------------------------------------------------------------------------*/
-    // FASE 02
-    //  INIMIGO 01 DA FASE 02
-    int sprite2_width = 118;
-    int sprite2_height = 118;
+void atualizar_animacao_inimigo(inimigo *elemento, unsigned int *animation_counter, unsigned int delay)
+{
+    if (!elemento || !elemento->sprite_info)
+        return;
 
-    int frame2_x = (element->current_frame % 6) * sprite_width;
-    int frame2_y = (element->current_frame / 6) * sprite_height;
-
-    //  INIMIGO 02 DA FASE 02
-    int sprite3_width = 110;
-    int sprite3_height = 110;
-
-    int frame3_x = (element->current_frame % 4) * sprite_width;
-    int frame3_y = (element->current_frame / 4) * sprite_height;
-    /*------------------------------------------------------------------------------*/
-
-    switch (element->type)
+    // Atualiza contador de animação
+    if (++(*animation_counter) >= delay)
     {
-    case 0:
-        al_draw_bitmap_region(element->enemy_sprite, frame_x, frame_y, sprite_width, sprite_height,
-                       element->x - sprite_width / 2, element->y - sprite_height / 2, 0);
-        break;
-    case 1:
-        al_draw_bitmap_region(element->enemy_sprite, frame1_x, frame1_y, sprite1_width, sprite1_height,
-                       element->x - sprite1_width / 2, element->y - sprite1_height / 2, 0);
-        break;
-    case 2:
-        al_draw_bitmap_region(element->enemy_sprite, frame2_x, frame2_y, sprite2_width, sprite2_height,
-                       element->x - sprite2_width / 2, element->y - sprite2_height / 2, 0);
-        break;
-    case 3:
-        al_draw_bitmap_region(element->enemy_sprite, frame3_x, frame3_y, sprite3_width, sprite3_height,
-                       element->x - sprite3_width / 2, element->y - sprite3_height / 2, 0);
-        break;
-    default:
-        break;
+        elemento->frame_atual = (elemento->frame_atual + 1) % elemento->sprite_info->num_frames;
+        *animation_counter = 0; // Reseta o contador de animação
     }
 }
 
-void enemy_shot(enemy *element)
+// Função que cria uma onda de inimigos
+void criar_onda_inimigos(inimigo **lista_inimigos, unsigned short max_x, unsigned short max_y, unsigned short tipo)
 {
-    if (!element)
-        return;
-
-    arma_shot(element->x, element->y, element->face, element->arma);
+    for (int i = 0; i < NUM_INIMIGOS_ORDA; i++)
+    {
+        lista_inimigos[i] = criar_inimigo(50, 0, max_x - 50, 80 + i * 200, tipo, max_x, max_y);
+    }
 }
 
-void enemy_destroy(enemy *element)
+void desenhar_onda_inimigos(inimigo **lista_inimigos, unsigned short max_x, unsigned short max_y)
 {
-    if (element)
+    for (int i = 0; i < NUM_INIMIGOS_ORDA; i++)
     {
-        al_destroy_bitmap(element->enemy_sprite); // Libera a imagem do inimigo
-        arma_destroy(element->arma);              // Libera a arma do inimigo
-        free(element);                            // Libera a memória alocada para o inimigo
+        if (lista_inimigos[i])
+        {
+            desenhar_inimigo(lista_inimigos[i]);
+        }
+    }
+}
+
+void atualizar_onda_inimigos(inimigo **lista_inimigos, unsigned short max_x, unsigned short max_y, int *animation_counter)
+{
+    for (int i = 0; i < NUM_INIMIGOS_ORDA; i++)
+    {
+        if (lista_inimigos[i])
+        {
+            // Move o inimigo na tela
+            mover_inimigo(lista_inimigos[i], 1, 0, max_x, max_y);
+
+            // Atualiza a animação do inimigo
+            atualizar_animacao_inimigo(lista_inimigos[i], animation_counter, ANIMATION_DELAY_INIMIGO);
+        }
+    }
+}
+
+void inimigo_atira(inimigo *elemento)
+{
+    if (!elemento->arma->timer)
+    {                                                                   // Verifica se a arma do jogador não está em cooldown
+        disparo_arma(elemento->x - 80, elemento->y, 0, elemento->arma); // Realiza o disparo
+        elemento->arma->timer = ARMA_COOLDOWN_INIMIGO;                  // Inicia o cooldown da arma
+    }
+}
+
+void destroi_inimigo(inimigo *elemento)
+{
+    if (elemento)
+    {
+        al_destroy_bitmap(elemento->sprite_info->sprite); // Libera a imagem do sprite
+        free(elemento->sprite_info);                      // Libera a memória da struct do sprite
+        destroi_arma(elemento->arma);                     // Libera a arma do inimigo
+        free(elemento);                                   // Libera a memória alocada para o inimigo
     }
 }
