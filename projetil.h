@@ -1,7 +1,7 @@
 #ifndef __PROJETIL__ // Guardas de inclusão
 #define __PROJETIL__ // Guardas de inclusão
 
-#include <allegro5/allegro.h> 
+#include <allegro5/allegro.h> // Biblioteca base do Allegro
 
 /*-----------------------------------------------------------------------------------------*/
 /* DEFINIÇÕES */
