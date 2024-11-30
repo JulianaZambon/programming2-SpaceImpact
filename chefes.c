@@ -2,8 +2,9 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <stdio.h>
+#include <math.h>
 
-// Libs locais
+// Inclusões de bibliotecas locais
 #include "chefes.h"
 
 /*-----------------------------------------------------------------------------------------*/
@@ -27,7 +28,8 @@ chefe *criar_chefe(unsigned char side, unsigned char face, short x, unsigned sho
     novo_chefe->x = x;               // Posição X do centro do chefe
     novo_chefe->y = y;               // Posição Y do centro do chefe
     novo_chefe->tipo = type;         // Tipo do chefe, diferenciando-os
-    novo_chefe->arma = criar_arma(); // Aloca e inicializa a arma do chefe (caso tenha)
+    novo_chefe->arma = criar_arma(); // Aloca e inicializa a arma do chefe
+    novo_chefe->hp = 50;             // Define a vida do chefe
 
     // Aloca a estrutura para o sprite do chefe
     novo_chefe->sprite_info = (chefe_sprite *)malloc(sizeof(chefe_sprite));
@@ -42,21 +44,22 @@ chefe *criar_chefe(unsigned char side, unsigned char face, short x, unsigned sho
     {
     case 0: // Tipo de chefe 0
         novo_chefe->sprite_info->sprite = al_load_bitmap(PATH_CHEFE_0);
-        novo_chefe->sprite_info->largura = 270;   // Largura do quadro no sprite sheet
-        novo_chefe->sprite_info->altura = 270;    // Altura do quadro no sprite sheet
-        novo_chefe->sprite_info->num_frames = 17; // Número de quadros no sprite
+        novo_chefe->sprite_info->largura = 250;   // Largura do quadro no sprite sheet
+        novo_chefe->sprite_info->altura = 250;    // Altura do quadro no sprite sheet
+        novo_chefe->sprite_info->num_frames = 11; // Número de colunas no sprite
         break;
     case 1: // Tipo de chefe 1
         novo_chefe->sprite_info->sprite = al_load_bitmap(PATH_CHEFE_1);
         novo_chefe->sprite_info->largura = 250;  // Largura do quadro no sprite sheet
         novo_chefe->sprite_info->altura = 250;   // Altura do quadro no sprite sheet
-        novo_chefe->sprite_info->num_frames = 8; // Número de quadros no sprite
+        novo_chefe->sprite_info->num_frames = 8; // Número de colunas no sprite
         break;
     default:
         free(novo_chefe->sprite_info);
         free(novo_chefe);
         return NULL;
     }
+
     // Verifica se o sprite foi carregado corretamente
     if (!novo_chefe->sprite_info->sprite)
     {
@@ -64,36 +67,42 @@ chefe *criar_chefe(unsigned char side, unsigned char face, short x, unsigned sho
         free(novo_chefe);
         return NULL;
     }
+
     return novo_chefe;
 }
 
+// Função de movimentação do chefe
 // Função de movimentação do chefe
 void mover_chefe(chefe *elemento, unsigned char steps, unsigned char trajetoria, unsigned short max_x, unsigned short max_y)
 {
     if (!elemento)
         return;
 
+    // Movimento do chefe baseado no tipo
     switch (elemento->tipo)
     {
-    case 0: // Movimento para a esquerda
+    case 0: // movimento simples para a esquerda
         elemento->x -= CHEFE0_STEP * steps;
         break;
-    case 1: // Movimento em círculo
-        // Movimento contínuo no eixo X
-        elemento->x -= CHEFE1_STEP * steps; // Movimento para a esquerda (pode ajustar a velocidade conforme necessário)
-
-        // Se o inimigo sair da tela pela esquerda, ele reaparece no lado direito
-        if (elemento->x + elemento->tam_lateral / 2 < 0)
-        {
-            elemento->x = max_x; // Reposiciona no lado direito da tela
-        }
-        // Movimento circular no eixo Y com função seno
-        // Para dar um efeito de círculo, usamos um valor de X para calcular Y de forma contínua
-        elemento->y = max_y / 2 + 100 * sin(elemento->x / 50.0); // Ajuste o 50.0 para controlar a frequência da oscilação no Y
+    case 1: // movimento simples para a esquerda
+        elemento->x -= CHEFE1_STEP * steps;
         break;
     default:
-        break;
+        return;
     }
+
+    // Disparo automático com cooldown
+    if (elemento->arma->timer == 0)
+    {
+        chefe_atira(elemento);                       // Inimigo realiza o disparo
+        elemento->arma->timer = ARMA_COOLDOWN_CHEFE; // Define um cooldown para o próximo disparo
+    }
+    else
+    {
+        elemento->arma->timer--; // Decrementa o cooldown a cada frame
+    }
+
+    mover_projetil(&elemento->arma->shots); // Atualiza a posição dos projéteis do inimigo
 }
 
 // Função de desenho do chefe
@@ -132,9 +141,9 @@ void atualizar_animacao_chefe(chefe *elemento, unsigned int *animation_counter, 
 void chefe_atira(chefe *element)
 {
     if (!element->arma->timer)
-    {                                                           // Verifica se a arma do jogador não está em cooldown
-        disparo_arma(element->x, element->y, 1, element->arma); // Realiza o disparo
-        element->arma->timer = ARMA_COOLDOWN;                   // Inicia o cooldown da arma
+    {                                                                 // Verifica se a arma do jogador não está em cooldown
+        disparo_arma(element->x - 100, element->y, 0, element->arma); // Realiza o disparo
+        element->arma->timer = ARMA_COOLDOWN_CHEFE;                   // Inicia o cooldown da arma
     }
 }
 
