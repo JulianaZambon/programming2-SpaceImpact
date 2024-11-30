@@ -7,6 +7,7 @@
 
 // Libs locais
 #include "inimigos.h"
+#include "configuracoes.h"
 /*-----------------------------------------------------------------------------------------*/
 /* FUNÇÕES INIMIGO */
 
@@ -42,24 +43,28 @@ inimigo *criar_inimigo(unsigned char side, unsigned char face, short x, unsigned
         novo_inimigo->sprite_info->largura = 100;
         novo_inimigo->sprite_info->altura = 100;
         novo_inimigo->sprite_info->num_frames = 5;
+        novo_inimigo->pode_atirar = 0; // Define que o inimigo não pode atirar
         break;
     case 1:
         novo_inimigo->sprite_info->sprite = al_load_bitmap(PATH_INIMIGO_1);
         novo_inimigo->sprite_info->largura = 110;
         novo_inimigo->sprite_info->altura = 110;
         novo_inimigo->sprite_info->num_frames = 4;
+        novo_inimigo->pode_atirar = 1; // Define que o inimigo pode atirar
         break;
     case 2:
         novo_inimigo->sprite_info->sprite = al_load_bitmap(PATH_INIMIGO_2);
         novo_inimigo->sprite_info->largura = 118;
         novo_inimigo->sprite_info->altura = 118;
         novo_inimigo->sprite_info->num_frames = 6;
+        novo_inimigo->pode_atirar = 0; // Define que o inimigo não pode atirar
         break;
     case 3:
         novo_inimigo->sprite_info->sprite = al_load_bitmap(PATH_INIMIGO_3);
         novo_inimigo->sprite_info->largura = 110;
         novo_inimigo->sprite_info->altura = 110;
         novo_inimigo->sprite_info->num_frames = 4;
+        novo_inimigo->pode_atirar = 1; // Define que o inimigo pode atirar
         break;
     default:
         free(novo_inimigo->sprite_info);
@@ -76,7 +81,6 @@ inimigo *criar_inimigo(unsigned char side, unsigned char face, short x, unsigned
 
     return novo_inimigo;
 }
-
 // Função de movimentação de um inimigo
 void mover_inimigo(inimigo *elemento, unsigned char steps, unsigned char *trajetoria, unsigned short max_x, unsigned short max_y)
 {
@@ -173,10 +177,16 @@ void atualizar_animacao_inimigo(inimigo *elemento, unsigned int *animation_count
         *animation_counter = 0; // Reseta o contador de animação
     }
 }
-// Função de disparo do inimigo
+// Gera uma posicão Y aleatória, com um X fixo, e um tempo entre a criação do mesmo tipo de inimigos
+// Assim, criando uma espécie de "onda" de inimigos
+void atualizar_criacao_inimigo(inimigo **lista)
+{
+}
+
+// Função de disparo do inimigo (se o inimigo puder atirar)
 void inimigo_atira(inimigo *elemento)
 {
-    if (!elemento->arma->timer)
+    if (!elemento->arma->timer && elemento->pode_atirar)
     {                                                                   // Verifica se a arma do jogador não está em cooldown
         disparo_arma(elemento->x - 80, elemento->y, 0, elemento->arma); // Realiza o disparo
         elemento->arma->timer = ARMA_COOLDOWN_INIMIGO;                  // Inicia o cooldown da arma
@@ -193,6 +203,3 @@ void destroi_inimigo(inimigo *elemento)
         free(elemento);                                   // Libera a memória alocada para o inimigo
     }
 }
-
-/*-----------------------------------------------------------------------------------------*/
-/* FUNÇÕES ONDA DE INIMIGOS */
