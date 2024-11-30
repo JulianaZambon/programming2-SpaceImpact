@@ -10,10 +10,10 @@
 /* DEFINIÇÕES */
 
 #define NUM_CHEFES 2
-#define CHEFE0_STEP 5
-#define CHEFE1_STEP 5
-#define PATH_CHEFE_0 "assets/chefes/chefe1.png"
-#define PATH_CHEFE_1 "assets/chefes/chefe2.png"
+#define CHEFE0_STEP 1.5
+#define CHEFE1_STEP 10
+#define PATH_CHEFE_0 "assets/chefes/fase1/chefe1.png"
+#define PATH_CHEFE_1 "assets/chefes/fase2/chefe2.png"
 
 /*-----------------------------------------------------------------------------------------*/
 /* ESTRUTURAS */
