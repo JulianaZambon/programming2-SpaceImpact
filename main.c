@@ -6,6 +6,7 @@
 
 // Inclusão de bibliotecas locais
 #include "configuracoes.h"
+#include "telaInicial.h"
 #include "jogador.h"
 #include "inimigos.h"
 #include "chefes.h"
@@ -69,10 +70,10 @@ int main()
     if (!jogador_1)
         return 1;
 
-    // // Inicialização do inimigo
-    inimigo *inimigo_1 = criar_inimigo(20, 60, X_SCREEN - 50, Y_SCREEN / 2, 0, X_SCREEN, Y_SCREEN);
-    if (!inimigo_1)
-        return 1;
+    // Inicialização do inimigo
+    // inimigo *inimigo_1 = criar_inimigo(20, 60, X_SCREEN - 50, Y_SCREEN / 2, 1, X_SCREEN, Y_SCREEN);
+    // if (!inimigo_1)
+    //     return 1;
 
     // Inicialização do chefe
     // chefe *chefe_1 = criar_chefe(20, 60, X_SCREEN - 100, Y_SCREEN / 2, 0, X_SCREEN + 150, Y_SCREEN);
@@ -110,14 +111,14 @@ int main()
 
             // Atualiza animação do jogador e do inimigo
             atualizar_animacao_jogador(jogador_1, &animation_counter_jogador, ANIMATION_DELAY_JOGADOR);
-            atualizar_animacao_inimigo(inimigo_1, &animation_counter_inimigo, ANIMATION_DELAY_INIMIGO);
+            // atualizar_animacao_inimigo(inimigo_1, &animation_counter_inimigo, ANIMATION_DELAY_INIMIGO);
             // atualizar_animacao_chefe(chefe_1, &animation_counter_inimigo, ANIMATION_DELAY_CHEFE);
 
             // Atualiza o jogador e projéteis
             atualiza_posicao(jogador_1);
 
             // Atualiza o inimigo
-            mover_inimigo(inimigo_1, 2, &trajetoria, X_SCREEN, Y_SCREEN);
+            // mover_inimigo(inimigo_1, 2, &trajetoria, X_SCREEN, Y_SCREEN_MOVIMENTO);
             // mover_chefe(chefe_1, 2, trajetoria, X_SCREEN, Y_SCREEN);
 
             // Desenha o jogador
@@ -127,7 +128,7 @@ int main()
             desenhar_hp(jogador_1, 15, 15);
 
             // Desenha o inimigo
-            desenhar_inimigo(inimigo_1);
+            // desenhar_inimigo(inimigo_1);
             // desenhar_chefe(chefe_1);
 
             // Desenha os projéteis do jogador
@@ -141,25 +142,26 @@ int main()
                 //     p = proximo;
                 // }
                 // else
-                desenhar_projetil(p);
+                    desenhar_projetil_jogador(p);
             }
 
             // Atualiza a arma do jogador
             if (jogador_1->arma->timer)
                 atualiza_arma(jogador_1->arma);
 
-            for (projetil *p = inimigo_1->arma->shots; p != NULL; p = (projetil *)p->proximo)
-            {
-                // if (verificar_colisao_projetil(p, jogador_1->x, jogador_1->y, jogador_1->tam_lateral))
-                // {
-                //     jogador_1->hp--;
-                //     projetil *proximo = p->proximo;
-                //     destruir_projetil(p);
-                //     p = proximo;
-                // }
-                // else
-                desenhar_projetil(p);
-            }
+            // Desenha os projéteis do chefe
+            // for (projetil *p = chefe_1->arma->shots; p != NULL; p = (projetil *)p->proximo)
+            // {
+            //     // if (verificar_colisao_projetil(p, jogador_1->x, jogador_1->y, jogador_1->tam_lateral))
+            //     // {
+            //     //     jogador_1->hp--;
+            //     //     projetil *proximo = p->proximo;
+            //     //     destruir_projetil(p);
+            //     //     p = proximo;
+            //     // }
+            //     // else
+            //     desenhar_projetil2_chefe_0(p);
+            // }
 
             al_flip_display();
         }
