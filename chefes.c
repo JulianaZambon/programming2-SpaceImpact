@@ -83,10 +83,14 @@ void mover_chefe(chefe *elemento, unsigned char steps, unsigned char trajetoria,
     case 0: // movimento para cima e para baixo continuamente
             // Movimento oscilatório baseado no seno do tempo (frame atual)
         elemento->y = (max_y / 2) + (sin(al_get_time() * steps * 0.05) * (max_y / 4));
+        // basta comentar/descomentar para obter o movimento para a esquerda tbm
+        // elemento->x -= steps; 
         break;
     case 1: // movimento para cima e para baixo continuamente
             // Movimento oscilatório baseado no seno do tempo (frame atual)
         elemento->y = (max_y / 2) + (sin(al_get_time() * steps * 0.05) * (max_y / 4));
+        // basta comentar/descomentar para obter o movimento para a esquerda tbm
+        // elemento->x -= steps;
         break;
     }
 
