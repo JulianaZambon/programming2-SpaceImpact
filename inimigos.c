@@ -5,7 +5,7 @@
 #include <time.h>
 #include <math.h>
 
-// Libs locais
+// Inclusão de bibliotecas locais
 #include "inimigos.h"
 #include "configuracoes.h"
 /*-----------------------------------------------------------------------------------------*/
