@@ -8,6 +8,7 @@
 #include "configuracoes.h"
 #include "jogador.h"
 #include "inimigos.h"
+#include "chefes.h"
 
 /*-----------------------------------------------------------------------------------------*/
 /* DEFINIÇÕES */
@@ -16,47 +17,6 @@
 
 /*-----------------------------------------------------------------------------------------*/
 /* FUNÇÕES AUXILIARES */
-
-unsigned char verifica_morte(jogador *jogador_1, inimigo *inimigo_1)
-{
-    projetil *previous = NULL;
-    for (projetil *index = jogador_1->arma->shots; index != NULL; index = index->proximo)
-    {
-        // Verifica colisão do projétil com a vítima
-        if ((index->x >= inimigo_1->x - inimigo_1->tam_lateral / 2) && (index->x <= inimigo_1->x + inimigo_1->tam_lateral / 2) &&
-            (index->y >= inimigo_1->y - inimigo_1->tam_lateral / 2) && (index->y <= inimigo_1->y + inimigo_1->tam_lateral / 2))
-        {
-            inimigo_1->hp--; // Diminui o HP da vítima
-
-            // Verifica se a vítima ainda tem HP
-            if (inimigo_1->hp > 0)
-            {
-                // Se não for o primeiro projétil, atualiza o ponteiro anterior
-                if (previous)
-                {
-                    previous->proximo = index->proximo; // Remove o projétil da lista
-                    destruir_projetil(index);            // Destroi o projétil
-                    index = previous->proximo;          // Atualiza para o próximo projétil
-                }
-                else
-                {
-                    // Se for o primeiro projétil da lista, atualiza a cabeça da lista
-                    jogador_1->arma->shots = index->proximo; // Atualiza a lista de projéteis
-                    destruir_projetil(index);                // Destroi o projétil
-                    index = jogador_1->arma->shots;          // Atualiza para o próximo
-                }
-            }
-            else
-            {
-                // A vítima morreu
-                destruir_projetil(index); // Destroi o projétil
-                return 1;                // A vítima morreu
-            }
-        }
-        previous = index; // Atualiza o projétil anterior
-    }
-    return 0; // Nenhum projétil acertou a vítima
-}
 
 // Atualiza a posição e ações do jogador
 void atualiza_posicao(jogador *jogador_1)
@@ -92,7 +52,7 @@ int main()
     al_init_image_addon();
     al_install_keyboard();
 
-    ALLEGRO_TIMER *timer = al_create_timer(1.0 / 30.0);
+    ALLEGRO_TIMER *timer = al_create_timer(1.0 / 30.0); // 30 FPS
     ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
     ALLEGRO_FONT *font = al_create_builtin_font();
     ALLEGRO_DISPLAY *disp = al_create_display(X_SCREEN, Y_SCREEN);
@@ -103,26 +63,31 @@ int main()
     al_register_event_source(queue, al_get_timer_event_source(timer));
     al_start_timer(timer);
 
-    // Após a tela inicial, o jogo começa
     // Inicialização do jogador
     jogador *jogador_1 = criar_jogador(20, 60, 80, Y_SCREEN / 2, X_SCREEN, Y_SCREEN);
     jogador_1->sprite = al_load_bitmap(PATH_JOGADOR);
     if (!jogador_1)
         return 1;
 
-    // Inicialização do inimigo
-    inimigo *inimigo_1 = criar_inimigo(20, 60, X_SCREEN - 50, Y_SCREEN / 2, 2, X_SCREEN, Y_SCREEN);
+    // // Inicialização do inimigo
+    inimigo *inimigo_1 = criar_inimigo(20, 60, X_SCREEN - 50, Y_SCREEN / 2, 0, X_SCREEN, Y_SCREEN);
     if (!inimigo_1)
         return 1;
+
+    // Inicialização do chefe
+    // chefe *chefe_1 = criar_chefe(20, 60, X_SCREEN - 100, Y_SCREEN / 2, 0, X_SCREEN + 150, Y_SCREEN);
+    // if (!chefe_1)
+    //     return 1;
 
     unsigned char trajetoria = 0; // Inicializa o controle de trajetória
 
     // Variáveis de controle de animação
     unsigned int animation_counter_jogador = 0;
     unsigned int animation_counter_inimigo = 0;
-    unsigned int animation_counter_fundo = 0;
 
     float background_x = 0;
+
+    inimigo *lista_inimigos = NULL;
 
     /*-----------------------------------------------------------------------------------------*/
     /* LOOP PRINCIPAL DO JOGO */
@@ -146,12 +111,14 @@ int main()
             // Atualiza animação do jogador e do inimigo
             atualizar_animacao_jogador(jogador_1, &animation_counter_jogador, ANIMATION_DELAY_JOGADOR);
             atualizar_animacao_inimigo(inimigo_1, &animation_counter_inimigo, ANIMATION_DELAY_INIMIGO);
+            // atualizar_animacao_chefe(chefe_1, &animation_counter_inimigo, ANIMATION_DELAY_CHEFE);
 
             // Atualiza o jogador e projéteis
             atualiza_posicao(jogador_1);
 
             // Atualiza o inimigo
             mover_inimigo(inimigo_1, 2, &trajetoria, X_SCREEN, Y_SCREEN);
+            // mover_chefe(chefe_1, 2, trajetoria, X_SCREEN, Y_SCREEN);
 
             // Desenha o jogador
             desenhar_jogador(jogador_1);
@@ -161,45 +128,37 @@ int main()
 
             // Desenha o inimigo
             desenhar_inimigo(inimigo_1);
+            // desenhar_chefe(chefe_1);
 
             // Desenha os projéteis do jogador
             for (projetil *p = jogador_1->arma->shots; p != NULL; p = (projetil *)p->proximo)
             {
-                if (verificar_colisao_projetil(p, inimigo_1->x, inimigo_1->y, inimigo_1->tam_lateral))
-                {
-                    inimigo_1->hp--;
-                    projetil *proximo = p->proximo;
-                    destruir_projetil(p);
-                    p = proximo;
-                }
-                else
-                    desenhar_projetil(p);
+                // if (verificar_colisao_projetil(p, inimigo_1->x, inimigo_1->y, inimigo_1->tam_lateral))
+                // {
+                //     inimigo_1->hp--;
+                //     projetil *proximo = p->proximo;
+                //     destruir_projetil(p);
+                //     p = proximo;
+                // }
+                // else
+                desenhar_projetil(p);
             }
 
             // Atualiza a arma do jogador
             if (jogador_1->arma->timer)
                 atualiza_arma(jogador_1->arma);
 
-            for (projetil *p = inimigo_1->arma->shots; p != NULL; p = p->proximo)
+            for (projetil *p = inimigo_1->arma->shots; p != NULL; p = (projetil *)p->proximo)
             {
-                if (verificar_colisao_projetil(p, jogador_1->x, jogador_1->y, jogador_1->tam_lateral))
-                {
-                    jogador_1->hp--;
-
-                    // Armazena o próximo projétil antes de destruir o atual
-                    projetil *proximo = p->proximo;
-
-                    // Destrói o projétil
-                    destruir_projetil(p);
-
-                    // Atualiza o ponteiro p para o próximo projétil
-                    p = proximo;
-                }
-                else
-                {
-                    // Desenha o projétil se não houver colisão
-                    desenhar_projetil(p);
-                }
+                // if (verificar_colisao_projetil(p, jogador_1->x, jogador_1->y, jogador_1->tam_lateral))
+                // {
+                //     jogador_1->hp--;
+                //     projetil *proximo = p->proximo;
+                //     destruir_projetil(p);
+                //     p = proximo;
+                // }
+                // else
+                desenhar_projetil(p);
             }
 
             al_flip_display();
