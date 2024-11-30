@@ -72,7 +72,6 @@ chefe *criar_chefe(unsigned char side, unsigned char face, short x, unsigned sho
 }
 
 // Função de movimentação do chefe
-// Função de movimentação do chefe
 void mover_chefe(chefe *elemento, unsigned char steps, unsigned char trajetoria, unsigned short max_x, unsigned short max_y)
 {
     if (!elemento)
@@ -81,14 +80,14 @@ void mover_chefe(chefe *elemento, unsigned char steps, unsigned char trajetoria,
     // Movimento do chefe baseado no tipo
     switch (elemento->tipo)
     {
-    case 0: // movimento simples para a esquerda
-        elemento->x -= CHEFE0_STEP * steps;
+    case 0: // movimento para cima e para baixo continuamente
+            // Movimento oscilatório baseado no seno do tempo (frame atual)
+        elemento->y = (max_y / 2) + (sin(al_get_time() * steps * 0.05) * (max_y / 4));
         break;
-    case 1: // movimento simples para a esquerda
-        elemento->x -= CHEFE1_STEP * steps;
+    case 1: // movimento para cima e para baixo continuamente
+            // Movimento oscilatório baseado no seno do tempo (frame atual)
+        elemento->y = (max_y / 2) + (sin(al_get_time() * steps * 0.05) * (max_y / 4));
         break;
-    default:
-        return;
     }
 
     // Disparo automático com cooldown
