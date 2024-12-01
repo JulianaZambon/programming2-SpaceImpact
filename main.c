@@ -7,13 +7,14 @@
 // Inclusão de bibliotecas locais
 #include "configuracoes.h"
 #include "telaInicial.h"
+#include "background.h"
 #include "jogador.h"
 #include "inimigos.h"
 #include "chefes.h"
 
 /*-----------------------------------------------------------------------------------------*/
 /* DEFINIÇÕES */
-#define PATH_CENARIO_2 "assets/cenarios/cenario2.png"
+#define PATH_CENARIO_2 "assets/cenarios/cenario3.png"
 
 /*-----------------------------------------------------------------------------------------*/
 /* FUNÇÕES AUXILIARES */
@@ -83,7 +84,7 @@ int main()
         return 1;
 
     // Inicialização do inimigo
-    inimigo *inimigo_1 = criar_inimigo(20, 60, 80, Y_SCREEN / 2, 0, X_SCREEN, Y_SCREEN);
+    inimigo *inimigo_1 = criar_inimigo(20, 60, X_SCREEN - 50, Y_SCREEN / 2, 1, X_SCREEN, Y_SCREEN);
     if (!inimigo_1)
         return 1;
 
@@ -121,15 +122,8 @@ int main()
         {
             if (event.type == ALLEGRO_EVENT_TIMER)
             {
-                al_clear_to_color(al_map_rgb(0, 0, 0));
-
-                // Atualiza o fundo
-                background_x -= VELOCIDADE_BACKGROUND;
-                if (background_x <= -al_get_bitmap_width(background))
-                    background_x = 0;
-
-                al_draw_bitmap(background, background_x, 0, 0);
-                al_draw_bitmap(background, background_x + al_get_bitmap_width(background), 0, 0);
+                // Atualiza e desenha o background
+                atualiza_e_desenha_background(background, &background_x, VELOCIDADE_BACKGROUND);
 
                 // Atualiza animação do jogador
                 atualizar_animacao_jogador(jogador_1, &animation_counter_jogador, ANIMATION_DELAY_JOGADOR);
@@ -145,6 +139,9 @@ int main()
 
                 // Desenhar o iniimigo
                 desenhar_inimigo(inimigo_1);
+
+                // Movimentação do inimigo
+                mover_inimigo(inimigo_1, 1, &trajetoria, X_SCREEN, Y_SCREEN);
 
                 // Desenha os corações de HP
                 desenhar_hp(jogador_1, 15, 15);
