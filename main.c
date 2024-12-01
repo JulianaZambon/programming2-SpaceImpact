@@ -19,6 +19,153 @@
 /*-----------------------------------------------------------------------------------------*/
 /* FUNÇÕES AUXILIARES */
 
+// Implementação da função que verifica se um projétil acertou um inimigo
+unsigned char check_kill_inimigo(jogador *killer, inimigo *victim)
+{
+    projetil *anterior = NULL;
+    projetil *index = killer->arma->shots;
+
+    // Itera sobre todos os projéteis disparados pelo jogador
+    while (index != NULL)
+    {
+        // Verifica se o projétil colidiu com o inimigo no eixo X e Y
+        if ((index->x >= victim->x - victim->sprite_info->largura / 2) &&
+            (index->x <= victim->x + victim->sprite_info->largura / 2) &&
+            (index->y >= victim->y - victim->sprite_info->altura / 2) &&
+            (index->y <= victim->y + victim->sprite_info->altura / 2))
+        {
+            victim->hp--; // Reduz o HP do inimigo
+
+            // Remove o projétil da lista
+            if (anterior)
+            {
+                anterior->proximo = index->proximo; // Se não for o primeiro, ajusta o ponteiro do anterior
+            }
+            else
+            {
+                killer->arma->shots = (projetil *)index->proximo; // Se for o primeiro, ajusta o início da lista
+            }
+
+            destruir_projetil(index); // Destrói o projétil que colidiu
+
+            // Verifica se o inimigo ainda está vivo
+            if (victim->hp > 0)
+            {
+                return 0; // Inimigo sofreu dano, mas ainda não morreu
+            }
+            else
+            {
+                destroi_inimigo(victim); // Destroi o inimigo
+                return 1; // Inimigo morreu
+            }
+        }
+
+        // Atualiza o controle para o próximo projétil
+        anterior = index;
+        index = (projetil *)index->proximo;
+    }
+
+    return 0; // Não houve colisão com nenhum projétil
+}
+
+// Implementação da função que verifica se um projétil acertou um chefe
+unsigned char check_kill_chefe(jogador *killer, chefe *victim)
+{
+    projetil *anterior = NULL;
+    projetil *index = killer->arma->shots;
+
+    // Itera sobre todos os projéteis disparados pelo jogador
+    while (index != NULL)
+    {
+        // Verifica se o projétil colidiu com o chefe no eixo X e Y
+        if ((index->x >= victim->x - victim->sprite_info->largura / 2) &&
+            (index->x <= victim->x + victim->sprite_info->largura / 2) &&
+            (index->y >= victim->y - victim->sprite_info->altura / 2) &&
+            (index->y <= victim->y + victim->sprite_info->altura / 2))
+        {
+            victim->hp--; // Reduz o HP do chefe
+
+            // Remove o projétil da lista
+            if (anterior)
+            {
+                anterior->proximo = index->proximo; // Se não for o primeiro, ajusta o ponteiro do anterior
+            }
+            else
+            {
+                killer->arma->shots = (projetil *)index->proximo; // Se for o primeiro, ajusta o início da lista
+            }
+
+            destruir_projetil(index); // Destrói o projétil que colidiu
+
+            // Verifica se o chefe ainda está vivo
+            if (victim->hp > 0)
+            {
+                return 0; // Chefe sofreu dano, mas ainda não morreu
+            }
+            else
+            {
+                destroi_chefe(victim); // Destroi o chefe
+                return 1; // Chefe morreu
+            }
+        }
+
+        // Atualiza o controle para o próximo projétil
+        anterior = index;
+        index = (projetil *)index->proximo;
+    }
+
+    return 0; // Não houve colisão com nenhum projétil
+}
+
+// Implementação da função que verifica se um projetil inimigo acertou o jogador
+unsigned char check_player(inimigo *killer, jogador *victim)
+{
+    projetil *anterior = NULL;
+    projetil *index = killer->arma->shots;
+
+    // Itera sobre todos os projéteis disparados pelo inimigo
+    while (index != NULL)
+    {
+        // Verifica se o projétil colidiu com o jogador no eixo X e Y
+        if ((index->x >= victim->x - victim->face/ 2) &&
+            (index->x <= victim->x + victim->face / 2) &&
+            (index->y >= victim->y - TAM_JOGADOR / 2) &&
+            (index->y <= victim->y + TAM_JOGADOR / 2))
+        {
+            victim->hp--; // Reduz o HP do jogador
+
+            // Remove o projétil da lista
+            if (anterior)
+            {
+                anterior->proximo = index->proximo; // Se não for o primeiro, ajusta o ponteiro do anterior
+            }
+            else
+            {
+                killer->arma->shots = (projetil *)index->proximo; // Se for o primeiro, ajusta o início da lista
+            }
+
+            destruir_projetil(index); // Destrói o projétil que colidiu
+
+            // Verifica se o jogador ainda está vivo
+            if (victim->hp > 0)
+            {
+                return 0; // Jogador sofreu dano, mas ainda não morreu
+            }
+            else
+            {
+                destroi_jogador(victim); // Destroi o jogador
+                return 1; // Jogador morreu
+            }
+        }
+
+        // Atualiza o controle para o próximo projétil
+        anterior = index;
+        index = (projetil *)index->proximo;
+    }
+
+    return 0; // Não houve colisão com nenhum projétil
+}
+
 // Atualiza a posição e ações do jogador
 void atualiza_posicao(jogador *jogador_1)
 {
@@ -87,6 +234,8 @@ int main()
     inimigo *inimigo_1 = criar_inimigo(20, 60, X_SCREEN - 50, Y_SCREEN / 2, 1, X_SCREEN, Y_SCREEN);
     if (!inimigo_1)
         return 1;
+    
+    unsigned char jk, ik, ck = 0; // Variáveis de controle de vida 
 
     /*-----------------------------------------------------------------------------------------*/
     /* TELA INICIAL */
@@ -102,7 +251,7 @@ int main()
             if (event.type == ALLEGRO_EVENT_TIMER)
             {
                 al_clear_to_color(al_map_rgb(0, 0, 0));
-                atualizar_animacao_tela_inicial(tela_inicial, &animation_counter_jogador, 3);
+                atualizar_animacao_tela_inicial(tela_inicial, &animation_counter_jogador, VELOCIDADE_TELA_INICIAL);
                 desenhar_tela_inicial(tela_inicial);
                 al_flip_display();
             }
@@ -125,6 +274,9 @@ int main()
                 // Atualiza e desenha o background
                 atualiza_e_desenha_background(background, &background_x, VELOCIDADE_BACKGROUND);
 
+                ik = check_kill_inimigo(jogador_1, inimigo_1);
+                jk = check_player (inimigo_1, jogador_1);
+
                 // Atualiza animação do jogador
                 atualizar_animacao_jogador(jogador_1, &animation_counter_jogador, ANIMATION_DELAY_JOGADOR);
 
@@ -137,7 +289,7 @@ int main()
                 // Desenha o jogador
                 desenhar_jogador(jogador_1);
 
-                // Desenhar o iniimigo
+                // Desenha o iniimigo
                 desenhar_inimigo(inimigo_1);
 
                 // Movimentação do inimigo
@@ -148,13 +300,15 @@ int main()
 
                 // Desenha os projéteis do jogador
                 for (projetil *p = jogador_1->arma->shots; p != NULL; p = (projetil *)p->proximo)
-                {
                     desenhar_projetil_jogador(p);
-                }
 
                 // Atualiza a arma do jogador
                 if (jogador_1->arma->timer)
                     atualiza_arma(jogador_1->arma);
+
+                // Desenha os projeteis do inimigo
+                for (projetil *p = inimigo_1->arma->shots; p != NULL; p = (projetil *)p->proximo)
+                    desenhar_projetil_inimigo_fase_1(p);
 
                 al_flip_display();
             }
