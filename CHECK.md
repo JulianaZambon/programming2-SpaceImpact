@@ -1,7 +1,14 @@
 ## Desenvolvimento dos Módulos
 
+- `MAKEFILE`
+<br>
+
 - `arma.c` ok, funcionando!
 - `arma.h` ok, funcionando!
+<br>
+
+- `background.c` ok, funcionando!
+- `background.h` ok, funcionando!
 <br>
 
 - `chefes.c` ok, funcionando!
@@ -33,3 +40,8 @@
 
 - `projetil.c` ok, funcionando! (CONFIRMAR A COLISAO AINDA) (LEMBRAR DO ATAQUE ESPECIAL)
 - `projetil.h` ok, funcionando!
+<br>
+
+- `telaInicial.c` ok, funcionando!
+- `telaInicial.h` ok, funcionando!
+
