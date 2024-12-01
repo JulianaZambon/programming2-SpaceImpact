@@ -13,7 +13,6 @@
 
 /*-----------------------------------------------------------------------------------------*/
 /* DEFINIÇÕES */
-#define TELA_INICIAL "assets/cenarios/tela_inicial.png"
 #define PATH_CENARIO_2 "assets/cenarios/cenario2.png"
 
 /*-----------------------------------------------------------------------------------------*/
@@ -66,133 +65,130 @@ int main()
 
     // Inicialização do jogador
     jogador *jogador_1 = criar_jogador(20, 60, 80, Y_SCREEN / 2, X_SCREEN, Y_SCREEN);
-    jogador_1->sprite = al_load_bitmap(PATH_JOGADOR);
     if (!jogador_1)
         return 1;
 
-    // Inicialização do inimigo
-    // inimigo *inimigo_1 = criar_inimigo(20, 60, X_SCREEN - 50, Y_SCREEN / 2, 1, X_SCREEN, Y_SCREEN);
-    // if (!inimigo_1)
-    //     return 1;
-
-    // Inicialização do chefe
-    // chefe *chefe_1 = criar_chefe(20, 60, X_SCREEN - 100, Y_SCREEN / 2, 0, X_SCREEN + 150, Y_SCREEN);
-    // if (!chefe_1)
-    //     return 1;
+    // Inicialização do sprite do jogador
+    jogador_1->sprite = al_load_bitmap(PATH_JOGADOR);
+    if (!jogador_1->sprite)
+        return 1;
 
     unsigned char trajetoria = 0; // Inicializa o controle de trajetória
-
-    // Variáveis de controle de animação
     unsigned int animation_counter_jogador = 0;
-    unsigned int animation_counter_inimigo = 0;
-
     float background_x = 0;
 
-    inimigo *lista_inimigos = NULL;
+    // Inicialização da tela inicial
+    tela_inicial_sprite *tela_inicial = criar_tela_inicial();
+    if (!tela_inicial)
+        return 1;
+
+    // Inicialização do inimigo
+    inimigo *inimigo_1 = criar_inimigo(20, 60, 80, Y_SCREEN / 2, 0, X_SCREEN, Y_SCREEN);
+    if (!inimigo_1)
+        return 1;
 
     /*-----------------------------------------------------------------------------------------*/
-    /* LOOP PRINCIPAL DO JOGO */
-    while (1)
+    /* TELA INICIAL */
+    bool tela_inicial_ativa = true;
+    ALLEGRO_EVENT event;
+
+    while (true)
     {
-        ALLEGRO_EVENT event;
         al_wait_for_event(queue, &event);
 
-        if (event.type == ALLEGRO_EVENT_TIMER)
+        if (tela_inicial_ativa)
         {
-            al_clear_to_color(al_map_rgb(0, 0, 0));
-
-            // Atualiza o fundo
-            background_x -= VELOCIDADE_BACKGROUND;
-            if (background_x <= -al_get_bitmap_width(background))
-                background_x = 0;
-
-            al_draw_bitmap(background, background_x, 0, 0);
-            al_draw_bitmap(background, background_x + al_get_bitmap_width(background), 0, 0);
-
-            // Atualiza animação do jogador e do inimigo
-            atualizar_animacao_jogador(jogador_1, &animation_counter_jogador, ANIMATION_DELAY_JOGADOR);
-            // atualizar_animacao_inimigo(inimigo_1, &animation_counter_inimigo, ANIMATION_DELAY_INIMIGO);
-            // atualizar_animacao_chefe(chefe_1, &animation_counter_inimigo, ANIMATION_DELAY_CHEFE);
-
-            // Atualiza o jogador e projéteis
-            atualiza_posicao(jogador_1);
-
-            // Atualiza o inimigo
-            // mover_inimigo(inimigo_1, 2, &trajetoria, X_SCREEN, Y_SCREEN_MOVIMENTO);
-            // mover_chefe(chefe_1, 2, trajetoria, X_SCREEN, Y_SCREEN);
-
-            // Desenha o jogador
-            desenhar_jogador(jogador_1);
-
-            // Desenha os corações de HP
-            desenhar_hp(jogador_1, 15, 15);
-
-            // Desenha o inimigo
-            // desenhar_inimigo(inimigo_1);
-            // desenhar_chefe(chefe_1);
-
-            // Desenha os projéteis do jogador
-            for (projetil *p = jogador_1->arma->shots; p != NULL; p = (projetil *)p->proximo)
+            if (event.type == ALLEGRO_EVENT_TIMER)
             {
-                // if (verificar_colisao_projetil(p, inimigo_1->x, inimigo_1->y, inimigo_1->tam_lateral))
-                // {
-                //     inimigo_1->hp--;
-                //     projetil *proximo = p->proximo;
-                //     destruir_projetil(p);
-                //     p = proximo;
-                // }
-                // else
+                al_clear_to_color(al_map_rgb(0, 0, 0));
+                atualizar_animacao_tela_inicial(tela_inicial, &animation_counter_jogador, 3);
+                desenhar_tela_inicial(tela_inicial);
+                al_flip_display();
+            }
+            else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+            {
+                break;
+            }
+            else if (event.type == ALLEGRO_EVENT_KEY_DOWN)
+            {
+                if (event.keyboard.keycode == ALLEGRO_KEY_S)
+                {
+                    tela_inicial_ativa = false;
+                }
+            }
+        }
+        else
+        {
+            if (event.type == ALLEGRO_EVENT_TIMER)
+            {
+                al_clear_to_color(al_map_rgb(0, 0, 0));
+
+                // Atualiza o fundo
+                background_x -= VELOCIDADE_BACKGROUND;
+                if (background_x <= -al_get_bitmap_width(background))
+                    background_x = 0;
+
+                al_draw_bitmap(background, background_x, 0, 0);
+                al_draw_bitmap(background, background_x + al_get_bitmap_width(background), 0, 0);
+
+                // Atualiza animação do jogador
+                atualizar_animacao_jogador(jogador_1, &animation_counter_jogador, ANIMATION_DELAY_JOGADOR);
+
+                // Atualiza animação do inimigo
+                atualizar_animacao_inimigo(inimigo_1, &animation_counter_jogador, ANIMATION_DELAY_INIMIGO);
+
+                // Atualiza o jogador e projéteis
+                atualiza_posicao(jogador_1);
+
+                // Desenha o jogador
+                desenhar_jogador(jogador_1);
+
+                // Desenhar o iniimigo
+                desenhar_inimigo(inimigo_1);
+
+                // Desenha os corações de HP
+                desenhar_hp(jogador_1, 15, 15);
+
+                // Desenha os projéteis do jogador
+                for (projetil *p = jogador_1->arma->shots; p != NULL; p = (projetil *)p->proximo)
+                {
                     desenhar_projetil_jogador(p);
+                }
+
+                // Atualiza a arma do jogador
+                if (jogador_1->arma->timer)
+                    atualiza_arma(jogador_1->arma);
+
+                al_flip_display();
             }
-
-            // Atualiza a arma do jogador
-            if (jogador_1->arma->timer)
-                atualiza_arma(jogador_1->arma);
-
-            // Desenha os projéteis do chefe
-            // for (projetil *p = chefe_1->arma->shots; p != NULL; p = (projetil *)p->proximo)
-            // {
-            //     // if (verificar_colisao_projetil(p, jogador_1->x, jogador_1->y, jogador_1->tam_lateral))
-            //     // {
-            //     //     jogador_1->hp--;
-            //     //     projetil *proximo = p->proximo;
-            //     //     destruir_projetil(p);
-            //     //     p = proximo;
-            //     // }
-            //     // else
-            //     desenhar_projetil2_chefe_0(p);
-            // }
-
-            al_flip_display();
-        }
-        /*-----------------------------------------------------------------------------------------*/
-        /* EVENTOS DO JOGADOR */
-        else if (event.type == ALLEGRO_EVENT_KEY_DOWN || event.type == ALLEGRO_EVENT_KEY_UP)
-        {
-            switch (event.keyboard.keycode)
+            else if (event.type == ALLEGRO_EVENT_KEY_DOWN || event.type == ALLEGRO_EVENT_KEY_UP)
             {
-            case ALLEGRO_KEY_LEFT:
-                joystick_esquerda(jogador_1->controle);
-                break;
-            case ALLEGRO_KEY_RIGHT:
-                joystick_direita(jogador_1->controle);
-                break;
-            case ALLEGRO_KEY_UP:
-                joystick_cima(jogador_1->controle);
-                break;
-            case ALLEGRO_KEY_DOWN:
-                joystick_baixo(jogador_1->controle);
-                break;
-            case ALLEGRO_KEY_SPACE:
-                joystick_fogo(jogador_1->controle);
+                switch (event.keyboard.keycode)
+                {
+                case ALLEGRO_KEY_LEFT:
+                    joystick_esquerda(jogador_1->controle);
+                    break;
+                case ALLEGRO_KEY_RIGHT:
+                    joystick_direita(jogador_1->controle);
+                    break;
+                case ALLEGRO_KEY_UP:
+                    joystick_cima(jogador_1->controle);
+                    break;
+                case ALLEGRO_KEY_DOWN:
+                    joystick_baixo(jogador_1->controle);
+                    break;
+                case ALLEGRO_KEY_SPACE:
+                    joystick_fogo(jogador_1->controle);
+                    break;
+                }
+            }
+            else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+            {
                 break;
             }
-        }
-        else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
-        {
-            break;
         }
     }
+
     /*-----------------------------------------------------------------------------------------*/
     /* LIBERAÇÃO DE RECURSOS */
     al_destroy_bitmap(jogador_1->sprite);
