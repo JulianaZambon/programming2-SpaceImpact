@@ -8,6 +8,7 @@
 // Inclusão de bibliotecas locais
 #include "inimigos.h"
 #include "configuracoes.h"
+
 /*-----------------------------------------------------------------------------------------*/
 /* FUNÇÕES INIMIGO */
 
@@ -27,6 +28,7 @@ inimigo *criar_inimigo(unsigned char side, unsigned char face, short x, unsigned
     novo_inimigo->y = y;               // Insere a posição inicial central de Y
     novo_inimigo->tipo = type;         // Insere o tipo de inimigo
     novo_inimigo->arma = criar_arma(); // Insere o elemento de disparos do inimigo
+    novo_inimigo->proximo = NULL;      // Inicializa o próximo inimigo como NULL
 
     // Inicializa as informações do sprite do inimigo
     novo_inimigo->sprite_info = (inimigo_sprite *)malloc(sizeof(inimigo_sprite));
@@ -40,31 +42,39 @@ inimigo *criar_inimigo(unsigned char side, unsigned char face, short x, unsigned
     {
     case 0:
         novo_inimigo->sprite_info->sprite = al_load_bitmap(PATH_INIMIGO_0);
-        novo_inimigo->sprite_info->largura = 100;
-        novo_inimigo->sprite_info->altura = 100;
-        novo_inimigo->sprite_info->num_frames = 5;
-        novo_inimigo->pode_atirar = 0; // Define que o inimigo não pode atirar
+        novo_inimigo->sprite_info->largura = QUADRADO_SPRITE_INIMIGO_0;
+        novo_inimigo->sprite_info->altura = QUADRADO_SPRITE_INIMIGO_0;
+        novo_inimigo->sprite_info->num_frames = COLUNAS_SPRITE_INIMIGO_0;
+        novo_inimigo->hp = HP_INIMIGO_0;
+        novo_inimigo->pode_atirar = NAO_ATIRA;
+        novo_inimigo->contador_animacao = CONTADOR_ZERADO;
         break;
     case 1:
         novo_inimigo->sprite_info->sprite = al_load_bitmap(PATH_INIMIGO_1);
-        novo_inimigo->sprite_info->largura = 110;
-        novo_inimigo->sprite_info->altura = 110;
-        novo_inimigo->sprite_info->num_frames = 4;
-        novo_inimigo->pode_atirar = 1; // Define que o inimigo pode atirar
+        novo_inimigo->sprite_info->largura = QUADRADO_SPRITE_INIMIGO_1;
+        novo_inimigo->sprite_info->altura = QUADRADO_SPRITE_INIMIGO_1;
+        novo_inimigo->sprite_info->num_frames = COLUNAS_SPRITE_INIMIGO_1;
+        novo_inimigo->hp = HP_INIMIGO_1;
+        novo_inimigo->pode_atirar = ATIRA;
+        novo_inimigo->contador_animacao = CONTADOR_ZERADO;
         break;
     case 2:
-        novo_inimigo->sprite_info->sprite = al_load_bitmap(PATH_INIMIGO_2);
-        novo_inimigo->sprite_info->largura = 118;
-        novo_inimigo->sprite_info->altura = 118;
-        novo_inimigo->sprite_info->num_frames = 6;
-        novo_inimigo->pode_atirar = 0; // Define que o inimigo não pode atirar
+        novo_inimigo->sprite_info->sprite = al_load_bitmap(PATH_INIMIGO_3);
+        novo_inimigo->sprite_info->largura = QUADRADO_SPRITE_INIMIGO_2;
+        novo_inimigo->sprite_info->altura = QUADRADO_SPRITE_INIMIGO_2;
+        novo_inimigo->sprite_info->num_frames = COLUNAS_SPRITE_INIMIGO_2;
+        novo_inimigo->hp = HP_INIMIGO_2;
+        novo_inimigo->pode_atirar = NAO_ATIRA;
+        novo_inimigo->contador_animacao = CONTADOR_ZERADO;
         break;
     case 3:
-        novo_inimigo->sprite_info->sprite = al_load_bitmap(PATH_INIMIGO_3);
-        novo_inimigo->sprite_info->largura = 110;
-        novo_inimigo->sprite_info->altura = 110;
-        novo_inimigo->sprite_info->num_frames = 4;
-        novo_inimigo->pode_atirar = 1; // Define que o inimigo pode atirar
+        novo_inimigo->sprite_info->sprite = al_load_bitmap(PATH_INIMIGO_2);
+        novo_inimigo->sprite_info->largura = QUADRADO_SPRITE_INIMIGO_3;
+        novo_inimigo->sprite_info->altura = QUADRADO_SPRITE_INIMIGO_3;
+        novo_inimigo->sprite_info->num_frames = COLUNAS_SPRITE_INIMIGO_3;
+        novo_inimigo->hp = HP_INIMIGO_3;
+        novo_inimigo->pode_atirar = ATIRA;
+        novo_inimigo->contador_animacao = CONTADOR_ZERADO;
         break;
     default:
         free(novo_inimigo->sprite_info);
@@ -92,25 +102,12 @@ void mover_inimigo(inimigo *elemento, unsigned char steps, unsigned char *trajet
     case 0: // Movimento simples para a esquerda (somente no eixo X)
         elemento->x -= INIMIGO_STEP * steps;
         break;
-    case 1: // Movimento em zigue-zague
-        if (*trajetoria == 0)
-        {
-            elemento->x -= INIMIGO1_STEP * steps;
-            elemento->y += INIMIGO1_STEP * steps;
-            if (elemento->y >= max_y - elemento->tam_lateral / 2)
-                *trajetoria = 1;
-        }
-        else
-        {
-            elemento->x -= INIMIGO1_STEP * steps;
-            elemento->y -= INIMIGO1_STEP * steps;
-            if (elemento->y <= elemento->tam_lateral / 2)
-                *trajetoria = 0;
-        }
+    case 1: // Movimento simples para a esquerda (somente no eixo X)
+        elemento->x -= INIMIGO_STEP * steps;
         break;
     case 2: // Movimento em círculo
         // Movimento contínuo no eixo X
-        elemento->x -= INIMIGO2_STEP * steps; // Movimento para a esquerda (pode ajustar a velocidade conforme necessário)
+        elemento->x -= INIMIGO2_STEP * steps; // Movimento para a esquerda )
         // Se o inimigo sair da tela pela esquerda, ele reaparece no lado direito
         if (elemento->x + elemento->tam_lateral / 2 < 0)
         {
@@ -118,7 +115,7 @@ void mover_inimigo(inimigo *elemento, unsigned char steps, unsigned char *trajet
         }
         // Movimento circular no eixo Y com função seno
         // Para dar um efeito de círculo, usamos um valor de X para calcular Y de forma contínua
-        elemento->y = max_y / 2 + 100 * sin(elemento->x / 50.0); // Ajuste o 50.0 para controlar a frequência da oscilação no Y
+        elemento->y = max_y / 2 + 100 * sin(elemento->x / 50.0); // Ajustar o 50.0 para controlar a frequência da oscilação no Y
         break;
     case 3:                                   // Movimento em onda
         elemento->x -= INIMIGO3_STEP * steps; // Movimento contínuo para a esquerda
@@ -165,22 +162,112 @@ void desenhar_inimigo(inimigo *elemento)
                           elemento->x - sprite_largura / 2, elemento->y - sprite_altura / 2, 0);
 }
 // Função de atualização da animação do inimigo
-void atualizar_animacao_inimigo(inimigo *elemento, unsigned int *animation_counter, unsigned int delay)
+void atualizar_animacao_inimigo(inimigo *elemento, unsigned int delay)
 {
     if (!elemento || !elemento->sprite_info)
         return;
 
-    // Atualiza contador de animação
-    if (++(*animation_counter) >= delay)
+    // Atualiza o contador de animação específico de cada inimigo
+    if (++(elemento->contador_animacao) >= delay)
     {
         elemento->frame_atual = (elemento->frame_atual + 1) % elemento->sprite_info->num_frames;
-        *animation_counter = 0; // Reseta o contador de animação
+        elemento->contador_animacao = 0; // Reseta o contador de animação do inimigo
     }
 }
-// Gera uma posicão Y aleatória, com um X fixo, e um tempo entre a criação do mesmo tipo de inimigos
-// Assim, criando uma espécie de "onda" de inimigos
+
+// Função para adicionar um inimigo à lista
+void adicionar_inimigo_lista(inimigo **lista, unsigned char sprite, unsigned short tipo)
+{
+    inimigo **atual = lista;
+
+    // Percorre a lista até encontrar o final
+    while (*atual != NULL)
+    {
+        atual = &(*atual)->proximo;
+    }
+
+    // Cria um novo inimigo com as posições aleatórias desejadas
+    inimigo *novo_inimigo = criar_inimigo(sprite, 1, X_SCREEN - 50, rand() % Y_SCREEN, tipo, X_SCREEN, Y_SCREEN);
+
+    if (novo_inimigo)
+    {
+        *atual = novo_inimigo;
+    }
+}
+
+static unsigned short fase_atual = 0; // Fase atual (0 = Fase 1, 1 = Fase 2, etc.)
+
+// Função de atualização da criação de inimigos
 void atualizar_criacao_inimigo(inimigo **lista)
 {
+    static unsigned int timer = 0;                 // Contador de tempo para criação de inimigos
+    static unsigned int intervalo_criacao = 0;     // Intervalo entre a criação de inimigos
+    static unsigned int max_inimigos = 15;         // Máximo de inimigos por onda
+    static unsigned int max_inimigos_tipo[4] = {5, 5, 5, 5}; // Limite de inimigos por tipo
+    static unsigned short tipo_atual = 0;          // Tipo atual de inimigo a ser criado (0 a 3)
+
+    // Atualiza o intervalo de criação
+    if (intervalo_criacao > 0)
+    {
+        intervalo_criacao--;
+    }
+
+    // Criação de inimigos dentro da onda
+    if (max_inimigos > 0 && intervalo_criacao == 0)
+    {
+        // Verifica se o tipo atual é permitido na fase atual
+        int inimigo_permitido = 0;
+
+        switch (fase_atual)
+        {
+        case 0: // Fase 1: Apenas inimigos tipo 0 e 1
+            if (tipo_atual == 0 || tipo_atual == 1)
+                inimigo_permitido = 1;
+            break;
+        case 1: // Fase 2: Apenas inimigos tipo 2 e 3
+            if (tipo_atual == 2 || tipo_atual == 3)
+                inimigo_permitido = 1;
+            break;
+        default: // Fases adicionais podem ser configuradas aqui
+            break;
+        }
+
+        if (inimigo_permitido && max_inimigos_tipo[tipo_atual] > 0)
+        {
+            // Cria o inimigo do tipo atual
+            switch (tipo_atual)
+            {
+            case 0:
+                adicionar_inimigo_lista(lista, QUADRADO_SPRITE_INIMIGO_0, 0);
+                break;
+            case 1:
+                adicionar_inimigo_lista(lista, QUADRADO_SPRITE_INIMIGO_1, 1);
+                break;
+            case 2:
+                adicionar_inimigo_lista(lista, QUADRADO_SPRITE_INIMIGO_2, 2);
+                break;
+            case 3:
+                adicionar_inimigo_lista(lista, QUADRADO_SPRITE_INIMIGO_3, 3);
+                break;
+            }
+
+            max_inimigos_tipo[tipo_atual]--; // Decrementa o máximo permitido para o tipo atual
+            max_inimigos--;                  // Decrementa o número total de inimigos restantes
+        }
+
+        // Alterna para o próximo tipo de inimigo (circular entre 0 e 3)
+        tipo_atual = (tipo_atual + 1) % 4;
+
+        // Define o próximo intervalo de criação
+        intervalo_criacao = rand() % 100 + 60;
+    }
+
+    // Atualiza o timer
+    timer++;
+    if (timer >= 100)
+    {
+        timer = 0;
+    }
 }
 
 // Função de disparo do inimigo (se o inimigo puder atirar)
@@ -195,11 +282,17 @@ void inimigo_atira(inimigo *elemento)
 // Função de destruição do inimigo
 void destroi_inimigo(inimigo *elemento)
 {
-    if (elemento)
+    if (!elemento)
+        return;
+
+    if (elemento->sprite_info)
     {
-        al_destroy_bitmap(elemento->sprite_info->sprite); // Libera a imagem do sprite
-        free(elemento->sprite_info);                      // Libera a memória da struct do sprite
-        destroi_arma(elemento->arma);                     // Libera a arma do inimigo
-        free(elemento);                                   // Libera a memória alocada para o inimigo
+        al_destroy_bitmap(elemento->sprite_info->sprite);
+        free(elemento->sprite_info);
     }
+
+    if (elemento->arma)
+        destroi_arma(elemento->arma);
+
+    free(elemento);
 }
