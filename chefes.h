@@ -4,14 +4,14 @@
 #include <allegro5/allegro.h> // Inclusão necessária para usar ALLEGRO_BITMAP
 
 // Inclusões de bibliotecas locais
-#include "arma.h" 
+#include "arma.h"
 
 /*-----------------------------------------------------------------------------------------*/
 /* DEFINIÇÕES */
 
 #define NUM_CHEFES 2
-#define CHEFE0_STEP 1.5
-#define CHEFE1_STEP 10
+#define CHEFE0_STEP 2
+#define CHEFE1_STEP 2
 #define PATH_CHEFE_0 "assets/chefes/fase1/chefe1.png"
 #define PATH_CHEFE_1 "assets/chefes/fase2/chefe2.png"
 
@@ -23,7 +23,8 @@ typedef struct
 {
     int largura;            // Largura do quadro do sprite
     int altura;             // Altura do quadro do sprite
-    int num_frames;         // Número total de quadros no sprite
+    int num_frames;         // Número total de colunas no sprite
+    int num_frames_total;   // Número total de quadros no sprite
     ALLEGRO_BITMAP *sprite; // Imagem do sprite
 } chefe_sprite;
 
@@ -36,8 +37,9 @@ typedef struct
     unsigned short x;             // Posição X do centro do chefe
     unsigned short y;             // Posição Y do centro do chefe
     int tipo;                     // Tipo de chefe (diferencia os 2 chefes)
+    arma *arma1;                  // Elemento para realizar disparos no jogo (-1HP)
+    arma *arma2;                  // Elemento para realizar disparos no jogo (-2HP)
     unsigned short frame_atual;   // Quadro atual (índice no sprite sheet)
-    arma *arma;                   // Elemento para realizar disparos no jogo
     ALLEGRO_BITMAP *chefe_sprite; // Sprite do chefe
     chefe_sprite *sprite_info;    // Informações sobre o sprite do chefe
 } chefe;
