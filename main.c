@@ -13,9 +13,12 @@
 #include "inimigos.h"
 #include "chefes.h"
 
+#include "fases.h"
+
 /*-----------------------------------------------------------------------------------------*/
 /* DEFINIÇÕES */
-#define PATH_CENARIO_2 "assets/cenarios/cenario3.png"
+#define PATH_CENARIO_FASE1 "assets/cenarios/cenario3.png"
+#define PATH_CENARIO_FASE2 "assets/cenarios/cenario4.png"
 
 #define X_SCREEN 1140 // Dimensões da tela
 #define Y_SCREEN 640  // Dimensões da tela
@@ -221,6 +224,34 @@ unsigned char check_player_chefe(chefe *killer, jogador *victim)
     return 0; // Não houve colisão com nenhum projétil
 }
 
+// Implementação da função que verifica se o jogador colidiu com o simbolo do ataque especial no mapa
+// Se colidir, o jogador ganha um ataque especial por 5 segundos
+
+// Implementação da função que verifica se o jogador colidiu com o simbolo do ataque especial no mapa
+bool colisao_jogador_simbolo(jogador *jogador_1, ataque_especial *especial)
+{
+    // Verifica se o jogador colidiu com o simbolo do ataque especial
+    if ((jogador_1->x >= especial->sprite_info->x - especial->sprite_info->largura / 2) &&
+        (jogador_1->x <= especial->sprite_info->x + especial->sprite_info->largura / 2) &&
+        (jogador_1->y >= especial->sprite_info->x - especial->sprite_info->altura / 2) &&
+        (jogador_1->y <= especial->sprite_info->x + especial->sprite_info->altura / 2))
+    {
+        especial->ativo = true; // Ativa o ataque especial
+        return true;            // Retorna verdadeiro, indicando que houve colisão
+    }
+}
+
+// Implementação da função que verifica se o jogador colidiu com o simbolo do ataque especial no mapa
+void verificar_colisao_com_ataque_especial(jogador *jogador_1, ataque_especial *especial)
+{
+    // Verifica se o jogador colidiu com o simbolo do ataque especial
+    if (colisao_jogador_simbolo(jogador_1, especial))
+    {
+        especial->ativo = true;              // Ativa o ataque especial
+        atualizar_ataque_especial(especial); // Atualiza o ataque especial
+    }
+}
+
 // Atualiza a posição e ações do jogador e projéteis disparados
 void atualiza_posicao(jogador *jogador_1)
 {
@@ -300,7 +331,34 @@ int main()
     //     return 1;
 
     // Inicialização da lista de inimigos
-    inimigo *lista_inimigos = NULL;
+    // inimigo *lista_inimigos = NULL;
+
+    ALLEGRO_BITMAP *sprite_ataque_especial = al_load_bitmap("assets/ataqueEspecial/ataque.png");
+    if (!sprite_ataque_especial)
+    {
+        return -1;
+    }
+
+    // Criação do símbolo do ataque especial
+    simbolo_ataque_especial_sprite *simbolo = criar_simbolo_ataque_especial_sprite(
+        70, // Largura de cada quadro do sprite
+        70, // Altura de cada quadro do sprite
+        6,  // Número de colunas no sprite sheet
+        12, // Número total de quadros na animação
+        sprite_ataque_especial);
+
+    // Criação do ataque especial
+    ataque_especial *especial = (ataque_especial *)malloc(sizeof(ataque_especial));
+    if (!especial)
+    {
+        return -1;
+    }
+
+    // Inicialização do ataque especial
+    // Duração de 5 segundos em 30 FPS
+    especial->duracao_em_segundos = 5 * 30;
+    especial->sprite_info = simbolo;
+    especial->ativo = false;
 
     unsigned char jk = 0;       // Controle de dano do jogador pelo inimigo
     unsigned char ik = 0;       // Controle de dano causado pelo jogador ao inimigo
@@ -325,7 +383,7 @@ int main()
                 atualizar_animacao_tela_inicial(tela_inicial, &animation_counter_jogador, VELOCIDADE_TELA_INICIAL);
                 desenhar_tela_inicial(tela_inicial);
                 // Indicação de início do jogo
-                al_draw_textf(font, al_map_rgb(255, 255, 255), X_SCREEN / 2  - 60 , Y_SCREEN / 2  - 200, 0, "PRESS 'S' TO START");
+                al_draw_textf(font, al_map_rgb(255, 255, 255), X_SCREEN / 2 - 60, Y_SCREEN / 2 - 200, 0, "PRESS 'S' TO START");
                 al_flip_display();
             }
             else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
@@ -340,6 +398,9 @@ int main()
                 }
             }
         }
+        /*-----------------------------------------------------------------------------------------*/
+        /* JOGO */
+        /* FASE 01 */
         else
         {
             if (event.type == ALLEGRO_EVENT_TIMER)
@@ -357,7 +418,7 @@ int main()
                 // Atualiza animação do inimigo
                 // atualizar_animacao_inimigo(inimigo_1, &animation_counter_jogador, ANIMATION_DELAY_INIMIGO);
                 // atualizar_animacao_chefe(chefe_1, &animation_counter_jogador, ANIMATION_DELAY_CHEFE);
-                atualizar_criacao_inimigo(&lista_inimigos);
+                // atualizar_criacao_inimigo(&lista_inimigos);
 
                 // Atualiza o jogador e projéteis
                 atualiza_posicao(jogador_1);
@@ -368,14 +429,14 @@ int main()
                 // Desenha o iniimigo
                 // desenhar_inimigo(inimigo_1);
                 // desenhar_chefe(chefe_1);
-                inimigo *atual = lista_inimigos;
-                while (atual != NULL)
-                {
-                    atualizar_animacao_inimigo(atual, ANIMATION_DELAY_INIMIGO);
-                    desenhar_inimigo(atual);                           // Desenha o inimigo na tela
-                    mover_inimigo(atual, STEPS_INIMIGO, NULL, X_SCREEN, Y_SCREEN); // Exemplo de movimentação
-                    atual = atual->proximo;                            // Vai para o próximo inimigo
-                }
+                // inimigo *atual = lista_inimigos;
+                // while (atual != NULL)
+                // {
+                //     atualizar_animacao_inimigo(atual, ANIMATION_DELAY_INIMIGO);
+                //     desenhar_inimigo(atual);                           // Desenha o inimigo na tela
+                //     mover_inimigo(atual, STEPS_INIMIGO, NULL, X_SCREEN, Y_SCREEN); // Exemplo de movimentação
+                //     atual = atual->proximo;                            // Vai para o próximo inimigo
+                // }
 
                 // Movimentação do inimigo
                 // mover_inimigo(inimigo_1, 1, &trajetoria, X_SCREEN, Y_SCREEN);
@@ -406,6 +467,11 @@ int main()
                 // {
                 //     desenhar_projetil2_chefe_0(p); // Função para desenhar projétil da arma 2
                 // }
+
+                posicionar_ataque_especial(especial, X_SCREEN / 2, Y_SCREEN / 2);
+                atualizar_animacao_ataque_especial(especial, &animation_counter_jogador, ANIMATION_DELAY_FUNDO);
+                atualizar_ataque_especial(especial);
+                desenhar_ataque_especial(especial);
 
                 al_rest(0.016);    // Espera 16ms
                 al_flip_display(); // Atualiza a tela
