@@ -17,6 +17,9 @@
 /* DEFINIÇÕES */
 #define PATH_CENARIO_2 "assets/cenarios/cenario3.png"
 
+#define X_SCREEN 1140 // Dimensões da tela
+#define Y_SCREEN 640  // Dimensões da tela
+
 /*-----------------------------------------------------------------------------------------*/
 /* FUNÇÕES AUXILIARES */
 
@@ -120,7 +123,7 @@ unsigned char check_kill_chefe(jogador *killer, chefe *victim, unsigned int *sco
     return 0; // Não houve colisão com nenhum projétil
 }
 
-// Implementação da função que verifica se um projetil inimigo acertou o jogador
+// Implementação da função que verifica se um projetil inimigo acertou o jogador, cada acerto reduz 1 ponto de vida
 unsigned char check_player(inimigo *killer, jogador *victim)
 {
     projetil *anterior = NULL;
@@ -132,8 +135,8 @@ unsigned char check_player(inimigo *killer, jogador *victim)
         // Verifica se o projétil colidiu com o jogador no eixo X e Y
         if ((index->x >= victim->x - victim->face / 2) &&
             (index->x <= victim->x + victim->face / 2) &&
-            (index->y >= victim->y - TAM_JOGADOR / 2) &&
-            (index->y <= victim->y + TAM_JOGADOR / 2))
+            (index->y >= victim->y - QUADRADO_SPRITE_JOGADOR / 2) &&
+            (index->y <= victim->y + QUADRADO_SPRITE_JOGADOR / 2))
         {
             victim->hp--; // Reduz o HP do jogador
 
@@ -169,7 +172,56 @@ unsigned char check_player(inimigo *killer, jogador *victim)
     return 0; // Não houve colisão com nenhum projétil
 }
 
-// Atualiza a posição e ações do jogador
+// Implementação da função que verifica se um projétil de chefe acertou o jogador, cada acerto reduz 2 pontos de vida
+unsigned char check_player_chefe(chefe *killer, jogador *victim)
+{
+    projetil *anterior = NULL;
+    projetil *index = killer->arma1->shots;
+
+    // Itera sobre todos os projéteis disparados pelo chefe
+    while (index != NULL)
+    {
+        // Verifica se o projétil colidiu com o jogador no eixo X e Y
+        if ((index->x >= victim->x - victim->face / 2) &&
+            (index->x <= victim->x + victim->face / 2) &&
+            (index->y >= victim->y - QUADRADO_SPRITE_JOGADOR / 2) &&
+            (index->y <= victim->y + QUADRADO_SPRITE_JOGADOR / 2))
+        {
+            victim->hp -= 2; // Reduz o HP do jogador
+
+            // Remove o projétil da lista
+            if (anterior)
+            {
+                anterior->proximo = index->proximo; // Se não for o primeiro, ajusta o ponteiro do anterior
+            }
+            else
+            {
+                killer->arma1->shots = (projetil *)index->proximo; // Se for o primeiro, ajusta o início da lista
+            }
+
+            destruir_projetil(index); // Destrói o projétil que colidiu
+
+            // Verifica se o jogador ainda está vivo
+            if (victim->hp > 0)
+            {
+                return 0; // Jogador sofreu dano, mas ainda não morreu
+            }
+            else
+            {
+                destroi_jogador(victim); // Destroi o jogador
+                return 1;                // Jogador morreu
+            }
+        }
+
+        // Atualiza o controle para o próximo projétil
+        anterior = index;
+        index = (projetil *)index->proximo;
+    }
+
+    return 0; // Não houve colisão com nenhum projétil
+}
+
+// Atualiza a posição e ações do jogador e projéteis disparados
 void atualiza_posicao(jogador *jogador_1)
 {
     // Movimentação do jogador
@@ -216,6 +268,8 @@ int main()
     al_register_event_source(queue, al_get_timer_event_source(timer));
     al_start_timer(timer);
 
+    srand(time(NULL));
+
     // Inicialização do jogador
     jogador *jogador_1 = criar_jogador(20, 60, 80, Y_SCREEN / 2, X_SCREEN, Y_SCREEN);
     if (!jogador_1)
@@ -241,15 +295,17 @@ int main()
     //     return 1;
 
     // Inicialização do chefe
-    chefe *chefe_1 = criar_chefe(20, 60, X_SCREEN - 100, Y_SCREEN / 2, 0, X_SCREEN, Y_SCREEN);
-    if (!chefe_1)
-        return 1;
+    // chefe *chefe_1 = criar_chefe(20, 60, X_SCREEN - 100, Y_SCREEN / 2, 0, X_SCREEN, Y_SCREEN);
+    // if (!chefe_1)
+    //     return 1;
+
+    // Inicialização da lista de inimigos
+    inimigo *lista_inimigos = NULL;
 
     unsigned char jk = 0;       // Controle de dano do jogador pelo inimigo
     unsigned char ik = 0;       // Controle de dano causado pelo jogador ao inimigo
     unsigned char ck = 0;       // Controle de dano causado ao chefe
-    unsigned char jk_arma1 = 0; // Controle de dano do jogador pela arma 1 do chefe
-    unsigned char jk_arma2 = 0; // Controle de dano do jogador pela arma 2 do chefe
+    unsigned char jk_chefe = 0; // Controle de dano do jogador pelo chefe
     unsigned int score = 0;     // Variável de pontuação
 
     /*-----------------------------------------------------------------------------------------*/
@@ -268,6 +324,8 @@ int main()
                 al_clear_to_color(al_map_rgb(0, 0, 0));
                 atualizar_animacao_tela_inicial(tela_inicial, &animation_counter_jogador, VELOCIDADE_TELA_INICIAL);
                 desenhar_tela_inicial(tela_inicial);
+                // Indicação de início do jogo
+                al_draw_textf(font, al_map_rgb(255, 255, 255), X_SCREEN / 2  - 60 , Y_SCREEN / 2  - 200, 0, "PRESS 'S' TO START");
                 al_flip_display();
             }
             else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
@@ -276,7 +334,7 @@ int main()
             }
             else if (event.type == ALLEGRO_EVENT_KEY_DOWN)
             {
-                if (event.keyboard.keycode == ALLEGRO_KEY_S)
+                if (event.keyboard.keycode == ALLEGRO_KEY_S) // Inicia o jogo ao pressionar a tecla 'S'
                 {
                     tela_inicial_ativa = false;
                 }
@@ -290,14 +348,16 @@ int main()
                 atualiza_e_desenha_background(background, &background_x, VELOCIDADE_BACKGROUND);
 
                 // ik = check_kill_inimigo(jogador_1, inimigo_1, &score);
-                // jk = check_player (inimigo_1, jogador_1);                
+                // jk = check_player (inimigo_1, jogador_1);
+                // jk_chefe = check_player_chefe(chefe_1, jogador_1);
 
                 // Atualiza animação do jogador
                 atualizar_animacao_jogador(jogador_1, &animation_counter_jogador, ANIMATION_DELAY_JOGADOR);
 
                 // Atualiza animação do inimigo
                 // atualizar_animacao_inimigo(inimigo_1, &animation_counter_jogador, ANIMATION_DELAY_INIMIGO);
-                atualizar_animacao_chefe(chefe_1, &animation_counter_jogador, ANIMATION_DELAY_CHEFE);
+                // atualizar_animacao_chefe(chefe_1, &animation_counter_jogador, ANIMATION_DELAY_CHEFE);
+                atualizar_criacao_inimigo(&lista_inimigos);
 
                 // Atualiza o jogador e projéteis
                 atualiza_posicao(jogador_1);
@@ -307,11 +367,19 @@ int main()
 
                 // Desenha o iniimigo
                 // desenhar_inimigo(inimigo_1);
-                desenhar_chefe(chefe_1);
+                // desenhar_chefe(chefe_1);
+                inimigo *atual = lista_inimigos;
+                while (atual != NULL)
+                {
+                    atualizar_animacao_inimigo(atual, ANIMATION_DELAY_INIMIGO);
+                    desenhar_inimigo(atual);                           // Desenha o inimigo na tela
+                    mover_inimigo(atual, STEPS_INIMIGO, NULL, X_SCREEN, Y_SCREEN); // Exemplo de movimentação
+                    atual = atual->proximo;                            // Vai para o próximo inimigo
+                }
 
                 // Movimentação do inimigo
                 // mover_inimigo(inimigo_1, 1, &trajetoria, X_SCREEN, Y_SCREEN);
-                mover_chefe(chefe_1, 1, trajetoria, X_SCREEN, Y_SCREEN);
+                // mover_chefe(chefe_1, 1, trajetoria, X_SCREEN, Y_SCREEN);
 
                 // Desenha os corações de HP
                 desenhar_hp(jogador_1, 15, 15);
@@ -328,18 +396,19 @@ int main()
                     atualiza_arma(jogador_1->arma);
 
                 // Desenha os projeteis do chefe
-                for (projetil *p = chefe_1->arma1->shots; p != NULL; p = (projetil *)p->proximo)
-                {
-                    desenhar_projetil_chefe_0(p); // Função para desenhar projétil da arma 1
-                }
+                // for (projetil *p = chefe_1->arma1->shots; p != NULL; p = (projetil *)p->proximo)
+                // {
+                //     desenhar_projetil_chefe_0(p); // Função para desenhar projétil da arma 1
+                // }
 
-                // Desenha os projéteis disparados pela segunda arma do chefe
-                for (projetil *p = chefe_1->arma2->shots; p != NULL; p = (projetil *)p->proximo)
-                {
-                    desenhar_projetil2_chefe_0(p); // Função para desenhar projétil da arma 2
-                }
+                // // Desenha os projéteis disparados pela segunda arma do chefe
+                // for (projetil *p = chefe_1->arma2->shots; p != NULL; p = (projetil *)p->proximo)
+                // {
+                //     desenhar_projetil2_chefe_0(p); // Função para desenhar projétil da arma 2
+                // }
 
-                al_flip_display();
+                al_rest(0.016);    // Espera 16ms
+                al_flip_display(); // Atualiza a tela
             }
             else if (event.type == ALLEGRO_EVENT_KEY_DOWN || event.type == ALLEGRO_EVENT_KEY_UP)
             {
