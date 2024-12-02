@@ -38,28 +38,22 @@ void destruir_projetil(projetil *element);
 
 /*-----------------------------------------------------------------------------------------*/
 /* DESENHO DE PROJETEIS */
-/*-----------------------------------------------------------------------------------------*/
-/* JOGADOR */
-// Função de desenho de projetil para o jogador
+
+/* Funções de desenho de projéteis do jogador */
 void desenhar_projetil_jogador(projetil *projetil);
 void desenhar_projetil_especial_jogador_1(projetil *projetil);
 void desenhar_projetil_especial_jogador_2(projetil *projetil);
-/*-----------------------------------------------------------------------------------------*/
-/* INIMIGOS */
-// Função de desenho de projetil para os inimigos
+
+/* Funções de desenho de projéteis dos inimigos */
 void desenhar_projetil_inimigo_fase_1(projetil *projetil);
 void desenhar_projetil_inimigo_fase_2(projetil *projetil);
-/*-----------------------------------------------------------------------------------------*/
-// Função de desenho de projetil para os chefes
-/* CHEFE FASE 01 */
+
+/* Funções de desenho de projéteis do chefe fase 01 */
 void desenhar_projetil_chefe_0(projetil *projetil);
 void desenhar_projetil2_chefe_0(projetil *projetil);
-/*-----------------------------------------------------------------------------------------*/
-/* CHEFE FASE 02 */
+
+/* Funções de desenho de projéteis do chefe fase 02 */
 void desenhar_projetil_chefe_1(projetil *projetil);
 void desenhar_projetil2_chefe_1(projetil *projetil);
-
-/*-----------------------------------------------------------------------------------------*/
-/* ATAQUE ESPECIAL */
 
 #endif // Guardas de inclusão
