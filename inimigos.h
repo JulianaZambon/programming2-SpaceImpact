@@ -5,6 +5,7 @@
 
 // Inclusões de bibliotecas locais
 #include "arma.h"
+#include "chefes.h"
 
 /*-----------------------------------------------------------------------------------------*/
 /* DEFINIÇÕES */
@@ -40,6 +41,11 @@
 #define HP_INIMIGO_1 1 // Vida do inimigo 1
 #define HP_INIMIGO_2 2 // Vida do inimigo 2
 #define HP_INIMIGO_3 1 // Vida do inimigo 3
+
+#define QNTD_INIM_TIPO_0 5 // Quantidade de inimigos do tipo 0
+#define QNTD_INIM_TIPO_1 5 // Quantidade de inimigos do tipo 1
+#define QNTD_INIM_TIPO_2 5 // Quantidade de inimigos do tipo 2
+#define QNTD_INIM_TIPO_3 5 // Quantidade de inimigos do tipo 3
 
 #define INIMIGO_INTERVALO_TEMPO 100 // Intervalo de tempo para criação de inimigos
 
