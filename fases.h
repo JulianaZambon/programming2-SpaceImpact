@@ -2,38 +2,64 @@
 #define __FASES__ // Guardas de inclusão
 
 #include <allegro5/allegro.h> // Inclusão necessária para usar ALLEGRO_BITMAP
+
+// Inclusões de bibliotecas locais
 #include "inimigos.h"
 #include "chefes.h"
 #include "jogador.h"
+#include "background.h"
+#include "configuracoes.h"
 
+/*-----------------------------------------------------------------------------------------*/
+/* DEFINIÇÕES */
+#define PATH_CENARIO_FASE1 "assets/cenarios/cenario3.png"
+#define PATH_CENARIO_FASE2 "assets/cenarios/cenario4.png"
+
+/*-----------------------------------------------------------------------------------------*/
+/* ESTRUTURAS */
+
+// Estrutura que representa uma fase do jogo
 typedef struct
 {
-    enemy enemies[NUM_INIMIGOS]; // Vetor de inimigos
-    boss bosses[NUM_BOSSES];     // Vetor de chefes
-    ALLEGRO_BITMAP *background;  // Imagem de fundo
+    inimigo inimigos[NUM_INIMIGOS]; // Vetor de inimigos
+    chefe chefes[NUM_CHEFES];       // Vetor de chefes
+    ALLEGRO_BITMAP *background;     // Imagem de fundo da fase
 } fase;
 
-// função de criação da fase 1
-fase *criar_fase1();
-// função de criação da fase 2
-fase *criar_fase2();
+/*-----------------------------------------------------------------------------------------*/
+/* VARIÁVEIS EXTERNAS */
 
-// Função de criação do loop do background
-void draw_moving_background(ALLEGRO_BITMAP *background, float *offset, float speed, int screen_width);
+extern unsigned short fase_atual; // Variável externa para a fase atual
+extern unsigned char jk;          // Controle de dano do jogador pelo inimigo
+extern unsigned char ik;          // Controle de dano causado pelo jogador ao inimigo
+extern unsigned char ck;          // Controle de dano causado ao chefe
+extern unsigned char jk_chefe;    // Controle de dano do jogador pelo chefe
+extern unsigned int score;        // Variável de pontuação
 
-// Função para verificar a colisão entre o jogador e os inimigos
-unsigned char collision_2D(player *player_1, enemy *enemy_1, enemy *enemy_2, boss *boss_1);
+/*-----------------------------------------------------------------------------------------*/
+/* PROTÓTIPO DE FUNÇÕES AUXILIARES */
 
-// função que verifica se um projétil acertou um inimigo ou chefe
-unsigned char check_kill(player *killer, enemy *victim);
+// Implementação da função que verifica se um projétil acertou um inimigo, a cada acerto o jogador ganha 10 pontos
+unsigned char check_kill_inimigo(jogador *killer, inimigo *victim, unsigned int *score);
 
-// função que atualiza o posicionamento de projéteis conforme o movimento dos mesmos
-void update_projeteis(player *player_1);
+// Implementação da função que verifica se um projétil acertou um chefe, a cada acerto o jogador ganha 10 pontos
+unsigned char check_kill_chefe(jogador *killer, chefe *victim, unsigned int *score);
 
-// Função para atualizar a posição do jogador conforme os comandos do controle e conforme colisões
-void update_position(player *player_1, enemy *enemy_1, enemy *enemy_2, boss *boss_1);
+// Implementação da função que verifica se um projetil inimigo acertou o jogador, cada acerto reduz 1 ponto de vida
+unsigned char check_player(inimigo **killer, jogador *victim);
 
-// função de destruição de uma fase
-void fase_destroy(fase *element);
+// Implementação da função que verifica se um projétil de chefe acertou o jogador, cada acerto reduz 2 pontos de vida
+unsigned char check_player_chefe(chefe *killer, jogador *victim);
+
+/*-----------------------------------------------------------------------------------------*/
+/* PROTÓTIPOS DE FUNÇÕES */
+
+// Funções de inicialização, atualização e finalização de cada fase
+void inicializa_fase(ALLEGRO_BITMAP **background, jogador **jogador_1, inimigo **lista_inimigos, chefe **chefe_1,
+                chefe **chefe_2, int fase);
+void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lista_inimigos, chefe *chefe_1,
+                chefe *chefe_2, int fase);
+void finaliza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo *lista_inimigos, chefe *chefe_1,
+                chefe *chefe_2, int fase);
 
 #endif
