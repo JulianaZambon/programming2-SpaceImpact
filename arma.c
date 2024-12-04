@@ -1,12 +1,11 @@
 #include <stdlib.h>
 
-// Libs locais
+// Inclusões de bibliotecas locais
 #include "arma.h"
 #include "configuracoes.h"
 
 /*-----------------------------------------------------------------------------------------*/
 /* FUNÇÕES */
-
 // Função de criação de uma nova arma
 arma *criar_arma()
 {
@@ -19,7 +18,6 @@ arma *criar_arma()
 
     return nova_arma;
 }
-
 // Função de disparo de um projétil
 projetil *disparo_arma(unsigned short x, unsigned short y, unsigned char trajetoria, arma *arma)
 {
@@ -32,23 +30,29 @@ projetil *disparo_arma(unsigned short x, unsigned short y, unsigned char trajeto
 
     return novo_projetil;
 }
-
 // Função para atualizar o cooldown da arma
 void atualiza_arma(arma *arma)
 {
     if (arma->timer)
         arma->timer--; // Decrementa o cooldown da arma
 }
-
 // Função para destruir a arma e seus projéteis
-void destroi_arma(arma *arma)
+void destroi_arma(arma *elemento)
 {
-    projetil *current = arma->shots;
-    while (current != NULL)
+    if (!elemento)
+        return;
+
+    projetil *atual = elemento->shots;
+    projetil *temp;
+
+    // Libera todos os projéteis disparados pela arma
+    while (atual != NULL)
     {
-        projetil *next = current->proximo;
-        destruir_projetil(current); // Libera a memória do projétil
-        current = next;
+        temp = atual;
+        atual = (projetil *)atual->proximo;
+        destruir_projetil(temp);
     }
-    free(arma); // Libera a memória da arma
+
+    free(elemento); // Libera a memória da arma
 }
+
