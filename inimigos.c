@@ -187,7 +187,7 @@ void adicionar_inimigo_lista(inimigo **lista, unsigned char sprite, unsigned sho
     }
 
     // Cria um novo inimigo com as posições aleatórias desejadas
-    inimigo *novo_inimigo = criar_inimigo(sprite, 1, X_SCREEN - 50, rand() % Y_SCREEN, tipo, X_SCREEN, Y_SCREEN);
+    inimigo *novo_inimigo = criar_inimigo(sprite, 1, X_SCREEN - 50, rand() % Y_SCREEN_MOVIMENTO, tipo, X_SCREEN, Y_SCREEN);
 
     if (novo_inimigo)
     {
@@ -290,16 +290,26 @@ void destroi_inimigo(inimigo *elemento)
     if (!elemento)
         return;
 
+    // Destroi o sprite associado ao inimigo, se existir
     if (elemento->sprite_info)
     {
-        al_destroy_bitmap(elemento->sprite_info->sprite);
-        free(elemento->sprite_info);
+        if (elemento->sprite_info->sprite)
+        {
+            al_destroy_bitmap(elemento->sprite_info->sprite); // Destroi o sprite
+            elemento->sprite_info->sprite = NULL;             // Anula o ponteiro
+        }
+        free(elemento->sprite_info); // Libera a estrutura sprite_info
+        elemento->sprite_info = NULL;
     }
 
+    // Destroi a arma associada ao inimigo, se existir
     if (elemento->arma)
     {
         destroi_arma(elemento->arma);
+        elemento->arma = NULL; // Anula o ponteiro da arma
     }
 
-    free(elemento);
+    free(elemento); // Libera a memória do inimigo
+    elemento = NULL; // Anula o ponteiro para evitar acessos futuros
 }
+
