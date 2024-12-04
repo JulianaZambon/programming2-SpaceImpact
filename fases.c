@@ -13,10 +13,12 @@ unsigned int score = 0;
 
 /*--------------------------------------------------------------------------------------*/
 /* FUNÇÕES AUXILIARES */
+// Implementação da função que verifica se um projétil da nave do jogador acertou um inimigo, a cada acerto o jogador ganha 10 pontos
 unsigned char check_kill_inimigo(jogador *killer, inimigo *victim, unsigned int *score)
 {
     projetil *anterior = NULL;
     projetil *index = killer->arma->shots;
+    projetil *temp = NULL; // Ponteiro temporário para remoção segura
 
     // Itera sobre todos os projéteis disparados pelo jogador
     while (index != NULL)
@@ -30,36 +32,38 @@ unsigned char check_kill_inimigo(jogador *killer, inimigo *victim, unsigned int 
             victim->hp--; // Reduz o HP do inimigo
             *score += 10; // Aumenta a pontuação do jogador
 
-            // Remove o projétil da lista
+            // Remove o projétil da lista de forma segura
+            temp = index;
             if (anterior)
             {
-                anterior->proximo = index->proximo; // Se não for o primeiro, ajusta o ponteiro do anterior
+                anterior->proximo = index->proximo;
             }
             else
             {
-                killer->arma->shots = (projetil *)index->proximo; // Se for o primeiro, ajusta o início da lista
+                killer->arma->shots = index->proximo;
             }
 
-            destruir_projetil(index); // Destrói o projétil que colidiu
+            index = index->proximo;  // Atualiza o índice antes de destruir o projétil
+            destruir_projetil(temp); // Destrói o projétil que colidiu
 
             // Verifica se o inimigo ainda está vivo
             if (victim->hp > 0)
             {
-                return 0; // Inimigo sofreu dano, mas ainda não morreu
+                return 0; // Inimigo sofreu dano, mas ainda está vivo
             }
             else
             {
-                destroi_inimigo(victim); // Destroi o inimigo
-                return 1;                // Inimigo morreu
+                return 1; // Inimigo morreu, sinalizar destruição
             }
         }
 
         // Atualiza o controle para o próximo projétil
         anterior = index;
-        index = (projetil *)index->proximo;
+        index = index->proximo;
     }
-}
 
+    return 0; // Nenhum projétil acertou o inimigo
+}
 
 // Implementação da função que verifica se um projétil acertou um chefe, a cada acerto o jogador ganha 10 pontos
 unsigned char check_kill_chefe(jogador *killer, chefe *victim, unsigned int *score)
@@ -270,7 +274,6 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
     atualiza_posicao(jogador_1);
     desenhar_jogador(jogador_1);
     desenhar_hp(jogador_1, 15, 15);
-
     // Exibe o score
     al_draw_textf(font, al_map_rgb(255, 255, 255), X_SCREEN - 150, 40, 0, "Score: %05d", score);
 
@@ -281,86 +284,76 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
     if (jogador_1->arma->timer)
         atualiza_arma(jogador_1->arma);
 
+    al_draw_textf(font, al_map_rgb(255, 255, 255), X_SCREEN - 150, 40, 0, "Score: %05d", score);
+
+    for (projetil *p = jogador_1->arma->shots; p != NULL; p = (projetil *)p->proximo)
+        desenhar_projetil_jogador(p);
+
+    if (jogador_1->arma->timer)
+        atualiza_arma(jogador_1->arma);
+
     atualizar_criacao_inimigo(lista_inimigos);
-
-    // Controle do score
-    jk = check_player(lista_inimigos, jogador_1);
-
     inimigo *anterior = NULL;
     inimigo *atual = *lista_inimigos;
+
     while (atual != NULL)
     {
+        inimigo *proximo = atual->proximo; // Armazena o próximo antes de possivelmente destruir o atual
+
+        // Atualiza a animação e movimentação do inimigo
         atualizar_animacao_inimigo(atual, ANIMATION_DELAY_INIMIGO);
         mover_inimigo(atual, 1, NULL, X_SCREEN, Y_SCREEN_MOVIMENTO);
         desenhar_inimigo(atual);
 
+        // Desenha os projéteis do inimigo
         for (projetil *p = atual->arma->shots; p != NULL; p = (projetil *)p->proximo)
             desenhar_projetil_inimigo_fase_1(p);
 
-        // Verifica se o inimigo foi destruído
-    }
-
-        // Se o score for maior que X, o chefe aparece, pois significa que todos os inimigos foram derrotados
-        // Se o score for menor que X, o chefe não aparece, algum inimigo não foi derrotado, portanto o jogador perdeu!
-
-        unsigned int animation_counter_chefe = 0;
-        // 10 pontos por cada tiro no inimigo
-        // Inimigo do tipo 0 tem hp == 2 (mais hp pq não atira)
-        // Inimigo do tipo 1 tem hp == 1 (menso hp pq atira)
-        if (score >= 10 * (2 * (QNTD_INIM_TIPO_0) + (QNTD_INIM_TIPO_0)))
+        // Verifica se o projétil do jogador acertou o inimigo
+        if (check_kill_inimigo(jogador_1, atual, &score))
         {
-            if (fase == 1)
+            // Inimigo foi destruído
+            if (anterior)
             {
-                atualizar_animacao_chefe(chefe_1, &animation_counter_chefe, ANIMATION_DELAY_CHEFE);
-                mover_chefe(chefe_1, CHEFE0_STEP, 0, X_SCREEN, Y_SCREEN_MOVIMENTO);
-                desenhar_chefe(chefe_1);
-
-                for (projetil *p = chefe_1->arma1->shots; p != NULL; p = (projetil *)p->proximo)
-                    desenhar_projetil_chefe_0(p);
-
-                if (chefe_1->arma1->timer)
-                    atualiza_arma(chefe_1->arma1);
-
-                for (projetil *p = chefe_1->arma2->shots; p != NULL; p = (projetil *)p->proximo)
-                    desenhar_projetil2_chefe_0(p);
-
-                if (chefe_1->arma2->timer)
-                    atualiza_arma(chefe_1->arma2);
-
-                // Controle do score
-                // jk_chefe = check_player_chefe(chefe_1, jogador_1);
-                // ck = check_kill_chefe(jogador_1, chefe_1, &score);
-                // se o jogador matar o chefe, ele avanca para a próxima fase
+                anterior->proximo = proximo; // Remove o inimigo da lista encadeada
             }
+            else
+            {
+                *lista_inimigos = proximo; // Ajusta o início da lista se o primeiro foi destruído
+            }
+
+            destroi_inimigo(atual); // Destrói o inimigo
         }
-        // else{
-        //     // Tela de Game Over
-        //     al_clear_to_color(al_map_rgb(0, 0, 0));
-        //     al_draw_text(font, al_map_rgb(255, 255, 255), X_SCREEN / 2 - 40, Y_SCREEN / 2 - 15, 0, "GAME OVER!");
-        // }
+        else
+        {
+            anterior = atual; // Atualiza o ponteiro anterior se o inimigo não foi destruído
+        }
 
-        al_flip_display();
-
-        al_destroy_font(font); // Libera a memória da fonte
+        atual = proximo; // Avança para o próximo inimigo
     }
 
-    void finaliza_fase(ALLEGRO_BITMAP * background, jogador * jogador_1, inimigo * lista_inimigos, chefe * chefe_1,
-                       chefe * chefe_2, int fase)
+    al_flip_display();
+
+    al_destroy_font(font); // Libera a memória da fonte
+}
+
+void finaliza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo *lista_inimigos, chefe *chefe_1,
+                   chefe *chefe_2, int fase)
+{
+    if (fase == 1)
     {
-        if (fase == 1)
-        {
-            al_destroy_bitmap(background);
-            destroi_jogador(jogador_1);
-            destroi_chefe(chefe_1);
-            for (inimigo *atual = lista_inimigos; atual != NULL; atual = atual->proximo)
-                destroi_inimigo(atual);
-        }
-        else if (fase == 2)
-        {
-            al_destroy_bitmap(background);
-            destroi_jogador(jogador_1);
-            destroi_chefe(chefe_2);
-            for (inimigo *atual = lista_inimigos; atual != NULL; atual = atual->proximo)
-                destroi_inimigo(atual);
-        }
+        al_destroy_bitmap(background);
+        destroi_jogador(jogador_1);
+        destroi_chefe(chefe_1);
+        for (inimigo *atual = lista_inimigos; atual != NULL; atual = atual->proximo)
+            destroi_inimigo(atual);
     }
+    else if (fase == 2)
+    {
+        al_destroy_bitmap(background);
+        destroi_jogador(jogador_1);
+        destroi_chefe(chefe_2);
+        for (inimigo *atual = lista_inimigos; atual != NULL; atual = atual->proximo)
+            destroi_inimigo(atual);
+    }
+}
