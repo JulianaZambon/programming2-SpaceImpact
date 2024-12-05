@@ -172,46 +172,49 @@ unsigned char check_player(inimigo **killer, jogador *victim)
 unsigned char check_player_chefe(chefe *killer, jogador *victim)
 {
     projetil *anterior = NULL;
-    projetil *index = killer->arma1->shots;
+    projetil *atual = killer->arma1->shots;
+
+    // Define as áreas de colisão do jogador
+    int jogador_min_x = victim->x - victim->face / 2;
+    int jogador_max_x = victim->x + victim->face / 2;
+    int jogador_min_y = victim->y - QUADRADO_SPRITE_JOGADOR / 2;
+    int jogador_max_y = victim->y + QUADRADO_SPRITE_JOGADOR / 2;
 
     // Itera sobre todos os projéteis disparados pelo chefe
-    while (index != NULL)
+    while (atual != NULL)
     {
-        // Verifica se o projétil colidiu com o jogador no eixo X e Y
-        if ((index->x >= victim->x - victim->face / 2) &&
-            (index->x <= victim->x + victim->face / 2) &&
-            (index->y >= victim->y - QUADRADO_SPRITE_JOGADOR / 2) &&
-            (index->y <= victim->y + QUADRADO_SPRITE_JOGADOR / 2))
+        // Verifica colisão do projétil com o jogador
+        if ((atual->x >= jogador_min_x) && (atual->x <= jogador_max_x) &&
+            (atual->y >= jogador_min_y) && (atual->y <= jogador_max_y))
         {
-            victim->hp -= 2; // Reduz o HP do jogador
+            victim->hp -= 2; // Reduz o HP do jogador em 2 unidades
 
             // Remove o projétil da lista
-            if (anterior)
+            if (anterior != NULL)
             {
-                anterior->proximo = index->proximo; // Se não for o primeiro, ajusta o ponteiro do anterior
+                anterior->proximo = atual->proximo; // Remove o projétil do meio da lista
             }
             else
             {
-                killer->arma1->shots = (projetil *)index->proximo; // Se for o primeiro, ajusta o início da lista
+                killer->arma1->shots = atual->proximo; // Remove o primeiro projétil
             }
 
-            destruir_projetil(index); // Destrói o projétil que colidiu
+            destruir_projetil(atual); // Libera memória do projétil
 
             // Verifica se o jogador ainda está vivo
             if (victim->hp > 0)
             {
-                return 0; // Jogador sofreu dano, mas ainda não morreu
+                return 0; // Jogador sofreu dano, mas ainda está vivo
             }
             else
             {
-                destroi_jogador(victim); // Destroi o jogador
-                return 1;                // Jogador morreu
+                return 1; // Jogador morreu
             }
         }
 
         // Atualiza o controle para o próximo projétil
-        anterior = index;
-        index = (projetil *)index->proximo;
+        anterior = atual;
+        atual = atual->proximo;
     }
 
     return 0; // Não houve colisão com nenhum projétil
@@ -453,13 +456,6 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
         al_draw_textf(font, al_map_rgb(255, 255, 255), X_SCREEN / 2 - 60, Y_SCREEN / 2, 0, "GAME OVER");
         al_flip_display();
         al_rest(7.0); // Aguarda 7 segundos antes de fechar o jogo
-    }
-
-    if (venceu_fase)
-    {
-        al_clear_to_color(al_map_rgb(0, 0, 0));
-        al_draw_textf(font, al_map_rgb(255, 255, 255), X_SCREEN / 2 - 60, Y_SCREEN / 2, 0, "Fase 1 concluída!");
-        al_rest(7.0); // Aguarda 7 segundos
     }
 
     al_flip_display();     // Atualiza a tela
