@@ -187,7 +187,7 @@ void adicionar_inimigo_lista(inimigo **lista, unsigned char sprite, unsigned sho
     }
 
     // Cria um novo inimigo com as posições aleatórias desejadas
-    inimigo *novo_inimigo = criar_inimigo(sprite, 1, X_SCREEN - 50, rand() % Y_SCREEN_MOVIMENTO, tipo, X_SCREEN, Y_SCREEN);
+    inimigo *novo_inimigo = criar_inimigo(sprite, 1, X_SCREEN - 50, rand() % Y_SCREEN_MOVIMENTO, tipo, X_SCREEN, Y_SCREEN_MOVIMENTO);
 
     if (novo_inimigo)
     {
@@ -195,84 +195,56 @@ void adicionar_inimigo_lista(inimigo **lista, unsigned char sprite, unsigned sho
     }
 }
 
-static unsigned short fase_atual = 0; // Fase atual (0 = Fase 1, 1 = Fase 2, etc.)
+static unsigned short fase_atual = 0; // Fase atual (0 = Fase 1, 1 = Fase 2)
+
 // Função de atualização da criação de inimigos
 void atualizar_criacao_inimigo(inimigo **lista)
 {
-    static unsigned int timer = 0;             // Contador de tempo para criação de inimigos
-    static unsigned int intervalo_criacao = 0; // Intervalo entre a criação de inimigos
-    static unsigned int max_inimigos = 15;     // Máximo de inimigos por onda
-    static unsigned int max_inimigos_tipo[4] = {QNTD_INIM_TIPO_0, QNTD_INIM_TIPO_1,
-                                                QNTD_INIM_TIPO_2, QNTD_INIM_TIPO_3}; // Limite de inimigos por tipo
-    static unsigned short tipo_atual = 0;                                            // Tipo atual de inimigo a ser criado (0 a 3)
+    static unsigned int intervalo_criacao = 0;                                                                           // Intervalo entre a criação de inimigos
+    static unsigned int max_inimigos_tipo[4] = {QNTD_INIM_TIPO_0, QNTD_INIM_TIPO_1, QNTD_INIM_TIPO_2, QNTD_INIM_TIPO_3}; // Limite de inimigos por tipo
+    static unsigned short tipo_atual = 0;                                                                                // Tipo atual de inimigo a ser criado
 
-    // Atualiza o intervalo de criação
+    // Atualiza o intervalo de criação de inimigos
     if (intervalo_criacao > 0)
     {
         intervalo_criacao--;
+        return; // Aguarda o intervalo para criar o próximo inimigo
     }
 
-    // Criação de inimigos dentro da onda
-    if (max_inimigos > 0 && intervalo_criacao == 0)
+    if (fase_atual == 0) // Fase 1: cria inimigos tipo 0 e 1
     {
-        // Verifica se o tipo atual é permitido na fase atual
-        int inimigo_permitido = 0;
-
-        switch (fase_atual)
+        if (tipo_atual == 0 || tipo_atual == 1)
         {
-        case 0: // Fase 1: Apenas inimigos tipo 0 e 1
-            inimigo_permitido = (tipo_atual == 0 || tipo_atual == 1);
-            break;
-        case 1: // Fase 2: Apenas inimigos tipo 2 e 3
-            inimigo_permitido = (tipo_atual == 2 || tipo_atual == 3);
-            break;
-        default:
-            break;
-        }
+            adicionar_inimigo_lista(lista, tipo_atual, tipo_atual);
 
-        // Cria o inimigo se permitido e houver disponibilidade
-        if (inimigo_permitido && max_inimigos_tipo[tipo_atual] > 0)
-        {
-            adicionar_inimigo_lista(lista, QUADRADO_SPRITE_INIMIGO_0 + tipo_atual, tipo_atual);
-
-            max_inimigos_tipo[tipo_atual]--; // Decrementa o máximo permitido para o tipo atual
-            max_inimigos--;                  // Decrementa o número total de inimigos restantes
-        }
-
-        // Se todos os inimigos do tipo atual foram gerados, muda para o próximo tipo
-        if (max_inimigos_tipo[tipo_atual] == 0)
-        {
-            // Procura o próximo tipo permitido na fase atual
-            unsigned short proximo_tipo = (tipo_atual + 1) % 4;
-            int encontrou_tipo = 0;
-
-            for (int i = 0; i < 4; i++)
+            if (--max_inimigos_tipo[tipo_atual] == 0)
             {
-                if (max_inimigos_tipo[proximo_tipo] > 0 &&
-                    ((fase_atual == 0 && (proximo_tipo == 0 || proximo_tipo == 1)) ||
-                     (fase_atual == 1 && (proximo_tipo == 2 || proximo_tipo == 3))))
-                {
-                    encontrou_tipo = 1;
-                    break;
-                }
-                proximo_tipo = (proximo_tipo + 1) % 4;
-            }
-            if (encontrou_tipo)
-            {
-                tipo_atual = proximo_tipo;
+                tipo_atual++; // Passa para o próximo tipo de inimigo
             }
         }
-
-        // Define o próximo intervalo de criação
-        intervalo_criacao = rand() % 200 + 250; // Intervalo aleatório entre 250 e 450 frames
     }
-
-    // Atualiza o timer
-    timer++;
-    if (timer >= 100)
+    else if (fase_atual == 1) // Fase 2: cria inimigos tipo 2 e 3
     {
-        timer = 0;
+        if (tipo_atual == 2 || tipo_atual == 3)
+        {
+            adicionar_inimigo_lista(lista, tipo_atual, tipo_atual);
+
+            if (--max_inimigos_tipo[tipo_atual] == 0)
+            {
+                tipo_atual++; // Passa para o próximo tipo de inimigo
+            }
+        }
     }
+
+    // Verifica se todos os tipos foram criados
+    unsigned short tipo_fim = (fase_atual == 0) ? 1 : 3;
+    if (tipo_atual > tipo_fim)
+    {
+        return; // Todos os inimigos foram criados
+    }
+
+    // Define o próximo intervalo de criação
+    intervalo_criacao = INIMIGO_INTERVALO_TEMPO;
 }
 
 // Função de disparo do inimigo (se o inimigo puder atirar)
@@ -309,7 +281,6 @@ void destroi_inimigo(inimigo *elemento)
         elemento->arma = NULL; // Anula o ponteiro da arma
     }
 
-    free(elemento); // Libera a memória do inimigo
+    free(elemento);  // Libera a memória do inimigo
     elemento = NULL; // Anula o ponteiro para evitar acessos futuros
 }
-
