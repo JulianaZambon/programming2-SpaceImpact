@@ -187,7 +187,7 @@ void adicionar_inimigo_lista(inimigo **lista, unsigned char sprite, unsigned sho
     }
 
     // Cria um novo inimigo com as posições aleatórias desejadas
-    inimigo *novo_inimigo = criar_inimigo(sprite, 1, X_SCREEN - 50, rand() % Y_SCREEN_MOVIMENTO, tipo, X_SCREEN, Y_SCREEN_MOVIMENTO);
+    inimigo *novo_inimigo = criar_inimigo(sprite, 1, X_SCREEN - 50, rand() % Y_SCREEN, tipo, X_SCREEN, Y_SCREEN);
 
     if (novo_inimigo)
     {
