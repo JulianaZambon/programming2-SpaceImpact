@@ -17,7 +17,7 @@ bool venceu_fase = false;    // Flag que sinaliza a vitória na fase
 /*--------------------------------------------------------------------------------------*/
 /* FUNÇÕES AUXILIARES */
 // Implementação da função que verifica se um projétil da nave do jogador acertou um inimigo, a cada acerto o jogador ganha 10 pontos
-unsigned char check_kill_inimigo(jogador *killer, inimigo *victim, unsigned int *score)
+unsigned char verifica_acerto_em_inimigo(jogador *killer, inimigo *victim, unsigned int *score)
 {
     projetil *anterior = NULL;
     projetil *index = killer->arma->shots;
@@ -69,7 +69,7 @@ unsigned char check_kill_inimigo(jogador *killer, inimigo *victim, unsigned int 
 }
 
 // Implementação da função que verifica se um projétil acertou um chefe, a cada acerto o jogador ganha 10 pontos
-unsigned char check_kill_chefe(jogador *killer, chefe *victim, unsigned int *score)
+unsigned char verifica_acerto_em_chefe(jogador *killer, chefe *victim, unsigned int *score)
 {
     projetil *anterior = NULL;
     projetil *index = killer->arma->shots;
@@ -118,7 +118,7 @@ unsigned char check_kill_chefe(jogador *killer, chefe *victim, unsigned int *sco
 }
 
 // Função que verifica se um projétil inimigo acertou o jogador, cada acerto reduz 1 ponto de vida
-unsigned char check_player(inimigo **killer, jogador *victim)
+unsigned char verifica_acerto_no_jogador(inimigo **killer, jogador *victim)
 {
     if (*killer == NULL || (*killer)->arma == NULL)
     {
@@ -168,8 +168,9 @@ unsigned char check_player(inimigo **killer, jogador *victim)
     return 0; // Retorna 0 se nenhum projétil acertou o jogador
 }
 
-// Implementação da função que verifica se um projétil de chefe acertou o jogador, cada acerto reduz 2 pontos de vida
-unsigned char check_player_chefe(chefe *killer, jogador *victim)
+// Implementação da função que verifica se um projétil de chefe acertou o jogador, cada acerto reduz 1 ponto de vida
+// O chefe possui 2 armas, cada uma com seu próprio tipo de projétil e movimentação
+unsigned char verifica_acerto_do_chefe_no_jogador(chefe *killer, jogador *victim)
 {
     projetil *anterior = NULL;
     projetil *atual = NULL;
@@ -189,7 +190,7 @@ unsigned char check_player_chefe(chefe *killer, jogador *victim)
         if ((atual->x >= jogador_min_x) && (atual->x <= jogador_max_x) &&
             (atual->y >= jogador_min_y) && (atual->y <= jogador_max_y))
         {
-            victim->hp -= 2;
+            victim->hp -= 1;
 
             // Remove o projetil da lista
             if (anterior != NULL)
@@ -227,7 +228,7 @@ unsigned char check_player_chefe(chefe *killer, jogador *victim)
         if ((atual->x >= jogador_min_x) && (atual->x <= jogador_max_x) &&
             (atual->y >= jogador_min_y) && (atual->y <= jogador_max_y))
         {
-            victim->hp -= 2;
+            victim->hp -= 1;
 
             // Remove o projetil da lista
             if (anterior != NULL)
@@ -363,7 +364,7 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
                 desenhar_projetil_inimigo_fase_1(p);
 
             // Verifica se o projétil do inimigo acertou o jogador
-            if (check_player(&atual, jogador_1))
+            if (verifica_acerto_no_jogador(&atual, jogador_1))
             {
                 if (jogador_1->hp <= 0)
                 {
@@ -377,7 +378,7 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
                 break; // Sai do loop se o jogador morreu
             }
             // Verifica se o projétil do jogador acertou o inimigo
-            if (check_kill_inimigo(jogador_1, atual, &score))
+            if (verifica_acerto_em_inimigo(jogador_1, atual, &score))
             {
                 // Remove o inimigo da lista
                 if (anterior)
@@ -415,7 +416,7 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
                     desenhar_projetil2_chefe_0(p);
 
                 // Verifica se o projétil do jogador acertou o chefe
-                if (check_kill_chefe(jogador_1, chefe_1, &score))
+                if (verifica_acerto_em_chefe(jogador_1, chefe_1, &score))
                 {
                     if (chefe_1->hp <= 0)
                     {
@@ -426,14 +427,14 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
 
                 // Verifica se o projétil do chefe acertou o jogador
                 // Se o jogador morreu, exibe a tela de game over e o jogo acaba
-                // if (check_player_chefe(chefe_1, jogador_1))
-                // {
-                //     if (jogador_1->hp <= 0)
-                //     {
-                //         destroi_jogador(jogador_1); // Destrói o jogador
-                //         game_over = 1;
-                //     }
-                // }
+                if (verifica_acerto_do_chefe_no_jogador(chefe_1, jogador_1))
+                {
+                    if (jogador_1->hp <= 0)
+                    {
+                        destroi_jogador(jogador_1); // Destrói o jogador
+                        game_over = 1;
+                    }
+                }
             }
         }
     }
@@ -460,7 +461,7 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
                 desenhar_projetil_inimigo_fase_2(p);
 
             // Verifica se o projétil do inimigo acertou o jogador
-            if (check_player(&atual, jogador_1))
+            if (verifica_acerto_no_jogador(&atual, jogador_1))
             {
                 if (jogador_1->hp <= 0)
                 {
@@ -474,7 +475,7 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
                 break; // Sai do loop se o jogador morreu
             }
             // Verifica se o projétil do jogador acertou o inimigo
-            if (check_kill_inimigo(jogador_1, atual, &score))
+            if (verifica_acerto_em_inimigo(jogador_1, atual, &score))
             {
                 // Remove o inimigo da lista
                 if (anterior)
@@ -499,7 +500,7 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
 
         // Verifica se todos os inimigos foram derrotados
         // SCORE TOTAL fase 01 eh 10 * (2 * (QNTD_INIM_TIPO_0) + (QNTD_INIM_TIPO_1) + (HP_CHEFE_0))
-        // SCORE TOTAL fase 02 para aparecer o chefe eh 
+        // SCORE TOTAL fase 02 para aparecer o chefe eh
         // SCORE TOTAL DA FASE 01 + 10 * (2 * (QNTD_INIM_TIPO_2) + (QNTD_INIM_TIPO_3))
         if (score >= (10 * (2 * (QNTD_INIM_TIPO_0) + (QNTD_INIM_TIPO_1) + (HP_CHEFE_0)) + 10 * (2 * (QNTD_INIM_TIPO_2) + (QNTD_INIM_TIPO_3))))
         {
@@ -517,11 +518,22 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
                     desenhar_projetil2_chefe_1(p);
 
                 // Verifica se o projétil do jogador acertou o chefe
-                if (check_kill_chefe(jogador_1, chefe_2, &score))
+                if (verifica_acerto_em_chefe(jogador_1, chefe_2, &score))
                 {
                     if (chefe_2->hp <= 0)
                     {
-                        venceu_fase = true; // Sinaliza que o jogador venceu a fase
+                        venceu_fase = true;
+                    }
+                }
+
+                // Verifica se o projétil do chefe acertou o jogador
+                // Se o jogador morreu, exibe a tela de game over e o jogo acaba
+                if (verifica_acerto_do_chefe_no_jogador(chefe_1, jogador_1))
+                {
+                    if (jogador_1->hp <= 0)
+                    {
+                        destroi_jogador(jogador_1); // Destrói o jogador
+                        game_over = 1;
                     }
                 }
             }
