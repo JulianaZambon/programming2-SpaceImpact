@@ -164,7 +164,7 @@ int main()
                         al_clear_to_color(al_map_rgb(0, 0, 0));
                         al_draw_textf(font, al_map_rgb(255, 255, 255), X_SCREEN / 2 - 60, Y_SCREEN / 2, 0, "Você venceu o jogo!");
                         al_flip_display();
-                        al_rest(3.0);         // Aguarda 3 segundos
+                        al_rest(5.0);         // Aguarda 3 segundos
                         jogo_rodando = false; // Encerra o jogo
                     }
                 }
