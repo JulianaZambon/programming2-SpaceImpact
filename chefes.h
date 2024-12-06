@@ -9,11 +9,27 @@
 /*-----------------------------------------------------------------------------------------*/
 /* DEFINIÇÕES */
 
-#define NUM_CHEFES 2
-#define CHEFE0_STEP 2
-#define CHEFE1_STEP 2
-#define PATH_CHEFE_0 "assets/chefes/fase1/chefe1.png"
-#define PATH_CHEFE_1 "assets/chefes/fase2/chefe2.png"
+#define NUM_CHEFES 2            // Número de chefes
+#define ANIMATION_DELAY_CHEFE 3 // Velocidade da animação do chefe (quanto maior, mais lento)
+
+#define CHEFE0_STEP 2 // Número de passos do chefe
+#define CHEFE1_STEP 2 // Número de passos do chefe
+
+#define PATH_CHEFE_0 "assets/chefes/fase1/chefe1.png" // Caminho para o sprite do chefe 0
+#define PATH_CHEFE_1 "assets/chefes/fase2/chefe2.png" // Caminho para o sprite do chefe 1
+#define QUADRADO_SPRITE_SHEET 250                     // Tamanho do quadro no sprite sheet
+
+#define COLUNAS_SPRITE_SHEET_CHEFE_0 11 // Número de colunas no sprite do chefe 0
+#define SPRITE_SHEET_CHEFE_0 22         // Número total de quadros no sprite
+
+#define COLUNAS_SPRITE_SHEET_CHEFE_1 8 // Número de colunas no sprite do chefe 1
+#define SPRITE_SHEET_CHEFE_1 16        // Número total de quadros no sprite
+
+#define HP_CHEFE_0 5 // Vida do chefe 0
+#define HP_CHEFE_1 60 // Vida do chefe 1
+
+#define ARMA1_COOLDOWN_CHEFE 40  // Tempo de cooldown da arma do chefe (quanto maior, mais lento)
+#define ARMA2_COOLDOWN_CHEFE 140 // Tempo de cooldown da segunda arma do chefe (quanto maior, mais lento)
 
 /*-----------------------------------------------------------------------------------------*/
 /* ESTRUTURAS */
@@ -37,8 +53,9 @@ typedef struct
     unsigned short x;             // Posição X do centro do chefe
     unsigned short y;             // Posição Y do centro do chefe
     int tipo;                     // Tipo de chefe (diferencia os 2 chefes)
-    arma *arma1;                  // Elemento para realizar disparos no jogo (-1HP)
-    arma *arma2;                  // Elemento para realizar disparos no jogo (-2HP)
+    unsigned int animation_counter; // Contador de animação
+    arma *arma1;                  // Elemento para realizar disparos no jogo
+    arma *arma2;                  // Elemento para realizar disparos no jogo
     unsigned short frame_atual;   // Quadro atual (índice no sprite sheet)
     ALLEGRO_BITMAP *chefe_sprite; // Sprite do chefe
     chefe_sprite *sprite_info;    // Informações sobre o sprite do chefe
