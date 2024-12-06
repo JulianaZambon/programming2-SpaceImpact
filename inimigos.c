@@ -59,7 +59,7 @@ inimigo *criar_inimigo(unsigned char side, unsigned char face, short x, unsigned
         novo_inimigo->contador_animacao = CONTADOR_ZERADO;
         break;
     case 2:
-        novo_inimigo->sprite_info->sprite = al_load_bitmap(PATH_INIMIGO_3);
+        novo_inimigo->sprite_info->sprite = al_load_bitmap(PATH_INIMIGO_2);
         novo_inimigo->sprite_info->largura = QUADRADO_SPRITE_INIMIGO_2;
         novo_inimigo->sprite_info->altura = QUADRADO_SPRITE_INIMIGO_2;
         novo_inimigo->sprite_info->num_frames = COLUNAS_SPRITE_INIMIGO_2;
@@ -68,7 +68,7 @@ inimigo *criar_inimigo(unsigned char side, unsigned char face, short x, unsigned
         novo_inimigo->contador_animacao = CONTADOR_ZERADO;
         break;
     case 3:
-        novo_inimigo->sprite_info->sprite = al_load_bitmap(PATH_INIMIGO_2);
+        novo_inimigo->sprite_info->sprite = al_load_bitmap(PATH_INIMIGO_3);
         novo_inimigo->sprite_info->largura = QUADRADO_SPRITE_INIMIGO_3;
         novo_inimigo->sprite_info->altura = QUADRADO_SPRITE_INIMIGO_3;
         novo_inimigo->sprite_info->num_frames = COLUNAS_SPRITE_INIMIGO_3;
@@ -107,7 +107,7 @@ void mover_inimigo(inimigo *elemento, unsigned char steps, unsigned char *trajet
         break;
     case 2: // Movimento em círculo
         // Movimento contínuo no eixo X
-        elemento->x -= INIMIGO2_STEP * steps; // Movimento para a esquerda )
+        elemento->x -= INIMIGO2_STEP * steps; // Movimento para a esquerda 
         // Se o inimigo sair da tela pela esquerda, ele reaparece no lado direito
         if (elemento->x + elemento->tam_lateral / 2 < 0)
         {
@@ -195,14 +195,18 @@ void adicionar_inimigo_lista(inimigo **lista, unsigned char sprite, unsigned sho
     }
 }
 
-static unsigned short fase_atual = 0; // Fase atual (0 = Fase 1, 1 = Fase 2)
+/*
+Na fase 1, devem ser criados todos os inimigos do tipo 0, para então serem criados todos os inimigos do tipo 1
+Na fase 2, devem ser criados todos os inimigos do tipo 2, para então serem criados todos os inimigos do tipo 3
+*/
 
 // Função de atualização da criação de inimigos
-void atualizar_criacao_inimigo(inimigo **lista)
+// Função de atualização da criação de inimigos na fase 1
+void atualizar_criacao_inimigo_fase1(inimigo **lista)
 {
-    static unsigned int intervalo_criacao = 0;                                                                           // Intervalo entre a criação de inimigos
-    static unsigned int max_inimigos_tipo[4] = {QNTD_INIM_TIPO_0, QNTD_INIM_TIPO_1, QNTD_INIM_TIPO_2, QNTD_INIM_TIPO_3}; // Limite de inimigos por tipo
-    static unsigned short tipo_atual = 0;                                                                                // Tipo atual de inimigo a ser criado
+    static unsigned int intervalo_criacao = 0; // Intervalo entre a criação de inimigos
+    static unsigned int max_inimigos_tipo[2] = {QNTD_INIM_TIPO_0, QNTD_INIM_TIPO_1}; // Limite de inimigos por tipo
+    static unsigned short tipo_atual = 0; // Tipo atual de inimigo a ser criado
 
     // Atualiza o intervalo de criação de inimigos
     if (intervalo_criacao > 0)
@@ -211,40 +215,58 @@ void atualizar_criacao_inimigo(inimigo **lista)
         return; // Aguarda o intervalo para criar o próximo inimigo
     }
 
-    if (fase_atual == 0) // Fase 1: cria inimigos tipo 0 e 1
+    if (tipo_atual == 0 || tipo_atual == 1)
     {
-        if (tipo_atual == 0 || tipo_atual == 1)
-        {
-            adicionar_inimigo_lista(lista, tipo_atual, tipo_atual);
+        adicionar_inimigo_lista(lista, tipo_atual, tipo_atual);
 
-            if (--max_inimigos_tipo[tipo_atual] == 0)
-            {
-                tipo_atual++; // Passa para o próximo tipo de inimigo
-            }
-        }
-    }
-    else if (fase_atual == 1) // Fase 2: cria inimigos tipo 2 e 3
-    {
-        if (tipo_atual == 2 || tipo_atual == 3)
+        if (--max_inimigos_tipo[tipo_atual] == 0)
         {
-            adicionar_inimigo_lista(lista, tipo_atual, tipo_atual);
-
-            if (--max_inimigos_tipo[tipo_atual] == 0)
-            {
-                tipo_atual++; // Passa para o próximo tipo de inimigo
-            }
+            tipo_atual++; // Passa para o próximo tipo de inimigo
         }
     }
 
     // Verifica se todos os tipos foram criados
-    unsigned short tipo_fim = (fase_atual == 0) ? 1 : 3;
-    if (tipo_atual > tipo_fim)
+    if (tipo_atual > 1) // Quando todos os inimigos dos tipos 0 e 1 foram criados
     {
         return; // Todos os inimigos foram criados
     }
 
     // Define o próximo intervalo de criação
-    intervalo_criacao = INIMIGO_INTERVALO_TEMPO;
+    intervalo_criacao = rand() % 150 + 150; // Intervalo aleatorio entre 150 e 300
+}
+
+// Função de atualização da criação de inimigos na fase 2
+void atualizar_criacao_inimigo_fase2(inimigo **lista)
+{
+    static unsigned int intervalo_criacao = 0; // Intervalo entre a criação de inimigos
+    static unsigned int max_inimigos_tipo[2] = {QNTD_INIM_TIPO_2, QNTD_INIM_TIPO_3}; // Limite de inimigos por tipo
+    static unsigned short tipo_atual = 2; // Tipo atual de inimigo a ser criado
+
+    // Atualiza o intervalo de criação de inimigos
+    if (intervalo_criacao > 0)
+    {
+        intervalo_criacao--;
+        return; // Aguarda o intervalo para criar o próximo inimigo
+    }
+
+    if (tipo_atual == 2 || tipo_atual == 3)
+    {
+        adicionar_inimigo_lista(lista, tipo_atual, tipo_atual);
+
+        if (--max_inimigos_tipo[tipo_atual - 2] == 0) // Decrementa a quantidade de inimigos para o tipo atual
+        {
+            tipo_atual++; // Passa para o próximo tipo de inimigo
+        }
+    }
+
+    // Verifica se todos os tipos foram criados
+    if (tipo_atual > 3) // Quando todos os inimigos dos tipos 2 e 3 foram criados
+    {
+        return; // Todos os inimigos foram criados
+    }
+
+    // Define o próximo intervalo de criação
+    intervalo_criacao = rand() % 150 + 150;
 }
 
 // Função de disparo do inimigo (se o inimigo puder atirar)
