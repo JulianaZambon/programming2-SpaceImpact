@@ -7,16 +7,6 @@
 // Inclusões de bibliotecas locais
 #include "chefes.h"
 
-#define QUADRADO_SPRITE_SHEET 250       // Tamanho do quadro no sprite sheet
-#define COLUNAS_SPRITE_SHEET_CHEFE_0 11 // Número de colunas no sprite do chefe 0
-#define SPRITE_SHEET_CHEFE_0 22         // Número total de quadros no sprite
-#define COLUNAS_SPRITE_SHEET_CHEFE_1 8  // Número de colunas no sprite do chefe 1
-#define SPRITE_SHEET_CHEFE_1 16         // Número total de quadros no sprite
-#define HP_CHEFE_0 40                   // Vida do chefe 0
-#define HP_CHEFE_1 60                   // Vida do chefe 1
-#define ARMA1_COOLDOWN_CHEFE 40         // Tempo de cooldown da arma do chefe (quanto maior, mais lento)
-#define ARMA2_COOLDOWN_CHEFE 140        // Tempo de cooldown da segunda arma do chefe (quanto maior, mais lento)
-
 /*-----------------------------------------------------------------------------------------*/
 /* FUNÇÕES */
 
@@ -43,6 +33,7 @@ chefe *criar_chefe(unsigned char side, unsigned char face, short x, unsigned sho
     novo_chefe->frame_atual = 0;      // Inicializa o frame atual do sprite
     novo_chefe->arma1->timer = 0;     // Inicializa o cooldown da primeira arma
     novo_chefe->arma2->timer = 0;     // Inicializa o cooldown da segunda arma
+    novo_chefe->animation_counter = 0; // Inicializa o contador de animação
 
     // Aloca a estrutura para o sprite do chefe
     novo_chefe->sprite_info = (chefe_sprite *)malloc(sizeof(chefe_sprite));
@@ -99,13 +90,13 @@ void mover_chefe(chefe *elemento, unsigned char steps, unsigned char trajetoria,
     {
     case 0: // movimento para cima e para baixo continuamente
             // Movimento oscilatório baseado no seno do tempo (frame atual)
-        elemento->y = (max_y / 2) + (sin(al_get_time() * steps * 0.05) * (max_y / 4));
+        elemento->y = (max_y / 2) + (sin(al_get_time() * steps * 0.5) * (max_y / 4));
         // basta comentar/descomentar para obter o movimento para a esquerda tbm
         // elemento->x -= steps;
         break;
     case 1: // movimento para cima e para baixo continuamente
             // Movimento oscilatório baseado no seno do tempo (frame atual)
-        elemento->y = (max_y / 2) + (sin(al_get_time() * steps * 0.05) * (max_y / 4));
+        elemento->y = (max_y / 2) + (sin(al_get_time() * steps * 0.5) * (max_y / 4));
         // basta comentar/descomentar para obter o movimento para a esquerda tbm
         // elemento->x -= steps;
         break;
@@ -186,7 +177,7 @@ void chefe_atira(chefe *element)
     if (!element->arma2->timer)
     {
         // Disparo da segunda arma
-        disparo_arma(element->x - 80, element->y, 0, element->arma2);
+        disparo_arma(element->x - 80, element->y, 2, element->arma2);
         element->arma2->timer = ARMA2_COOLDOWN_CHEFE; // Define o cooldown da arma
     }
 }
