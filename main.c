@@ -82,7 +82,8 @@ int main()
 
     // Inicialização dos elementos do jogo
     jogador *jogador_1 = malloc(sizeof(jogador));
-    inimigo *lista_inimigos = malloc(sizeof(inimigo) * NUM_INIMIGOS); // Exemplo
+    inimigo *lista_inimigos_fase1 = malloc(sizeof(inimigo) * NUM_INIMIGOS);
+    inimigo *lista_inimigos_fase2 = malloc(sizeof(inimigo) * NUM_INIMIGOS);
     chefe *chefe_1 = malloc(sizeof(chefe));
     chefe *chefe_2 = malloc(sizeof(chefe));
 
@@ -100,7 +101,6 @@ int main()
     ALLEGRO_EVENT event;
     unsigned int animation_tela_inicial = 0;
     int fase_atual = 1; // Variável que controla a fase atual
-
 
     /*-----------------------------------------------------------------------------------------*/
     while (jogo_rodando)
@@ -126,7 +126,9 @@ int main()
                 if (event.keyboard.keycode == ALLEGRO_KEY_S) // Inicia o jogo ao pressionar a tecla 'S'
                 {
                     tela_inicial_ativa = false;
-                    inicializa_fase(&background, &jogador_1, &lista_inimigos, &chefe_1, &chefe_2, fase_atual);
+                    // Inicializa a fase 1
+                    inicializa_fase(&background, &jogador_1, &lista_inimigos_fase1, NULL,
+                                    &chefe_1, &chefe_2, fase_atual);
                 }
             }
         }
@@ -137,7 +139,7 @@ int main()
             if (event.type == ALLEGRO_EVENT_TIMER)
             {
                 // Atualiza a fase com base na fase atual
-                atualiza_fase(background, jogador_1, &lista_inimigos, chefe_1, chefe_2, fase_atual);
+                atualiza_fase(background, jogador_1, &lista_inimigos_fase1, &lista_inimigos_fase2, chefe_1, chefe_2, fase_atual);
 
                 // Verifica se a fase foi concluída
                 if (venceu_fase) // Se venceu a fase atual
@@ -148,12 +150,13 @@ int main()
                         al_clear_to_color(al_map_rgb(0, 0, 0));
                         al_draw_textf(font, al_map_rgb(255, 255, 255), X_SCREEN / 2 - 60, Y_SCREEN / 2, 0, "Fase 1 concluída!");
                         al_flip_display();
-                        al_rest(3.0); // Aguarda 3 segundos
+                        al_rest(3.0); // Aguarda 3 segundos para passar para a próxima fase
 
                         // Avança para a fase 2
                         fase_atual = 2;
                         venceu_fase = false; // Reseta a variável para a nova fase
-                        inicializa_fase(&background, &jogador_1, &lista_inimigos, &chefe_1, &chefe_2, fase_atual);
+                        inicializa_fase(&background, &jogador_1, NULL, &lista_inimigos_fase2, &chefe_1, &chefe_2, fase_atual); 
+                        atualiza_fase(background, jogador_1, NULL, &lista_inimigos_fase2, chefe_1, chefe_2, fase_atual); 
                     }
                     else if (fase_atual == 2)
                     {
@@ -161,7 +164,7 @@ int main()
                         al_clear_to_color(al_map_rgb(0, 0, 0));
                         al_draw_textf(font, al_map_rgb(255, 255, 255), X_SCREEN / 2 - 60, Y_SCREEN / 2, 0, "Você venceu o jogo!");
                         al_flip_display();
-                        al_rest(3.0); // Aguarda 3 segundos
+                        al_rest(3.0);         // Aguarda 3 segundos
                         jogo_rodando = false; // Encerra o jogo
                     }
                 }
@@ -185,7 +188,8 @@ int main()
 
     // Libera memória alocada
     free(jogador_1);
-    free(lista_inimigos);
+    free(lista_inimigos_fase1);
+    free(lista_inimigos_fase2);
     free(chefe_1);
     free(chefe_2);
 
