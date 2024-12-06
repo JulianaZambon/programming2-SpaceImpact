@@ -344,7 +344,7 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
     if (fase == 1)
     {
         /* INIMIGOS*/
-        atualizar_criacao_inimigo(lista_inimigos_fase1);
+        atualizar_criacao_inimigo_fase1(lista_inimigos_fase1);
         inimigo *anterior = NULL;               // Inicializa o ponteiro para o inimigo anterior como NULL
         inimigo *atual = *lista_inimigos_fase1; // Ponteiro para o início da lista
         int jogador_morto = 0;                  // Flag para verificar se o jogador morreu
@@ -441,7 +441,7 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
     else if (fase == 2)
     {
         /* INIMIGOS*/
-        atualizar_criacao_inimigo(lista_inimigos_fase2);
+        atualizar_criacao_inimigo_fase2(lista_inimigos_fase2);
         inimigo *anterior = NULL;               // Inicializa o ponteiro para o inimigo anterior como NULL
         inimigo *atual = *lista_inimigos_fase2; // Ponteiro para o início da lista
         int jogador_morto = 0;                  // Flag para verificar se o jogador morreu
@@ -522,7 +522,6 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
                     if (chefe_2->hp <= 0)
                     {
                         venceu_fase = true; // Sinaliza que o jogador venceu a fase
-                        game_over = 1;      // Sinaliza o fim do jogo
                     }
                 }
             }
