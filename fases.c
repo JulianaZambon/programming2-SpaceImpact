@@ -398,13 +398,12 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
         }
         /* LÓGICA DO CHEFE - FASE 01 */
 
-        int animation_counter_chefe = 0;
         // Verifica se todos os inimigos foram derrotados para então o chefe aparecer
         if (score >= (10 * (2 * (QNTD_INIM_TIPO_0) + (QNTD_INIM_TIPO_1))))
         {
             if (chefe_1 != NULL && chefe_1->hp > 0)
             {
-                atualizar_animacao_chefe(chefe_1, &animation_counter_chefe, ANIMATION_DELAY_CHEFE);
+                atualizar_animacao_chefe(chefe_1, &chefe_1->animation_counter, ANIMATION_DELAY_CHEFE);
                 mover_chefe(chefe_1, CHEFE0_STEP, 0, X_SCREEN, Y_SCREEN_MOVIMENTO);
                 desenhar_chefe(chefe_1);
 
@@ -506,7 +505,7 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
         {
             if (chefe_2 != NULL && chefe_2->hp > 0)
             {
-                atualizar_animacao_chefe(chefe_2, &animation_counter_chefe, ANIMATION_DELAY_CHEFE);
+                atualizar_animacao_chefe(chefe_2, &chefe_2->animation_counter, ANIMATION_DELAY_CHEFE);
                 mover_chefe(chefe_2, CHEFE1_STEP, 0, X_SCREEN, Y_SCREEN_MOVIMENTO);
                 desenhar_chefe(chefe_2);
 
