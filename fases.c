@@ -11,8 +11,8 @@ unsigned char ck = 0;
 unsigned char jk_chefe = 0;
 unsigned int score = 0;
 
-unsigned char game_over = 0;   // Flag que sinaliza o fim do jogo
-unsigned char venceu_fase = 0; // Flag que sinaliza a vitória na fase
+unsigned char game_over = 0; // Flag que sinaliza o fim do jogo
+bool venceu_fase = false;    // Flag que sinaliza a vitória na fase
 
 /*--------------------------------------------------------------------------------------*/
 /* FUNÇÕES AUXILIARES */
@@ -172,7 +172,8 @@ unsigned char check_player(inimigo **killer, jogador *victim)
 unsigned char check_player_chefe(chefe *killer, jogador *victim)
 {
     projetil *anterior = NULL;
-    projetil *atual = killer->arma1->shots;
+    projetil *atual = NULL;
+    unsigned char jogador_morto = 0;
 
     // Define as áreas de colisão do jogador
     int jogador_min_x = victim->x - victim->face / 2;
@@ -180,52 +181,92 @@ unsigned char check_player_chefe(chefe *killer, jogador *victim)
     int jogador_min_y = victim->y - QUADRADO_SPRITE_JOGADOR / 2;
     int jogador_max_y = victim->y + QUADRADO_SPRITE_JOGADOR / 2;
 
-    // Itera sobre todos os projéteis disparados pelo chefe
+    // Verificar projéteis da arma 1
+    anterior = NULL;
+    atual = killer->arma1->shots;
     while (atual != NULL)
     {
-        // Verifica colisão do projétil com o jogador
         if ((atual->x >= jogador_min_x) && (atual->x <= jogador_max_x) &&
             (atual->y >= jogador_min_y) && (atual->y <= jogador_max_y))
         {
-            victim->hp -= 2; // Reduz o HP do jogador em 2 unidades
+            victim->hp -= 2;
 
-            // Remove o projétil da lista
+            // Remove o projetil da lista
             if (anterior != NULL)
             {
-                anterior->proximo = atual->proximo; // Remove o projétil do meio da lista
+                anterior->proximo = atual->proximo;
             }
             else
             {
-                killer->arma1->shots = atual->proximo; // Remove o primeiro projétil
+                killer->arma1->shots = atual->proximo;
             }
 
-            destruir_projetil(atual); // Libera memória do projétil
+            projetil *temp = atual;  // Armazena o projetil atual antes de destruí-lo
+            atual = atual->proximo;  // Avança o ponteiro para o próximo projetil
+            destruir_projetil(temp); // Destrói o projetil
 
-            // Verifica se o jogador ainda está vivo
-            if (victim->hp > 0)
+            // Verifica se o jogador morreu
+            if (victim->hp <= 0)
             {
-                return 0; // Jogador sofreu dano, mas ainda está vivo
-            }
-            else
-            {
-                return 1; // Jogador morreu
+                jogador_morto = 1;
+                break; // Encerra a busca após a morte do jogador
             }
         }
-
-        // Atualiza o controle para o próximo projétil
-        anterior = atual;
-        atual = atual->proximo;
+        else
+        {
+            anterior = atual;
+            atual = atual->proximo;
+        }
     }
 
-    return 0; // Não houve colisão com nenhum projétil
+    // Verificar projéteis da arma 2
+    anterior = NULL;
+    atual = killer->arma2->shots;
+    while (atual != NULL)
+    {
+        if ((atual->x >= jogador_min_x) && (atual->x <= jogador_max_x) &&
+            (atual->y >= jogador_min_y) && (atual->y <= jogador_max_y))
+        {
+            victim->hp -= 2;
+
+            // Remove o projetil da lista
+            if (anterior != NULL)
+            {
+                anterior->proximo = atual->proximo;
+            }
+            else
+            {
+                killer->arma2->shots = atual->proximo;
+            }
+
+            projetil *temp = atual;  // Armazena o projetil atual antes de destruí-lo
+            atual = atual->proximo;  // Avança o ponteiro para o próximo projetil
+            destruir_projetil(temp); // Destrói o projetil
+
+            // Verifica se o jogador morreu
+            if (victim->hp <= 0)
+            {
+                jogador_morto = 1;
+                break; // Encerra a busca após a morte do jogador
+            }
+        }
+        else
+        {
+            anterior = atual;
+            atual = atual->proximo;
+        }
+    }
+
+    // Retorna 1 se o jogador morreu, 0 caso contrário
+    return jogador_morto;
 }
 
 /*--------------------------------------------------------------------------------------*/
 /* Funções de inicialização, atualização e finalização de cada fase */
 
 // Função de inicialização de fase
-void inicializa_fase(ALLEGRO_BITMAP **background, jogador **jogador_1, inimigo **lista_inimigos, chefe **chefe_1,
-                     chefe **chefe_2, int fase)
+void inicializa_fase(ALLEGRO_BITMAP **background, jogador **jogador_1, inimigo **lista_inimigos_fase1,
+                     inimigo **lista_inimigos_fase2, chefe **chefe_1, chefe **chefe_2, int fase)
 {
     if (fase == 1)
     {
@@ -241,8 +282,10 @@ void inicializa_fase(ALLEGRO_BITMAP **background, jogador **jogador_1, inimigo *
         if (!(*jogador_1)->sprite)
             return;
 
-        *lista_inimigos = NULL;
+        // Inicializa a lista de inimigos da fase 1
+        *lista_inimigos_fase1 = NULL;
 
+        // Inicializa o chefe tipo 0
         *chefe_1 = criar_chefe(20, 60, X_SCREEN - 100, Y_SCREEN / 2, 0, X_SCREEN, Y_SCREEN);
         if (!*chefe_1)
             return;
@@ -261,19 +304,21 @@ void inicializa_fase(ALLEGRO_BITMAP **background, jogador **jogador_1, inimigo *
         if (!(*jogador_1)->sprite)
             return;
 
+        // Inicializa a lista de inimigos da fase 2
+        *lista_inimigos_fase2 = NULL;
+
+        // Inicializa o chefe tipo 1
         *chefe_2 = criar_chefe(20, 60, X_SCREEN - 100, Y_SCREEN / 2, 1, X_SCREEN, Y_SCREEN_MOVIMENTO);
         if (!*chefe_2)
             return;
-
-        *lista_inimigos = NULL;
     }
 }
 
-void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lista_inimigos, chefe *chefe_1,
-                   chefe *chefe_2, int fase)
+void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lista_inimigos_fase1,
+                   inimigo **lista_inimigos_fase2, chefe *chefe_1, chefe *chefe_2, int fase)
 {
-    static float background_x = 0;                 // Posição de rolagem do fundo
-    ALLEGRO_FONT *font = al_create_builtin_font(); // Fonte para exibir o score
+    static float background_x = 0; // Posição de rolagem do fundo
+    ALLEGRO_FONT *font = al_create_builtin_font();
 
     // Atualiza e desenha o fundo
     atualiza_e_desenha_background(background, &background_x, VELOCIDADE_BACKGROUND);
@@ -294,19 +339,20 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
     if (jogador_1->arma->timer)
         atualiza_arma(jogador_1->arma);
 
+    /*----------------------------------------------------------------------------------------------------*/
+    /* LÓGICA DA FASE 01 */
     if (fase == 1)
     {
-        /* INIMIGOS */
-        atualizar_criacao_inimigo(lista_inimigos);
-        inimigo *anterior = NULL;         // Initializa o ponteiro para o inimigo anterior como NULL
-        inimigo *atual = *lista_inimigos; // Ponteiro para o início da lista
-        int jogador_morto = 0;            // Flag para verificar se o jogador morreu
+        /* INIMIGOS*/
+        atualizar_criacao_inimigo(lista_inimigos_fase1);
+        inimigo *anterior = NULL;               // Inicializa o ponteiro para o inimigo anterior como NULL
+        inimigo *atual = *lista_inimigos_fase1; // Ponteiro para o início da lista
+        int jogador_morto = 0;                  // Flag para verificar se o jogador morreu
 
-        // Loop principal para atualizar, mover e desenhar inimigos
+        // Loop principal para atualizar, mover e desenhar inimigos da fase 01
         while (atual != NULL)
         {
             inimigo *proximo = atual->proximo; // Armazena o próximo inimigo
-
             // Atualiza a animação e movimentação do inimigo
             atualizar_animacao_inimigo(atual, ANIMATION_DELAY_INIMIGO);
             mover_inimigo(atual, 1, NULL, X_SCREEN, Y_SCREEN_MOVIMENTO);
@@ -326,12 +372,10 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
                     jogador_morto = 1;
                 }
             }
-
             if (jogador_morto)
             {
                 break; // Sai do loop se o jogador morreu
             }
-
             // Verifica se o projétil do jogador acertou o inimigo
             if (check_kill_inimigo(jogador_1, atual, &score))
             {
@@ -342,29 +386,24 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
                 }
                 else
                 {
-                    *lista_inimigos = proximo; // Atualiza a cabeça da lista
+                    *lista_inimigos_fase1 = proximo; // Atualiza a cabeça da lista
                 }
-
                 destroi_inimigo(atual); // Destrói o inimigo
             }
             else
             {
                 anterior = atual; // Atualiza o anterior se o inimigo não foi destruído
             }
-
             atual = proximo; // Avança para o próximo inimigo
         }
+        /* LÓGICA DO CHEFE - FASE 01 */
 
-        /* LÓGICA DO CHEFE */
         int animation_counter_chefe = 0;
-
-        // Verifica se todos os inimigos foram derrotados
+        // Verifica se todos os inimigos foram derrotados para então o chefe aparecer
         if (score >= (10 * (2 * (QNTD_INIM_TIPO_0) + (QNTD_INIM_TIPO_1))))
         {
             if (chefe_1 != NULL && chefe_1->hp > 0)
             {
-                // espera 10s antes de começar a batalha contra o chefe
-
                 atualizar_animacao_chefe(chefe_1, &animation_counter_chefe, ANIMATION_DELAY_CHEFE);
                 mover_chefe(chefe_1, CHEFE0_STEP, 0, X_SCREEN, Y_SCREEN_MOVIMENTO);
                 desenhar_chefe(chefe_1);
@@ -381,36 +420,37 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
                 {
                     if (chefe_1->hp <= 0)
                     {
-                        venceu_fase = 1; // Marca que o jogador venceu a fase
+                        venceu_fase = true; // Sinaliza que o jogador venceu a fase
+                        fase = 2;           // Avança para a próxima fase
                     }
                 }
+
+                // Verifica se o projétil do chefe acertou o jogador
+                // Se o jogador morreu, exibe a tela de game over e o jogo acaba
+                // if (check_player_chefe(chefe_1, jogador_1))
+                // {
+                //     if (jogador_1->hp <= 0)
+                //     {
+                //         destroi_jogador(jogador_1); // Destrói o jogador
+                //         game_over = 1;
+                //     }
+                // }
             }
         }
-
-        // Destrói o chefe quando ele for derrotado e avança para a próxima fase
-        // if (chefe_1 != NULL && chefe_1->hp <= 0)
-        // {
-        //     destroi_chefe(chefe_1); // Destrói o chefe
-        //     chefe_1 = NULL;         // Marca o ponteiro como NULL para evitar acesso futuro
-        // }
-
-        // if (chefe_1 == NULL && venceu_fase == 1)
-        // {
-        //     // Avança para a próxima fase
-        //     // Implementar lógica de transição para a próxima fase
-        // }
     }
+    /* LÓGICA DA FASE 02 */
     else if (fase == 2)
     {
-        /* INIMIGOS */
-        atualizar_criacao_inimigo(lista_inimigos);
-        inimigo *anterior = NULL;
-        inimigo *atual = *lista_inimigos;
+        /* INIMIGOS*/
+        atualizar_criacao_inimigo(lista_inimigos_fase2);
+        inimigo *anterior = NULL;               // Inicializa o ponteiro para o inimigo anterior como NULL
+        inimigo *atual = *lista_inimigos_fase2; // Ponteiro para o início da lista
+        int jogador_morto = 0;                  // Flag para verificar se o jogador morreu
 
+        // Loop principal para atualizar, mover e desenhar inimigos da fase 02
         while (atual != NULL)
         {
-            inimigo *proximo = atual->proximo; // Armazena o próximo antes de possivelmente destruir o atual
-
+            inimigo *proximo = atual->proximo; // Armazena o próximo inimigo
             // Atualiza a animação e movimentação do inimigo
             atualizar_animacao_inimigo(atual, ANIMATION_DELAY_INIMIGO);
             mover_inimigo(atual, 1, NULL, X_SCREEN, Y_SCREEN_MOVIMENTO);
@@ -423,33 +463,74 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
             // Verifica se o projétil do inimigo acertou o jogador
             if (check_player(&atual, jogador_1))
             {
-                return; // Sai da função para evitar renderizações adicionais
+                if (jogador_1->hp <= 0)
+                {
+                    destroi_jogador(jogador_1); // Destrói o jogador
+                    game_over = 1;
+                    jogador_morto = 1;
+                }
             }
-
+            if (jogador_morto)
+            {
+                break; // Sai do loop se o jogador morreu
+            }
             // Verifica se o projétil do jogador acertou o inimigo
             if (check_kill_inimigo(jogador_1, atual, &score))
             {
+                // Remove o inimigo da lista
                 if (anterior)
                 {
-                    anterior->proximo = proximo;
+                    anterior->proximo = proximo; // Atualiza a referência do próximo
                 }
                 else
                 {
-                    *lista_inimigos = proximo;
+                    *lista_inimigos_fase2 = proximo; // Atualiza a cabeça da lista
                 }
-
-                destroi_inimigo(atual);
+                destroi_inimigo(atual); // Destrói o inimigo
             }
             else
             {
-                anterior = atual;
+                anterior = atual; // Atualiza o anterior se o inimigo não foi destruído
             }
+            atual = proximo; // Avança para o próximo inimigo
+        }
 
-            atual = proximo;
+        /* LÓGICA DO CHEFE - FASE 02 */
+        int animation_counter_chefe = 0;
+
+        // Verifica se todos os inimigos foram derrotados
+        // SCORE TOTAL fase 01 eh 10 * (2 * (QNTD_INIM_TIPO_0) + (QNTD_INIM_TIPO_1) + (HP_CHEFE_0))
+        // SCORE TOTAL fase 02 para aparecer o chefe eh 
+        // SCORE TOTAL DA FASE 01 + 10 * (2 * (QNTD_INIM_TIPO_2) + (QNTD_INIM_TIPO_3))
+        if (score >= (10 * (2 * (QNTD_INIM_TIPO_0) + (QNTD_INIM_TIPO_1) + (HP_CHEFE_0)) + 10 * (2 * (QNTD_INIM_TIPO_2) + (QNTD_INIM_TIPO_3))))
+        {
+            if (chefe_2 != NULL && chefe_2->hp > 0)
+            {
+                atualizar_animacao_chefe(chefe_2, &animation_counter_chefe, ANIMATION_DELAY_CHEFE);
+                mover_chefe(chefe_2, CHEFE1_STEP, 0, X_SCREEN, Y_SCREEN_MOVIMENTO);
+                desenhar_chefe(chefe_2);
+
+                // Desenha os projéteis das armas do chefe
+                for (projetil *p = chefe_2->arma1->shots; p != NULL; p = (projetil *)p->proximo)
+                    desenhar_projetil_chefe_1(p);
+
+                for (projetil *p = chefe_2->arma2->shots; p != NULL; p = (projetil *)p->proximo)
+                    desenhar_projetil2_chefe_1(p);
+
+                // Verifica se o projétil do jogador acertou o chefe
+                if (check_kill_chefe(jogador_1, chefe_2, &score))
+                {
+                    if (chefe_2->hp <= 0)
+                    {
+                        venceu_fase = true; // Sinaliza que o jogador venceu a fase
+                        game_over = 1;      // Sinaliza o fim do jogo
+                    }
+                }
+            }
         }
     }
 
-    // Se o jogador morreu
+    /* TELA DE GAME OVER */
     if (game_over)
     {
         al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -462,23 +543,40 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
     al_destroy_font(font); // Libera a memória da fonte
 }
 
-void finaliza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo *lista_inimigos, chefe *chefe_1,
-                   chefe *chefe_2, int fase)
+void finaliza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo *lista_inimigos_fase1,
+                   inimigo *lista_inimigos_fase2, chefe *chefe_1, chefe *chefe_2, int fase)
 {
-    if (fase == 1)
+    // Libera a memória do jogador
+    destroi_jogador(jogador_1);
+
+    // Libera a memória dos inimigos da fase 1
+    while (lista_inimigos_fase1 != NULL)
     {
-        al_destroy_bitmap(background);
-        destroi_jogador(jogador_1);
+        inimigo *temp = lista_inimigos_fase1;
+        lista_inimigos_fase1 = lista_inimigos_fase1->proximo;
+        destroi_inimigo(temp);
+    }
+
+    // Libera a memória dos inimigos da fase 2
+    while (lista_inimigos_fase2 != NULL)
+    {
+        inimigo *temp = lista_inimigos_fase2;
+        lista_inimigos_fase2 = lista_inimigos_fase2->proximo;
+        destroi_inimigo(temp);
+    }
+
+    // Libera a memória do chefe da fase 1
+    if (chefe_1 != NULL)
+    {
         destroi_chefe(chefe_1);
-        for (inimigo *atual = lista_inimigos; atual != NULL; atual = atual->proximo)
-            destroi_inimigo(atual);
     }
-    else if (fase == 2)
+
+    // Libera a memória do chefe da fase 2
+    if (chefe_2 != NULL)
     {
-        al_destroy_bitmap(background);
-        destroi_jogador(jogador_1);
         destroi_chefe(chefe_2);
-        for (inimigo *atual = lista_inimigos; atual != NULL; atual = atual->proximo)
-            destroi_inimigo(atual);
     }
+
+    // Libera a memória do background
+    al_destroy_bitmap(background);
 }
