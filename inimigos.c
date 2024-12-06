@@ -107,7 +107,7 @@ void mover_inimigo(inimigo *elemento, unsigned char steps, unsigned char *trajet
         break;
     case 2: // Movimento em círculo
         // Movimento contínuo no eixo X
-        elemento->x -= INIMIGO2_STEP * steps; // Movimento para a esquerda 
+        elemento->x -= INIMIGO2_STEP * steps; // Movimento para a esquerda
         // Se o inimigo sair da tela pela esquerda, ele reaparece no lado direito
         if (elemento->x + elemento->tam_lateral / 2 < 0)
         {
@@ -176,6 +176,8 @@ void atualizar_animacao_inimigo(inimigo *elemento, unsigned int delay)
 }
 
 // Função para adicionar um inimigo à lista
+// Função para adicionar inimigos na lista
+// Função para adicionar inimigos na lista
 void adicionar_inimigo_lista(inimigo **lista, unsigned char sprite, unsigned short tipo)
 {
     inimigo **atual = lista;
@@ -186,8 +188,37 @@ void adicionar_inimigo_lista(inimigo **lista, unsigned char sprite, unsigned sho
         atual = &(*atual)->proximo;
     }
 
-    // Cria um novo inimigo com as posições aleatórias desejadas
-    inimigo *novo_inimigo = criar_inimigo(sprite, 1, X_SCREEN - 50, rand() % Y_SCREEN, tipo, X_SCREEN, Y_SCREEN);
+    // Determina a altura do sprite com base no tipo do inimigo
+    int altura_sprite;
+    switch (tipo)
+    {
+    case 0:
+        altura_sprite = QUADRADO_SPRITE_INIMIGO_0;
+        break;
+    case 1:
+        altura_sprite = QUADRADO_SPRITE_INIMIGO_1;
+        break;
+    case 2:
+        altura_sprite = QUADRADO_SPRITE_INIMIGO_2;
+        break;
+    case 3:
+        altura_sprite = QUADRADO_SPRITE_INIMIGO_3;
+        break;
+    default:
+        altura_sprite = 0; // Fallback
+        break;
+    }
+
+    // Gera uma posição Y válida para o inimigo, garantindo que ele não sobreponha os corações
+    int pos_y = rand() % (Y_SCREEN - ESPACO_INTERFACE - altura_sprite);
+    
+    if (pos_y < altura_sprite) // Ajusta para que o inimigo não fique acima da tela visível
+    {
+        pos_y = altura_sprite;
+    }
+
+    // Cria um novo inimigo com a posição ajustada
+    inimigo *novo_inimigo = criar_inimigo(sprite, 1, X_SCREEN - 50, pos_y, tipo, X_SCREEN, Y_SCREEN);
 
     if (novo_inimigo)
     {
@@ -204,9 +235,9 @@ Na fase 2, devem ser criados todos os inimigos do tipo 2, para então serem cria
 // Função de atualização da criação de inimigos na fase 1
 void atualizar_criacao_inimigo_fase1(inimigo **lista)
 {
-    static unsigned int intervalo_criacao = 0; // Intervalo entre a criação de inimigos
+    static unsigned int intervalo_criacao = 0;                                       // Intervalo entre a criação de inimigos
     static unsigned int max_inimigos_tipo[2] = {QNTD_INIM_TIPO_0, QNTD_INIM_TIPO_1}; // Limite de inimigos por tipo
-    static unsigned short tipo_atual = 0; // Tipo atual de inimigo a ser criado
+    static unsigned short tipo_atual = 0;                                            // Tipo atual de inimigo a ser criado
 
     // Atualiza o intervalo de criação de inimigos
     if (intervalo_criacao > 0)
@@ -232,15 +263,15 @@ void atualizar_criacao_inimigo_fase1(inimigo **lista)
     }
 
     // Define o próximo intervalo de criação
-    intervalo_criacao = rand() % 150 + 150; // Intervalo aleatorio entre 150 e 300
+    intervalo_criacao = rand() % MIN_INTERVALO_FASE01 + MAX_INTERVALO_FASE01; // Intervalo aleatorio entre 150 e 300
 }
 
 // Função de atualização da criação de inimigos na fase 2
 void atualizar_criacao_inimigo_fase2(inimigo **lista)
 {
-    static unsigned int intervalo_criacao = 0; // Intervalo entre a criação de inimigos
+    static unsigned int intervalo_criacao = 0;                                       // Intervalo entre a criação de inimigos
     static unsigned int max_inimigos_tipo[2] = {QNTD_INIM_TIPO_2, QNTD_INIM_TIPO_3}; // Limite de inimigos por tipo
-    static unsigned short tipo_atual = 2; // Tipo atual de inimigo a ser criado
+    static unsigned short tipo_atual = 2;                                            // Tipo atual de inimigo a ser criado
 
     // Atualiza o intervalo de criação de inimigos
     if (intervalo_criacao > 0)
@@ -266,7 +297,7 @@ void atualizar_criacao_inimigo_fase2(inimigo **lista)
     }
 
     // Define o próximo intervalo de criação
-    intervalo_criacao = rand() % 150 + 150;
+    intervalo_criacao = rand() % MIN_INTERVALO_FASE02 + MAX_INTERVALO_FASE02;
 }
 
 // Função de disparo do inimigo (se o inimigo puder atirar)
