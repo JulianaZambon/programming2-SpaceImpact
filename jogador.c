@@ -146,6 +146,7 @@ void destroi_jogador(jogador *elemento)
 
 /*-------------------------------------------------------------------*/
 /* FUNÇÕES PARA CONTROLE DO ATAQUE ESPECIAL */
+
 // Função de criação do símbolo do ataque especial
 simbolo_ataque_especial *criar_simbolo_ataque_especial(unsigned short x, unsigned short y, const char *sprite_path)
 {
@@ -242,48 +243,43 @@ bool verificar_colisao_jogador_simbolo(jogador *jogador, simbolo_ataque_especial
 // Função de ativação do ataque especial
 void ativar_ataque_especial(jogador *jogador)
 {
-    if (!jogador)
-    {
-        return;
-    }
+    jogador->especial->ativo = true;
+    jogador->especial->tempo_inicio = clock();
+    jogador->especial->duracao = 5000;
 
-    // Verifica se o ataque especial ainda não foi ativo
-    if (!jogador->especial)
+    // Configura os projéteis existentes para serem especiais
+    for (projetil *p = jogador->arma->shots; p != NULL; p = (projetil *)p->proximo)
     {
-        // Aloca a estrutura de ataque especial apenas uma vez
-        jogador->especial = (ataque_especial *)malloc(sizeof(ataque_especial));
-        if (!jogador->especial)
-        {
-            return; // Garante que o malloc foi bem-sucedido
-        }
-
-        // Inicializa os valores do ataque especial
-        jogador->especial->ativo = false;
-        jogador->especial->tempo_restante = 0;
-    }
-
-    // Ativa o ataque especial
-    if (!jogador->especial->ativo)
-    {
-        jogador->especial->ativo = true;
-        jogador->especial->tempo_restante = TEMP_MAX; // Tempo máximo do ataque especial
+        p->especial = true;
     }
 }
 
-// Função de atualização do tempo do ataque especial
-void atualizar_tempo_ataque_especial(jogador *jogador, unsigned int elapsed_time)
+// Função para atualizar o estado do ataque especial
+void atualizar_ataque_especial(jogador *jogador, simbolo_ataque_especial **simbolo_ptr)
 {
-    if (!jogador || !jogador->especial || !jogador->especial->ativo)
-        return;
+    if (jogador->especial->ativo)
+    {
+        // Calcula o tempo decorrido desde a ativação
+        clock_t agora = clock();
+        int tempo_decorrido = (int)((double)(agora - jogador->especial->tempo_inicio) * 10000.0 / CLOCKS_PER_SEC);
 
-    // Decrementa o tempo restante do ataque especial
-    if (jogador->especial->tempo_restante > elapsed_time)
-    {
-        jogador->especial->tempo_restante -= elapsed_time;
-    }
-    else
-    {
-        jogador->especial->ativo = false; // Desativa o ataque especial quando o tempo expira
-        jogador->especial->tempo_restante = 0; // Reseta o tempo restante
+        // Verifica se o tempo decorrido excedeu a duração do ataque especial
+        if (tempo_decorrido >= jogador->especial->duracao)
+        {
+            jogador->especial->ativo = false;
+
+            // Restaura os projéteis para o estado normal
+            for (projetil *p = jogador->arma->shots; p != NULL; p = (projetil *)p->proximo)
+            {
+                p->especial = false; // Remove a marcação de especial
+            }
+
+            // Após o término, destrua o símbolo do ataque especial se ainda existir
+            if (*simbolo_ptr)
+            {
+                destruir_simbolo_ataque_especial(*simbolo_ptr);
+                *simbolo_ptr = NULL;
+            }
+        }
     }
 }
