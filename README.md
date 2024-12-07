@@ -52,7 +52,7 @@ Neste trabalho, será desenvolvida uma versão alternativa do *Space Impact*, in
   - Cada chefe deve possuir uma **sprite única**.  
   - Cada chefe deve ter, no mínimo, **dois ataques únicos**, sendo pelo menos **um relacionado ao lançamento de projéteis**.  
   - Os chefes devem ser **significativamente mais resistentes** do que os inimigos normais.  
-  - O desafio do chefe deve **escalar com o progresso da luta**. Por exemplo: ao perder vida, ele pode aumentar a dificuldade de seus ataques.
+  - (Subjetivo) O chefe deve apresentar algum **desafio** ao jogador.
 
 ---
 
