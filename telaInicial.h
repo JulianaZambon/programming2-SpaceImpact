@@ -3,13 +3,13 @@
 
 #include <allegro5/allegro.h> // Inclusão necessária para usar ALLEGRO_BITMAP
 
-/*-----------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* DEFINIÇÕES */
 
 #define PATH_TELA_INICIAL "assets/abertura/abertura.png"
-#define FRAMES 48
+#define FRAMES_TELA_INICIAL 48
 
-/*-----------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* ESTRUTURAS */
 
 typedef struct
@@ -21,9 +21,7 @@ typedef struct
     ALLEGRO_BITMAP *sprite;   // Imagem do sprite
 } tela_inicial_sprite;
 
-
-
-/*-----------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* PROTÓTIPO DE FUNÇÕES */
 
 // Função de criação da tela inicial
