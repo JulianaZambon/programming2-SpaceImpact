@@ -10,7 +10,7 @@
 // Inclusão de bibliotecas locais
 #include "configuracoes.h"
 #include "telaInicial.h"
-// #include "narrativa.h"
+#include "narrativa.h"
 #include "background.h"
 #include "jogador.h"
 #include "inimigos.h"
@@ -116,7 +116,7 @@ int main()
     if (!tela_inicial)
         return 1;
 
-    // tela_nave_ligando *nave_ligando = criar_tela_nave_ligando();
+    tela_nave_ligando *nave_ligando = criar_tela_nave_ligando();
 
     /* VARIÁVEIS DE CONTROLE */
     bool jogo_rodando = true;
@@ -158,6 +158,34 @@ int main()
                     const char *mensagens[] = {"Prepare-se para a Fase 1!"};
                     exibir_mensagem(font, mensagens, 1, 1.5, true, 0.1);
 
+                    // Narrativa
+                    const char *narrativa[] = {"Em um futuro distante, a humanidade enfrenta uma ameaça alienígena.",
+                                               "A bordo da nave espacial 'Falcon', você é o último piloto de elite",
+                                               "capaz de salvar a Terra. Sua missão: destruir a nave-mãe alienígena."};
+                    exibir_mensagem(font, narrativa, 3, 1.5, true, 0.1);
+
+                    al_flush_event_queue(queue); /* Limpa a fila de eventos */
+
+                    bool animacao_ativa = true;
+
+                    while (animacao_ativa)
+                    {
+                        al_clear_to_color(al_map_rgb(0, 0, 0)); // Limpa a tela
+
+                        atualizar_animacao_tela_nave_ligando(nave_ligando, &nave_ligando->animation_counter,
+                                                            1);
+                        desenhar_tela_nave_ligando(nave_ligando);
+                        al_flip_display();
+
+                        al_rest(0.05); // Controla o tempo entre atualizações (ajuste conforme necessário)
+
+                        // Finaliza após exibir todos os quadros (uma ou mais vezes)
+                        if (nave_ligando->frame_atual == 95 - 1)
+                        {
+                            animacao_ativa = false; // Sai do loop
+                        }
+                    }
+
                     /* Inicializa a Fase 1 */
                     inicializa_fase(&background, &jogador_1, &lista_inimigos_fase1,
                                     NULL, &chefe_1, &chefe_2, fase_atual);
@@ -171,7 +199,7 @@ int main()
             if (event.type == ALLEGRO_EVENT_TIMER)
             {
                 /* Atualiza a fase */
-                al_flush_event_queue(queue);
+                al_flush_event_queue(queue); /* Limpa a fila de eventos */
                 atualiza_fase(background, jogador_1, &lista_inimigos_fase1,
                               &lista_inimigos_fase2, chefe_1, chefe_2, fase_atual);
 
@@ -192,7 +220,7 @@ int main()
                         const char *mensagens_fase2[] = {"Prepare-se para a Fase 2!"};
                         exibir_mensagem(font, mensagens_fase2, 1, 1.5, true, 0.1);
 
-                        al_flush_event_queue(queue);
+                        al_flush_event_queue(queue); /* Limpa a fila de eventos */
                         inicializa_fase(&background, &jogador_1, NULL, &lista_inimigos_fase2,
                                         &chefe_1, &chefe_2, fase_atual);
                         atualiza_fase(background, jogador_1, NULL, &lista_inimigos_fase2,
