@@ -144,7 +144,7 @@ void destroi_jogador(jogador *elemento)
     free(elemento);                       // Libera a memória do jogador
 }
 
-/*---------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* FUNÇÕES PARA CONTROLE DO ATAQUE ESPECIAL */
 // Função de criação do símbolo do ataque especial
 simbolo_ataque_especial *criar_simbolo_ataque_especial(unsigned short x, unsigned short y, const char *sprite_path)
@@ -178,7 +178,7 @@ ataque_especial *criar_ataque_especial()
     ataque_especial *novo_ataque = malloc(sizeof(ataque_especial));
     if (novo_ataque)
     {
-        novo_ataque->ativado = false;
+        novo_ataque->ativo = false;
         novo_ataque->tempo_restante = TEMP_MAX;
         novo_ataque->simbolo = NULL; // Inicializa o símbolo como NULL
         novo_ataque->sprite = NULL;  // Inicializa o sprite como NULL
@@ -247,7 +247,7 @@ void ativar_ataque_especial(jogador *jogador)
         return;
     }
 
-    // Verifica se o ataque especial ainda não foi ativado
+    // Verifica se o ataque especial ainda não foi ativo
     if (!jogador->especial)
     {
         // Aloca a estrutura de ataque especial apenas uma vez
@@ -258,14 +258,14 @@ void ativar_ataque_especial(jogador *jogador)
         }
 
         // Inicializa os valores do ataque especial
-        jogador->especial->ativado = false;
+        jogador->especial->ativo = false;
         jogador->especial->tempo_restante = 0;
     }
 
     // Ativa o ataque especial
-    if (!jogador->especial->ativado)
+    if (!jogador->especial->ativo)
     {
-        jogador->especial->ativado = true;
+        jogador->especial->ativo = true;
         jogador->especial->tempo_restante = TEMP_MAX; // Tempo máximo do ataque especial
     }
 }
@@ -273,7 +273,7 @@ void ativar_ataque_especial(jogador *jogador)
 // Função de atualização do tempo do ataque especial
 void atualizar_tempo_ataque_especial(jogador *jogador, unsigned int elapsed_time)
 {
-    if (!jogador || !jogador->especial || !jogador->especial->ativado)
+    if (!jogador || !jogador->especial || !jogador->especial->ativo)
         return;
 
     // Decrementa o tempo restante do ataque especial
@@ -283,7 +283,7 @@ void atualizar_tempo_ataque_especial(jogador *jogador, unsigned int elapsed_time
     }
     else
     {
-        jogador->especial->ativado = false; // Desativa o ataque especial quando o tempo expira
+        jogador->especial->ativo = false; // Desativa o ataque especial quando o tempo expira
         jogador->especial->tempo_restante = 0; // Reseta o tempo restante
     }
 }
