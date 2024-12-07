@@ -117,7 +117,7 @@ unsigned char verifica_acerto_em_chefe(jogador *killer, chefe *victim, unsigned 
     return 0; // Não houve colisão com nenhum projétil
 }
 
-// Função que verifica se um projétil inimigo acertou o jogador, cada acerto reduz 1 ponto de vida
+// Implementação da função que verifica se um projétil inimigo acertou o jogador, cada acerto reduz 1 ponto de vida
 unsigned char verifica_acerto_no_jogador(inimigo **killer, jogador *victim)
 {
     if (*killer == NULL || (*killer)->arma == NULL)
@@ -262,7 +262,43 @@ unsigned char verifica_acerto_do_chefe_no_jogador(chefe *killer, jogador *victim
     return jogador_morto;
 }
 
-/*--------------------------------------------------------------------------------------*/
+// Função principal da lógica do ataque especial
+void logica_ataque_especial(jogador *jogador, simbolo_ataque_especial **simbolo_ptr, unsigned int delay,
+                            unsigned short max_x, unsigned short max_y)
+{
+    if (!jogador || !simbolo_ptr || !*simbolo_ptr)
+        return;
+
+    /*-------------------------------------------------------------------*/
+    /* DESENHO E MOVIMENTAÇÃO DO SÍMBOLO DO ATAQUE ESPECIAL */
+
+    simbolo_ataque_especial *simbolo = *simbolo_ptr;
+
+    // Atualiza a animação do símbolo do ataque especial
+    atualizar_animacao_simbolo_ataque_especial(simbolo, delay);
+
+    // Move o símbolo do ataque especial para a esquerda
+    if (simbolo->x > 0)
+    {
+        simbolo->x -= 2;
+    }
+    else if (simbolo->x <= 0)
+    {
+        destruir_simbolo_ataque_especial(simbolo);
+        *simbolo_ptr = NULL; // Reseta o ponteiro do símbolo
+    }
+
+    /*-------------------------------------------------------------------*/
+    /* LÓGICA DE ATIVAÇÃO DO ATAQUE ESPECIAL */
+    /*
+    RESUMO: 1.Verifica se houve colisão do jogador com o símbolo do ataque especial
+            2.Se houve colisão, os próximos projéteis disparados pelo jogador serão do ataque especial
+            3.Desenha os projéteis do ataque especial
+            4.Atualiza o tempo do ataque especial, que é de no máximo 5s
+    */
+}
+
+/*---------------------------------------------------------------------------*/
 /* Funções de inicialização, atualização e finalização de cada fase */
 
 // Função de inicialização de fase
@@ -282,6 +318,19 @@ void inicializa_fase(ALLEGRO_BITMAP **background, jogador **jogador_1, inimigo *
         (*jogador_1)->sprite = al_load_bitmap(PATH_JOGADOR);
         if (!(*jogador_1)->sprite)
             return;
+
+        // Inicializa o ataque especial do jogador na fase 1
+        (*jogador_1)->especial = criar_ataque_especial();
+        if (!(*jogador_1)->especial)
+            return;
+
+        // Inicializa o símbolo do ataque especial
+        (*jogador_1)->especial->simbolo = criar_simbolo_ataque_especial(X_SCREEN - 100, Y_SCREEN / 2, PATH_SIMBOLO_ATAQUE_ESPECIAL);
+        if (!(*jogador_1)->especial->simbolo)
+        {
+            free((*jogador_1)->especial); // Libera a memória caso a criação falhe
+            return;
+        }
 
         // Inicializa a lista de inimigos da fase 1
         *lista_inimigos_fase1 = NULL;
@@ -304,6 +353,8 @@ void inicializa_fase(ALLEGRO_BITMAP **background, jogador **jogador_1, inimigo *
         (*jogador_1)->sprite = al_load_bitmap(PATH_JOGADOR);
         if (!(*jogador_1)->sprite)
             return;
+
+        // Inicializa o ataque especial do jogador na fase 2
 
         // Inicializa a lista de inimigos da fase 2
         *lista_inimigos_fase2 = NULL;
@@ -340,7 +391,7 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
     if (jogador_1->arma->timer)
         atualiza_arma(jogador_1->arma);
 
-    /*----------------------------------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------*/
     /* LÓGICA DA FASE 01 */
     if (fase == 1)
     {
@@ -397,8 +448,10 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
             }
             atual = proximo; // Avança para o próximo inimigo
         }
-        /* LÓGICA DO CHEFE - FASE 01 */
 
+        /* LÓGICA DO ATAQUE ESPECIAL ADQUIRIDO NO MAPA PELO JOGADOR */
+        logica_ataque_especial(jogador_1, &jogador_1->especial->simbolo, ANIMATION_DELAY_SIMBOLO_ATAQUE_ESPECIAL, X_SCREEN, Y_SCREEN);
+        /* LÓGICA DO CHEFE - FASE 01 */
         // Verifica se todos os inimigos foram derrotados para então o chefe aparecer
         if (score >= (10 * (2 * (QNTD_INIM_TIPO_0) + (QNTD_INIM_TIPO_1))))
         {
@@ -438,6 +491,9 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
             }
         }
     }
+
+    /*---------------------------------------------------------------------------*/
+
     /* LÓGICA DA FASE 02 */
     else if (fase == 2)
     {
@@ -502,7 +558,8 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
         // SCORE TOTAL fase 01 eh 10 * (2 * (QNTD_INIM_TIPO_0) + (QNTD_INIM_TIPO_1) + (HP_CHEFE_0))
         // SCORE TOTAL fase 02 para aparecer o chefe eh
         // SCORE TOTAL DA FASE 01 + 10 * (2 * (QNTD_INIM_TIPO_2) + (QNTD_INIM_TIPO_3))
-        if (score >= (10 * (2 * (QNTD_INIM_TIPO_0) + (QNTD_INIM_TIPO_1) + (HP_CHEFE_0)) + 10 * (2 * (QNTD_INIM_TIPO_2) + (QNTD_INIM_TIPO_3))))
+        if (score >= (10 * (2 * (QNTD_INIM_TIPO_0) + (QNTD_INIM_TIPO_1) + (HP_CHEFE_0)) + 10 *
+                                                                                              (2 * (QNTD_INIM_TIPO_2) + (QNTD_INIM_TIPO_3))))
         {
             if (chefe_2 != NULL && chefe_2->hp > 0)
             {
@@ -539,7 +596,7 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
             }
         }
     }
-
+    /*---------------------------------------------------------------------------*/
     /* TELA DE GAME OVER */
     if (game_over)
     {
