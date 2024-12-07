@@ -13,6 +13,38 @@ bool venceu_fase = false;    // Flag que sinaliza a vitória na fase
 /*-------------------------------------------------------------------*/
 /* FUNÇÕES AUXILIARES */
 
+void exibir_mensagem_game_over(ALLEGRO_FONT *font, const char *mensagens[],
+                     int num_mensagens, float duracao_por_mensagem,
+                     bool com_efeito, float velocidade_efeito)
+{
+    for (int i = 0; i < num_mensagens; i++)
+    {
+        const char *mensagem = mensagens[i];
+        if (com_efeito)
+        {
+            // Exibe com efeito de digitação
+            size_t tamanho = strlen(mensagem);
+            for (size_t j = 0; j <= tamanho; j++)
+            {
+                al_clear_to_color(al_map_rgb(0, 0, 0));
+                al_draw_textf(font, al_map_rgb(255, 255, 255), X_SCREEN / 2, Y_SCREEN / 2,
+                              ALLEGRO_ALIGN_CENTER, "%.*s", (int)j, mensagem);
+                al_flip_display();
+                al_rest(velocidade_efeito);
+            }
+        }
+        else
+        {
+            // Exibe diretamente
+            al_clear_to_color(al_map_rgb(0, 0, 0));
+            al_draw_text(font, al_map_rgb(255, 255, 255), X_SCREEN / 2, Y_SCREEN / 2,
+                         ALLEGRO_ALIGN_CENTER, mensagem);
+            al_flip_display();
+            al_rest(duracao_por_mensagem);
+        }
+    }
+}
+
 // Implementação da função que verifica se um projétil da nave do jogador
 // acertou um inimigo,a cada acerto o jogador ganha 10 pontos
 unsigned char verifica_acerto_em_inimigo(jogador *killer, inimigo *victim, unsigned int *score)
@@ -453,10 +485,9 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
             atual = proximo; // Avança para o próximo inimigo
         }
 
-
         /* LÓGICA DO CHEFE - FASE 01 */
         // Verifica se todos os inimigos foram derrotados para então o chefe aparecer
-        if (score >= (10 * (HP_INIMIGO_0 * (QNTD_INIM_TIPO_0) +  HP_INIMIGO_1 * (QNTD_INIM_TIPO_1))))
+        if (score >= (10 * (HP_INIMIGO_0 * (QNTD_INIM_TIPO_0) + HP_INIMIGO_1 * (QNTD_INIM_TIPO_1))))
         {
             if (chefe_1 != NULL && chefe_1->hp > 0)
             {
@@ -564,8 +595,8 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
         // SCORE TOTAL fase 01 eh 10 * (2 * (QNTD_INIM_TIPO_0) + (QNTD_INIM_TIPO_1) + (HP_CHEFE_0))
         // SCORE TOTAL fase 02 para aparecer o chefe eh
         // SCORE TOTAL DA FASE 01 + 10 * (2 * (QNTD_INIM_TIPO_2) + (QNTD_INIM_TIPO_3))
-        if (score >= (10 * (HP_INIMIGO_0 * (QNTD_INIM_TIPO_0) +  HP_INIMIGO_1 * (QNTD_INIM_TIPO_1) + (HP_CHEFE_0)) + 10 *
-                            (HP_INIMIGO_2 * (QNTD_INIM_TIPO_2) +  HP_INIMIGO_3 * (QNTD_INIM_TIPO_3))))
+        if (score >= (10 * (HP_INIMIGO_0 * (QNTD_INIM_TIPO_0) + HP_INIMIGO_1 * (QNTD_INIM_TIPO_1) + (HP_CHEFE_0)) + 10 *
+                                                                                                                        (HP_INIMIGO_2 * (QNTD_INIM_TIPO_2) + HP_INIMIGO_3 * (QNTD_INIM_TIPO_3))))
         {
             if (chefe_2 != NULL && chefe_2->hp > 0)
             {
@@ -606,10 +637,8 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
     /* TELA DE GAME OVER */
     if (game_over)
     {
-        al_clear_to_color(al_map_rgb(0, 0, 0));
-        al_draw_textf(font, al_map_rgb(255, 255, 255), X_SCREEN / 2 - 60, Y_SCREEN / 2, 0, "GAME OVER");
-        al_flip_display();
-        al_rest(7.0); // Aguarda 7 segundos antes de fechar o jogo
+        const char *mensagem_game_over[] = {"GAME OVER!"};
+        exibir_mensagem_game_over(font, mensagem_game_over, 7, 0, true, 0.1);
     }
 
     al_flip_display();     // Atualiza a tela
