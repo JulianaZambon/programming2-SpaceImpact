@@ -14,8 +14,8 @@ bool venceu_fase = false;    // Flag que sinaliza a vitória na fase
 /* FUNÇÕES AUXILIARES */
 
 void exibir_mensagem_game_over(ALLEGRO_FONT *font, const char *mensagens[],
-                     int num_mensagens, float duracao_por_mensagem,
-                     bool com_efeito, float velocidade_efeito)
+                               int num_mensagens, float duracao_por_mensagem,
+                               bool com_efeito, float velocidade_efeito)
 {
     for (int i = 0; i < num_mensagens; i++)
     {
@@ -302,10 +302,10 @@ void logica_ataque_especial(jogador *jogador, simbolo_ataque_especial **simbolo_
     if (!jogador || !simbolo_ptr || !*simbolo_ptr)
         return;
 
+    simbolo_ataque_especial *simbolo = *simbolo_ptr;
+
     /*-------------------------------------------------------------------*/
     /* DESENHO E MOVIMENTAÇÃO DO SÍMBOLO DO ATAQUE ESPECIAL */
-
-    simbolo_ataque_especial *simbolo = *simbolo_ptr;
 
     // Atualiza a animação do símbolo do ataque especial
     atualizar_animacao_simbolo_ataque_especial(simbolo, delay);
@@ -314,14 +314,14 @@ void logica_ataque_especial(jogador *jogador, simbolo_ataque_especial **simbolo_
     if (simbolo->x > 0)
     {
         simbolo->x -= 2;
+        desenhar_simbolo_ataque_especial(simbolo);
     }
-    else if (simbolo->x <= 0)
+    else // Se o símbolo sair da tela, destrua-o
     {
         destruir_simbolo_ataque_especial(simbolo);
         *simbolo_ptr = NULL; // Reseta o ponteiro do símbolo
+        return;              // Retorna para evitar chamadas subsequentes
     }
-
-    desenhar_simbolo_ataque_especial(simbolo);
 
     /*-------------------------------------------------------------------*/
     /* LÓGICA DE ATIVAÇÃO DO ATAQUE ESPECIAL */
@@ -486,6 +486,8 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
             atual = proximo; // Avança para o próximo inimigo
         }
 
+        logica_ataque_especial(jogador_1, &jogador_1->especial->simbolo, ANIMATION_DELAY_SIMBOLO_ATAQUE_ESPECIAL, X_SCREEN, Y_SCREEN);
+
         /* LÓGICA DO CHEFE - FASE 01 */
         // Verifica se todos os inimigos foram derrotados para então o chefe aparecer
         if (score >= (10 * (HP_INIMIGO_0 * (QNTD_INIM_TIPO_0) + HP_INIMIGO_1 * (QNTD_INIM_TIPO_1))))
@@ -494,7 +496,6 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
             {
                 /* LÓGICA DO ATAQUE ESPECIAL ADQUIRIDO NO MAPA PELO JOGADOR */
                 /* para ajudar na luta contra o chefe */
-                logica_ataque_especial(jogador_1, &jogador_1->especial->simbolo, ANIMATION_DELAY_SIMBOLO_ATAQUE_ESPECIAL, X_SCREEN, Y_SCREEN);
 
                 atualizar_animacao_chefe(chefe_1, &chefe_1->animation_counter, ANIMATION_DELAY_CHEFE);
                 mover_chefe(chefe_1, CHEFE0_STEP, 0, X_SCREEN, Y_SCREEN_MOVIMENTO);
@@ -592,9 +593,9 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
         /* LÓGICA DO CHEFE - FASE 02 */
         int animation_counter_chefe = 0;
 
-        // Verifica se todos os inimigos foram derrotados 
+        // Verifica se todos os inimigos foram derrotados
         if (score >= (10 * (HP_INIMIGO_0 * (QNTD_INIM_TIPO_0) + HP_INIMIGO_1 * (QNTD_INIM_TIPO_1) + (HP_CHEFE_0)) + 10 *
-                                            (HP_INIMIGO_2 * (QNTD_INIM_TIPO_2) + HP_INIMIGO_3 * (QNTD_INIM_TIPO_3))))
+                                                                                                                        (HP_INIMIGO_2 * (QNTD_INIM_TIPO_2) + HP_INIMIGO_3 * (QNTD_INIM_TIPO_3))))
         {
             if (chefe_2 != NULL && chefe_2->hp > 0)
             {
