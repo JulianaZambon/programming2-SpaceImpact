@@ -23,6 +23,39 @@
 
 /*-------------------------------------------------------------------*/
 /* FUNÇÕES DE INICIALIZAÇÃO */
+
+void exibir_mensagem(ALLEGRO_FONT *font, const char *mensagens[],
+                     int num_mensagens, float duracao_por_mensagem,
+                     bool com_efeito, float velocidade_efeito)
+{
+    for (int i = 0; i < num_mensagens; i++)
+    {
+        const char *mensagem = mensagens[i];
+        if (com_efeito)
+        {
+            // Exibe com efeito de digitação
+            size_t tamanho = strlen(mensagem);
+            for (size_t j = 0; j <= tamanho; j++)
+            {
+                al_clear_to_color(al_map_rgb(0, 0, 0));
+                al_draw_textf(font, al_map_rgb(255, 255, 255), X_SCREEN / 2, Y_SCREEN / 2,
+                              ALLEGRO_ALIGN_CENTER, "%.*s", (int)j, mensagem);
+                al_flip_display();
+                al_rest(velocidade_efeito);
+            }
+        }
+        else
+        {
+            // Exibe diretamente
+            al_clear_to_color(al_map_rgb(0, 0, 0));
+            al_draw_text(font, al_map_rgb(255, 255, 255), X_SCREEN / 2, Y_SCREEN / 2,
+                         ALLEGRO_ALIGN_CENTER, mensagem);
+            al_flip_display();
+            al_rest(duracao_por_mensagem);
+        }
+    }
+}
+
 bool inicializa_allegro()
 {
     if (!al_init())
@@ -142,11 +175,8 @@ int main()
                     if (fase_atual == 1) /* Se estava na Fase 1 */
                     {
                         /* Exibe mensagem de conclusão da Fase 1 */
-                        al_clear_to_color(al_map_rgb(0, 0, 0));
-                        al_draw_textf(font, al_map_rgb(255, 255, 255), X_SCREEN / 2 - 60,
-                                      Y_SCREEN / 2, 0, "Fase 1 concluída!");
-                        al_flip_display();
-                        al_rest(3.0); /* Aguarda alguns segundos para avançar para a próxima fase */
+                        const char *mensagens[] = {"Fase 1 concluída!", "Prepare-se para a próxima fase!"};
+                        exibir_mensagem(font, mensagens, 2, 0, true, 0.1);
 
                         /* Avança para a fase 2 */
                         fase_atual = 2;
@@ -159,11 +189,8 @@ int main()
                     else if (fase_atual == 2) /* Se estava na Fase 2 */
                     {
                         /* Se o jogador venceu a Fase 2 exibe a mensagem de vitória */
-                        al_clear_to_color(al_map_rgb(0, 0, 0));
-                        al_draw_textf(font, al_map_rgb(255, 255, 255), X_SCREEN / 2 - 60,
-                                      Y_SCREEN / 2, 0, "Você venceu o jogo!");
-                        al_flip_display();
-                        al_rest(5.0);         /* Aguarda */
+                        const char *mensagens[] = {"Você venceu!", "Parabéns!"};
+                        exibir_mensagem(font, mensagens, 2, 0, true, 0.1);
                         jogo_rodando = false; /* Encerra o jogo */
                     }
                 }
