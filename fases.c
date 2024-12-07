@@ -4,19 +4,17 @@
 
 #include "fases.h"
 
-// Controle de dano e score
-unsigned char jk = 0;
-unsigned char ik = 0;
-unsigned char ck = 0;
-unsigned char jk_chefe = 0;
-unsigned int score = 0;
-
+/*-------------------------------------------------------------------*/
+/* VARIAVEIS E FLAGS */
+unsigned int score = 0;      // Variável de pontuação
 unsigned char game_over = 0; // Flag que sinaliza o fim do jogo
 bool venceu_fase = false;    // Flag que sinaliza a vitória na fase
 
-/*--------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* FUNÇÕES AUXILIARES */
-// Implementação da função que verifica se um projétil da nave do jogador acertou um inimigo, a cada acerto o jogador ganha 10 pontos
+
+// Implementação da função que verifica se um projétil da nave do jogador
+// acertou um inimigo,a cada acerto o jogador ganha 10 pontos
 unsigned char verifica_acerto_em_inimigo(jogador *killer, inimigo *victim, unsigned int *score)
 {
     projetil *anterior = NULL;
@@ -68,7 +66,8 @@ unsigned char verifica_acerto_em_inimigo(jogador *killer, inimigo *victim, unsig
     return 0; // Nenhum projétil acertou o inimigo
 }
 
-// Implementação da função que verifica se um projétil acertou um chefe, a cada acerto o jogador ganha 10 pontos
+// Implementação da função que verifica se um projétil acertou um chefe,
+// a cada acerto o jogador ganha 10 pontos
 unsigned char verifica_acerto_em_chefe(jogador *killer, chefe *victim, unsigned int *score)
 {
     projetil *anterior = NULL;
@@ -117,7 +116,8 @@ unsigned char verifica_acerto_em_chefe(jogador *killer, chefe *victim, unsigned 
     return 0; // Não houve colisão com nenhum projétil
 }
 
-// Implementação da função que verifica se um projétil inimigo acertou o jogador, cada acerto reduz 1 ponto de vida
+// Implementação da função que verifica se um projétil inimigo acertou o jogador,
+// cada acerto reduz 1 ponto de vida
 unsigned char verifica_acerto_no_jogador(inimigo **killer, jogador *victim)
 {
     if (*killer == NULL || (*killer)->arma == NULL)
@@ -168,7 +168,8 @@ unsigned char verifica_acerto_no_jogador(inimigo **killer, jogador *victim)
     return 0; // Retorna 0 se nenhum projétil acertou o jogador
 }
 
-// Implementação da função que verifica se um projétil de chefe acertou o jogador, cada acerto reduz 1 ponto de vida
+// Implementação da função que verifica se um projétil de chefe acertou o jogador,
+// cada acerto reduz 1 ponto de vida
 // O chefe possui 2 armas, cada uma com seu próprio tipo de projétil e movimentação
 unsigned char verifica_acerto_do_chefe_no_jogador(chefe *killer, jogador *victim)
 {
@@ -368,6 +369,7 @@ void inicializa_fase(ALLEGRO_BITMAP **background, jogador **jogador_1, inimigo *
     }
 }
 
+// Função de atualização de fase
 void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lista_inimigos_fase1,
                    inimigo **lista_inimigos_fase2, chefe *chefe_1, chefe *chefe_2, int fase)
 {
@@ -495,7 +497,6 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
     }
 
     /*---------------------------------------------------------------------------*/
-
     /* LÓGICA DA FASE 02 */
     else if (fase == 2)
     {
@@ -561,7 +562,7 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
         // SCORE TOTAL fase 02 para aparecer o chefe eh
         // SCORE TOTAL DA FASE 01 + 10 * (2 * (QNTD_INIM_TIPO_2) + (QNTD_INIM_TIPO_3))
         if (score >= (10 * (2 * (QNTD_INIM_TIPO_0) + (QNTD_INIM_TIPO_1) + (HP_CHEFE_0)) + 10 *
-                                                                                              (2 * (QNTD_INIM_TIPO_2) + (QNTD_INIM_TIPO_3))))
+                            (2 * (QNTD_INIM_TIPO_2) + (QNTD_INIM_TIPO_3))))
         {
             if (chefe_2 != NULL && chefe_2->hp > 0)
             {
