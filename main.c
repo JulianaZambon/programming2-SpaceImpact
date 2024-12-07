@@ -153,6 +153,10 @@ int main()
                 if (event.keyboard.keycode == ALLEGRO_KEY_S)
                 {
                     tela_inicial_ativa = false;
+                    // Exibe mensagem antes de iniciar a Fase 1
+                    const char *mensagens[] = {"Prepare-se para a Fase 1!"};
+                    exibir_mensagem(font, mensagens, 1, 1.5, true, 0.1);
+
                     /* Inicializa a Fase 1 */
                     inicializa_fase(&background, &jogador_1, &lista_inimigos_fase1,
                                     NULL, &chefe_1, &chefe_2, fase_atual);
