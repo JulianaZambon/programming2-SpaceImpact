@@ -1,7 +1,7 @@
 #ifndef __JOYSTICK__ // Guardas de inclusão
 #define __JOYSTICK__ // Guardas de inclusão
 
-/*-----------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* ESTRUTURA */
 
 // Estrutura para o controle do jogador
@@ -14,7 +14,7 @@ typedef struct
     unsigned char fogo;     // Botão de disparo
 } joystick;
 
-/*-----------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* PROTÓTIPOS DE FUNÇÕES */
 
 // Função de criação de um controle
