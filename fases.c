@@ -288,6 +288,8 @@ void logica_ataque_especial(jogador *jogador, simbolo_ataque_especial **simbolo_
         *simbolo_ptr = NULL; // Reseta o ponteiro do símbolo
     }
 
+    desenhar_simbolo_ataque_especial(simbolo);
+
     /*-------------------------------------------------------------------*/
     /* LÓGICA DE ATIVAÇÃO DO ATAQUE ESPECIAL */
     /*
