@@ -1,13 +1,13 @@
 #ifndef __INIMIGOS__ // Guardas de inclusão
 #define __INIMIGOS__ // Guardas de inclusão
 
-#include <allegro5/allegro.h> // Inclusão necessária para usar ALLEGRO_BITMAP
+#include <allegro5/allegro.h> 
 
 // Inclusões de bibliotecas locais
 #include "arma.h"
 #include "chefes.h"
 
-/*-----------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* DEFINIÇÕES */
 #define NUM_INIMIGOS 4            // Número de tipos de inimigos
 #define ANIMATION_DELAY_INIMIGO 3 // Velocidade da animação (quanto maior, mais lento)
@@ -42,14 +42,19 @@
 #define HP_INIMIGO_2 2 // Vida do inimigo 2
 #define HP_INIMIGO_3 1 // Vida do inimigo 3
 
-#define QNTD_INIM_TIPO_0 5 // Quantidade de inimigos do tipo 0
-#define QNTD_INIM_TIPO_1 5 // Quantidade de inimigos do tipo 1
-#define QNTD_INIM_TIPO_2 5 // Quantidade de inimigos do tipo 2
-#define QNTD_INIM_TIPO_3 5 // Quantidade de inimigos do tipo 3
+#define QNTD_INIM_TIPO_0 10 // Quantidade de inimigos do tipo 0
+#define QNTD_INIM_TIPO_1 10 // Quantidade de inimigos do tipo 1
+#define QNTD_INIM_TIPO_2 10 // Quantidade de inimigos do tipo 2
+#define QNTD_INIM_TIPO_3 10 // Quantidade de inimigos do tipo 3
 
-#define INIMIGO_INTERVALO_TEMPO 100 // Intervalo de tempo para criação de inimigos
+// Intervalo de criação de inimigos na fase 1 e 2
+// rand() % MIN_INTERVALO_FASE01 + MAX_INTERVALO_FASE01;
+#define MIN_INTERVALO_FASE01 150 // Intervalo mínimo entre a criação de inimigos na fase 1
+#define MAX_INTERVALO_FASE01 100 // Intervalo máximo entre a criação de inimigos na fase 1
+#define MIN_INTERVALO_FASE02 150 // Intervalo mínimo entre a criação de inimigos na fase 2
+#define MAX_INTERVALO_FASE02 200 // Intervalo máximo entre a criação de inimigos na fase 2
 
-/*-----------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* ESTRUTURAS */
 
 // Estrutura para informações do sprite do inimigo
@@ -75,10 +80,10 @@ typedef struct inimigo
     int pode_atirar;                // Para determinar se o inimigo pode atirar (1) ou não (0)
     arma *arma;                     // Elemento para realizar disparos no jogo
     inimigo_sprite *sprite_info;    // Informações sobre o sprite do inimigo
-    struct inimigo *proximo;        // Ponteiro para o próximo inimigo na lista
+    struct inimigo *proximo;        // Ponteiro para o próximo inimigo na lista encadeada
 } inimigo;
 
-/*-----------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* PROTÓTIPOS DE FUNÇÕES DO INIMIGO */
 
 // Função de criação de um inimigo
@@ -96,8 +101,9 @@ void atualizar_animacao_inimigo(inimigo *elemento, unsigned int delay);
 // Função para adicionar um inimigo à lista
 void adicionar_inimigo_lista(inimigo **lista, unsigned char sprite, unsigned short tipo);
 
-// Função de atualização da criação de inimigos
-void atualizar_criacao_inimigo(inimigo **lista);
+// Funções de atualização da criação de inimigos
+void atualizar_criacao_inimigo_fase1(inimigo **lista);
+void atualizar_criacao_inimigo_fase2(inimigo **lista);
 
 // Função de disparo do inimigo
 void inimigo_atira(inimigo *element);
