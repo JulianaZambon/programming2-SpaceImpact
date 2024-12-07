@@ -16,34 +16,27 @@
 #include "chefes.h"
 #include "fases.h"
 
-/*-----------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* DEFINIÇÕES */
-#define X_SCREEN 1140 // Dimensões da tela
-#define Y_SCREEN 640  // Dimensões da tela
+#define X_SCREEN 1140
+#define Y_SCREEN 640
 
-/*-----------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* FUNÇÕES DE INICIALIZAÇÃO */
 bool inicializa_allegro()
 {
     if (!al_init())
-    {
-        fprintf(stderr, "Falha ao inicializar a Allegro.\n");
         return false;
-    }
-    if (!al_init_primitives_addon() || !al_init_image_addon() || !al_init_font_addon() || !al_init_ttf_addon())
-    {
-        fprintf(stderr, "Falha ao inicializar os addons da Allegro.\n");
+    if (!al_init_primitives_addon() || !al_init_image_addon() ||
+        !al_init_font_addon() || !al_init_ttf_addon())
         return false;
-    }
     if (!al_install_keyboard())
-    {
-        fprintf(stderr, "Falha ao inicializar o teclado.\n");
         return false;
-    }
     return true;
 }
 
-void inicializa_jogo(ALLEGRO_EVENT_QUEUE **queue, ALLEGRO_TIMER **timer, ALLEGRO_DISPLAY **disp, ALLEGRO_FONT **font)
+void inicializa_jogo(ALLEGRO_EVENT_QUEUE **queue, ALLEGRO_TIMER **timer,
+                     ALLEGRO_DISPLAY **disp, ALLEGRO_FONT **font)
 {
     *timer = al_create_timer(1.0 / 30.0); // 30 FPS
     *queue = al_create_event_queue();
@@ -62,16 +55,14 @@ void inicializa_jogo(ALLEGRO_EVENT_QUEUE **queue, ALLEGRO_TIMER **timer, ALLEGRO
     al_start_timer(*timer);
 }
 
-/*-----------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* MAIN */
 int main()
 {
     if (!inicializa_allegro())
-    {
-        return -1; // Se a inicialização falhar, retorna erro
-    }
+        return -1;
 
-    srand(time(NULL)); // Inicializa a semente do gerador de números aleatórios
+    srand(time(NULL));
 
     ALLEGRO_EVENT_QUEUE *queue;
     ALLEGRO_TIMER *timer;
@@ -80,7 +71,7 @@ int main()
 
     inicializa_jogo(&queue, &timer, &disp, &font);
 
-    // Inicialização dos elementos do jogo
+    /* INICIALIZAÇÃO DE RECURSOS */
     jogador *jogador_1 = malloc(sizeof(jogador));
     inimigo *lista_inimigos_fase1 = malloc(sizeof(inimigo) * NUM_INIMIGOS);
     inimigo *lista_inimigos_fase2 = malloc(sizeof(inimigo) * NUM_INIMIGOS);
@@ -89,20 +80,19 @@ int main()
 
     ALLEGRO_BITMAP *background;
 
-    // Inicialização da tela inicial
+    /* INICIALIZAÇÃO DA TELA INCIAL DO JOGO */
     tela_inicial_sprite *tela_inicial = criar_tela_inicial();
     if (!tela_inicial)
-    {
-        return 1; // Retorna erro se não conseguir criar a tela inicial
-    }
+        return 1;
 
+    /* VARIÁVEIS DE CONTROLE */
     bool jogo_rodando = true;
     bool tela_inicial_ativa = true;
     ALLEGRO_EVENT event;
     unsigned int animation_tela_inicial = 0;
-    int fase_atual = 1; // Variável que controla a fase atual
+    int fase_atual = 1; /* Inicia na Fase 1 */
 
-    /*-----------------------------------------------------------------------------------------*/
+    /*-------------------------------------------------------------------*/
     while (jogo_rodando)
     {
         al_wait_for_event(queue, &event);
@@ -112,9 +102,13 @@ int main()
             if (event.type == ALLEGRO_EVENT_TIMER)
             {
                 al_clear_to_color(al_map_rgb(0, 0, 0));
-                atualizar_animacao_tela_inicial(tela_inicial, &animation_tela_inicial, VELOCIDADE_TELA_INICIAL);
+                atualizar_animacao_tela_inicial(tela_inicial, &animation_tela_inicial,
+                                                VELOCIDADE_TELA_INICIAL);
+
                 desenhar_tela_inicial(tela_inicial);
-                al_draw_textf(font, al_map_rgb(255, 255, 255), X_SCREEN / 2 - 60, Y_SCREEN / 2 - 200, 0, "PRESS 'S' TO START");
+
+                al_draw_textf(font, al_map_rgb(255, 255, 255), X_SCREEN / 2 - 60,
+                              Y_SCREEN / 2 - 200, 0, "PRESS 'S' TO START");
                 al_flip_display();
             }
             else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
@@ -123,49 +117,54 @@ int main()
             }
             else if (event.type == ALLEGRO_EVENT_KEY_DOWN)
             {
-                if (event.keyboard.keycode == ALLEGRO_KEY_S) // Inicia o jogo ao pressionar a tecla 'S'
+                if (event.keyboard.keycode == ALLEGRO_KEY_S)
                 {
                     tela_inicial_ativa = false;
-                    // Inicializa a fase 1
-                    inicializa_fase(&background, &jogador_1, &lista_inimigos_fase1, NULL,
-                                    &chefe_1, &chefe_2, fase_atual);
+                    /* Inicializa a Fase 1 */
+                    inicializa_fase(&background, &jogador_1, &lista_inimigos_fase1,
+                                    NULL, &chefe_1, &chefe_2, fase_atual);
                 }
             }
         }
-        /*-----------------------------------------------------------------------------------------*/
+        /*-------------------------------------------------------------------*/
         /* JOGO */
         else
         {
             if (event.type == ALLEGRO_EVENT_TIMER)
             {
-                // Atualiza a fase com base na fase atual
-                atualiza_fase(background, jogador_1, &lista_inimigos_fase1, &lista_inimigos_fase2, chefe_1, chefe_2, fase_atual);
+                /* Atualiza a fase */
+                atualiza_fase(background, jogador_1, &lista_inimigos_fase1,
+                              &lista_inimigos_fase2, chefe_1, chefe_2, fase_atual);
 
-                // Verifica se a fase foi concluída
+                /* Verifica se o jogador venceu a fase */
                 if (venceu_fase) // Se venceu a fase atual
                 {
-                    if (fase_atual == 1) // Se estava na fase 1
+                    if (fase_atual == 1) /* Se estava na Fase 1 */
                     {
-                        // Exibe mensagem de conclusão
+                        /* Exibe mensagem de conclusão da Fase 1 */
                         al_clear_to_color(al_map_rgb(0, 0, 0));
-                        al_draw_textf(font, al_map_rgb(255, 255, 255), X_SCREEN / 2 - 60, Y_SCREEN / 2, 0, "Fase 1 concluída!");
+                        al_draw_textf(font, al_map_rgb(255, 255, 255), X_SCREEN / 2 - 60,
+                                      Y_SCREEN / 2, 0, "Fase 1 concluída!");
                         al_flip_display();
-                        al_rest(3.0); // Aguarda 3 segundos para passar para a próxima fase
+                        al_rest(3.0); /* Aguarda alguns segundos para avançar para a próxima fase */
 
-                        // Avança para a fase 2
+                        /* Avança para a fase 2 */
                         fase_atual = 2;
-                        venceu_fase = false; // Reseta a variável para a nova fase
-                        inicializa_fase(&background, &jogador_1, NULL, &lista_inimigos_fase2, &chefe_1, &chefe_2, fase_atual); 
-                        atualiza_fase(background, jogador_1, NULL, &lista_inimigos_fase2, chefe_1, chefe_2, fase_atual); 
+                        venceu_fase = false; /* Reseta a variável para a nova fase */
+                        inicializa_fase(&background, &jogador_1, NULL, &lista_inimigos_fase2,
+                                        &chefe_1, &chefe_2, fase_atual);
+                        atualiza_fase(background, jogador_1, NULL, &lista_inimigos_fase2,
+                                      chefe_1, chefe_2, fase_atual);
                     }
-                    else if (fase_atual == 2)
+                    else if (fase_atual == 2) /* Se estava na Fase 2 */
                     {
-                        // Se venceu a fase 2, exibe mensagem final
+                        /* Se o jogador venceu a Fase 2 exibe a mensagem de vitória */
                         al_clear_to_color(al_map_rgb(0, 0, 0));
-                        al_draw_textf(font, al_map_rgb(255, 255, 255), X_SCREEN / 2 - 60, Y_SCREEN / 2, 0, "Você venceu o jogo!");
+                        al_draw_textf(font, al_map_rgb(255, 255, 255), X_SCREEN / 2 - 60,
+                                      Y_SCREEN / 2, 0, "Você venceu o jogo!");
                         al_flip_display();
-                        al_rest(5.0);         // Aguarda 3 segundos
-                        jogo_rodando = false; // Encerra o jogo
+                        al_rest(5.0);         /* Aguarda */
+                        jogo_rodando = false; /* Encerra o jogo */
                     }
                 }
             }
@@ -180,13 +179,12 @@ int main()
         }
     }
 
-    /*-----------------------------------------------------------------------------------------*/
+    /*-------------------------------------------------------------------*/
     /* LIBERAÇÃO DE RECURSOS */
     al_destroy_display(disp);
     al_destroy_timer(timer);
     al_destroy_event_queue(queue);
-
-    // Libera memória alocada
+    al_destroy_font(font);
     free(jogador_1);
     free(lista_inimigos_fase1);
     free(lista_inimigos_fase2);
