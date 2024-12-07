@@ -741,7 +741,7 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
             {
                 /* LÓGICA DO ATAQUE ESPECIAL ADQUIRIDO NO MAPA PELO JOGADOR */
                 /* para ajudar na luta contra o chefe */
-                logica_ataque_especial_fase1(jogador_1, &jogador_1->especial->simbolo, ANIMATION_DELAY_SIMBOLO_ATAQUE_ESPECIAL, X_SCREEN, Y_SCREEN);
+                logica_ataque_especial_fase2(jogador_1, &jogador_1->especial->simbolo, ANIMATION_DELAY_SIMBOLO_ATAQUE_ESPECIAL, X_SCREEN, Y_SCREEN);
 
                 atualizar_animacao_chefe(chefe_2, &chefe_2->animation_counter, ANIMATION_DELAY_CHEFE);
                 mover_chefe(chefe_2, CHEFE1_STEP, 0, X_SCREEN, Y_SCREEN_MOVIMENTO);
