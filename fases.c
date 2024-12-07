@@ -46,7 +46,7 @@ void exibir_mensagem_game_over(ALLEGRO_FONT *font, const char *mensagens[],
 }
 
 // Implementação da função que verifica se um projétil da nave do jogador
-// acertou um inimigo,a cada acerto o jogador ganha 10 pontos
+// acertou um inimigo,a cada acerto o jogador ganha 10 pontos e o inimigo perde 1 HP
 unsigned char verifica_acerto_em_inimigo(jogador *killer, inimigo *victim, unsigned int *score)
 {
     projetil *anterior = NULL;
@@ -98,8 +98,8 @@ unsigned char verifica_acerto_em_inimigo(jogador *killer, inimigo *victim, unsig
     return 0; // Nenhum projétil acertou o inimigo
 }
 
-// Implementação da função que verifica se um projétil acertou um chefe,
-// a cada acerto o jogador ganha 10 pontos
+// Implementação da função que verifica se um projétil padrão acertou um chefe,
+// a cada acerto o jogador ganha 10 pontos e diminui o HP do chefe em 1
 unsigned char verifica_acerto_em_chefe(jogador *killer, chefe *victim, unsigned int *score)
 {
     projetil *anterior = NULL;
@@ -149,7 +149,7 @@ unsigned char verifica_acerto_em_chefe(jogador *killer, chefe *victim, unsigned 
 }
 
 // Implementação da função que verifica se um projétil inimigo acertou o jogador,
-// cada acerto reduz 1 ponto de vida
+// cada acerto reduz 1 ponto de vida do jogador
 unsigned char verifica_acerto_no_jogador(inimigo **killer, jogador *victim)
 {
     if (*killer == NULL || (*killer)->arma == NULL)
@@ -307,20 +307,24 @@ void logica_ataque_especial(jogador *jogador, simbolo_ataque_especial **simbolo_
     /*-------------------------------------------------------------------*/
     /* DESENHO E MOVIMENTAÇÃO DO SÍMBOLO DO ATAQUE ESPECIAL */
 
-    // Atualiza a animação do símbolo do ataque especial
-    atualizar_animacao_simbolo_ataque_especial(simbolo, delay);
+    // Se o ataque especial já estiver ativo, não redesenha o símbolo
+    if (!jogador->especial->ativo)
+    {
+        // Atualiza a animação do símbolo do ataque especial
+        atualizar_animacao_simbolo_ataque_especial(simbolo, delay);
 
-    // Move o símbolo do ataque especial para a esquerda
-    if (simbolo->x > 0)
-    {
-        simbolo->x -= 2;
-        desenhar_simbolo_ataque_especial(simbolo);
-    }
-    else // Se o símbolo sair da tela, destrua-o
-    {
-        destruir_simbolo_ataque_especial(simbolo);
-        *simbolo_ptr = NULL; // Reseta o ponteiro do símbolo
-        return;              // Retorna para evitar chamadas subsequentes
+        // Move o símbolo do ataque especial para a esquerda
+        if (simbolo->x > 0)
+        {
+            simbolo->x -= 2;
+            desenhar_simbolo_ataque_especial(simbolo);
+        }
+        else // Se o símbolo sair da tela, destrua-o
+        {
+            destruir_simbolo_ataque_especial(simbolo);
+            *simbolo_ptr = NULL; // Reseta o ponteiro do símbolo
+            return;              // Retorna para evitar chamadas subsequentes
+        }
     }
 
     /*-------------------------------------------------------------------*/
@@ -332,6 +336,26 @@ void logica_ataque_especial(jogador *jogador, simbolo_ataque_especial **simbolo_
             3.O dano do ataque especial é 2x maior que o dano dos projéteis normais, ou seja, 2 pontos de vida
             para ajudar na destruição dos chefes
     */
+
+    // Verifica se houve colisão do jogador com o símbolo do ataque especial
+    if (!jogador->especial->ativo && verificar_colisao_jogador_simbolo(jogador, simbolo))
+    {
+        // Ativa o ataque especial no jogador
+        ativar_ataque_especial(jogador);
+    }
+
+    // Atualiza o estado do ataque especial
+    atualizar_ataque_especial(jogador, simbolo_ptr);
+
+    // Se o ataque especial estiver ativo, converte os projéteis em especiais
+    if (jogador->especial->ativo)
+    {
+        for (projetil *p = jogador->arma->shots; p != NULL; p = (projetil *)p->proximo)
+        {
+            p->especial = true; // Marca o projétil como especial
+            desenhar_projetil_especial_jogador_1(p);
+        }
+    }
 }
 
 /*---------------------------------------------------------------------------*/
