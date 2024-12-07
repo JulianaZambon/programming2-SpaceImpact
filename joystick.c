@@ -1,9 +1,9 @@
 #include <stdlib.h>
 
-// Libs locais
+// Inclusão de bibliotecas locais
 #include "joystick.h"
 
-/*-----------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* FUNÇÕES */
 
 // Cria um novo controle
@@ -28,7 +28,7 @@ void destroi_joystick(joystick *elemento)
 	free(elemento);
 }
 
-// Mudam o estado do botão
+/* Funções de ativação/desativação dos botões */
 void joystick_esquerda(joystick *elemento)
 {
 	elemento->esquerda = elemento->esquerda ^ 1;
