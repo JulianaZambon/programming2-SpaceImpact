@@ -4,13 +4,13 @@
 // Inclusões de bibliotecas locais
 #include "projetil.h"
 
-/*-----------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* DEFINIÇÕES */
 
-#define ARMA_COOLDOWN 10 // tempo de cooldown da arma (quanto maior, mais lento)
-#define ARMA_COOLDOWN_INIMIGO 90
+#define ARMA_COOLDOWN 20         // Tempo de cooldown da arma do jogador (quanto maior, mais lento)
+#define ARMA_COOLDOWN_INIMIGO 40 // Tempo de cooldown da arma do inimigo (quanto maior, mais lento)
 
-/*-----------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* ESTRUTURAS */
 
 // Estrutura para a arma
@@ -20,7 +20,7 @@ typedef struct arma
     projetil *shots; // Lista encadeada de projéteis disparados
 } arma;
 
-/*-----------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* PROTÓTIPOS DE FUNÇÕES */
 
 // Função de criação de uma nova arma
