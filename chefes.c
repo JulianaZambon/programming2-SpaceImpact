@@ -7,11 +7,12 @@
 // Inclusões de bibliotecas locais
 #include "chefes.h"
 
-/*-----------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* FUNÇÕES */
 
 // Função de criação de um chefe
-chefe *criar_chefe(unsigned char side, unsigned char face, short x, unsigned short y, unsigned short type, unsigned short max_x, unsigned short max_y)
+chefe *criar_chefe(unsigned char side, unsigned char face, short x, unsigned short y,
+                   unsigned short type, unsigned short max_x, unsigned short max_y)
 {
     // Verifica se a posição inicial do chefe é válida
     if ((x - side / 2 < 0) || (x + side / 2 > max_x) || (y - side / 2 < 0) || (y + side / 2 > max_y))
@@ -23,16 +24,16 @@ chefe *criar_chefe(unsigned char side, unsigned char face, short x, unsigned sho
         return NULL;
 
     // Inicializa os atributos básicos do chefe
-    novo_chefe->tam_lateral = side;   // Insere o tamanho lateral do chefe
-    novo_chefe->face = face;          // Insere a face do chefe (direção para onde ele está "olhando")
-    novo_chefe->x = x;                // Posição X do centro do chefe
-    novo_chefe->y = y;                // Posição Y do centro do chefe
-    novo_chefe->tipo = type;          // Tipo do chefe, diferenciando-os
-    novo_chefe->arma1 = criar_arma(); // Aloca e inicializa a arma do chefe
-    novo_chefe->arma2 = criar_arma(); // Aloca e inicializa a arma do chefe
-    novo_chefe->frame_atual = 0;      // Inicializa o frame atual do sprite
-    novo_chefe->arma1->timer = 0;     // Inicializa o cooldown da primeira arma
-    novo_chefe->arma2->timer = 0;     // Inicializa o cooldown da segunda arma
+    novo_chefe->tam_lateral = side;    // Insere o tamanho lateral do chefe
+    novo_chefe->face = face;           // Insere a face do chefe (direção para onde ele está "olhando")
+    novo_chefe->x = x;                 // Posição X do centro do chefe
+    novo_chefe->y = y;                 // Posição Y do centro do chefe
+    novo_chefe->tipo = type;           // Tipo do chefe, diferenciando-os
+    novo_chefe->arma1 = criar_arma();  // Aloca e inicializa a arma do chefe
+    novo_chefe->arma2 = criar_arma();  // Aloca e inicializa a arma do chefe
+    novo_chefe->frame_atual = 0;       // Inicializa o frame atual do sprite
+    novo_chefe->arma1->timer = 0;      // Inicializa o cooldown da primeira arma
+    novo_chefe->arma2->timer = 0;      // Inicializa o cooldown da segunda arma
     novo_chefe->animation_counter = 0; // Inicializa o contador de animação
 
     // Aloca a estrutura para o sprite do chefe
@@ -80,7 +81,8 @@ chefe *criar_chefe(unsigned char side, unsigned char face, short x, unsigned sho
 }
 
 // Função de movimentação do chefe
-void mover_chefe(chefe *elemento, unsigned char steps, unsigned char trajetoria, unsigned short max_x, unsigned short max_y)
+void mover_chefe(chefe *elemento, unsigned char steps, unsigned char trajetoria,
+                 unsigned short max_x, unsigned short max_y)
 {
     if (!elemento)
         return;
