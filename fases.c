@@ -454,10 +454,11 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
         }
 
         /* LÓGICA DO ATAQUE ESPECIAL ADQUIRIDO NO MAPA PELO JOGADOR */
-        logica_ataque_especial(jogador_1, &jogador_1->especial->simbolo, ANIMATION_DELAY_SIMBOLO_ATAQUE_ESPECIAL, X_SCREEN, Y_SCREEN);
+        // logica_ataque_especial(jogador_1, &jogador_1->especial->simbolo, ANIMATION_DELAY_SIMBOLO_ATAQUE_ESPECIAL, X_SCREEN, Y_SCREEN);
+
         /* LÓGICA DO CHEFE - FASE 01 */
         // Verifica se todos os inimigos foram derrotados para então o chefe aparecer
-        if (score >= (10 * (2 * (QNTD_INIM_TIPO_0) + (QNTD_INIM_TIPO_1))))
+        if (score >= (10 * ((HP_INIMIGO_0 * (QNTD_INIM_TIPO_0)) + (HP_INIMIGO_1 * (QNTD_INIM_TIPO_1)))))
         {
             if (chefe_1 != NULL && chefe_1->hp > 0)
             {
@@ -558,11 +559,8 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
         int animation_counter_chefe = 0;
 
         // Verifica se todos os inimigos foram derrotados
-        // SCORE TOTAL fase 01 eh 10 * (2 * (QNTD_INIM_TIPO_0) + (QNTD_INIM_TIPO_1) + (HP_CHEFE_0))
-        // SCORE TOTAL fase 02 para aparecer o chefe eh
-        // SCORE TOTAL DA FASE 01 + 10 * (2 * (QNTD_INIM_TIPO_2) + (QNTD_INIM_TIPO_3))
-        if (score >= (10 * (2 * (QNTD_INIM_TIPO_0) + (QNTD_INIM_TIPO_1) + (HP_CHEFE_0)) + 10 *
-                            (2 * (QNTD_INIM_TIPO_2) + (QNTD_INIM_TIPO_3))))
+        if ((score >= (10 * ((HP_INIMIGO_0 * (QNTD_INIM_TIPO_0)) + (HP_INIMIGO_1 * (QNTD_INIM_TIPO_1))))) + 
+        10 * (((HP_INIMIGO_2 * (QNTD_INIM_TIPO_2)) + (HP_INIMIGO_3 * (QNTD_INIM_TIPO_3)))))
         {
             if (chefe_2 != NULL && chefe_2->hp > 0)
             {
