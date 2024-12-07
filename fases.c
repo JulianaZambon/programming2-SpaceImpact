@@ -327,9 +327,10 @@ void logica_ataque_especial(jogador *jogador, simbolo_ataque_especial **simbolo_
     /* LÓGICA DE ATIVAÇÃO DO ATAQUE ESPECIAL */
     /*
     RESUMO: 1.Verifica se houve colisão do jogador com o símbolo do ataque especial
-            2.Se houve colisão, os próximos projéteis disparados pelo jogador serão do ataque especial
-            3.Desenha os projéteis do ataque especial
-            4.Atualiza o tempo do ataque especial, que é de no máximo 5s
+            2.Se houve colisão, durante os próximos 5 segundos os projéteis disparados
+            serão do tipo especial e causarão 2x mais dano
+            3.O dano do ataque especial é 2x maior que o dano dos projéteis normais, ou seja, 2 pontos de vida
+            para ajudar na destruição dos chefes
     */
 }
 
@@ -591,12 +592,9 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
         /* LÓGICA DO CHEFE - FASE 02 */
         int animation_counter_chefe = 0;
 
-        // Verifica se todos os inimigos foram derrotados
-        // SCORE TOTAL fase 01 eh 10 * (2 * (QNTD_INIM_TIPO_0) + (QNTD_INIM_TIPO_1) + (HP_CHEFE_0))
-        // SCORE TOTAL fase 02 para aparecer o chefe eh
-        // SCORE TOTAL DA FASE 01 + 10 * (2 * (QNTD_INIM_TIPO_2) + (QNTD_INIM_TIPO_3))
+        // Verifica se todos os inimigos foram derrotados 
         if (score >= (10 * (HP_INIMIGO_0 * (QNTD_INIM_TIPO_0) + HP_INIMIGO_1 * (QNTD_INIM_TIPO_1) + (HP_CHEFE_0)) + 10 *
-                                                                                                                        (HP_INIMIGO_2 * (QNTD_INIM_TIPO_2) + HP_INIMIGO_3 * (QNTD_INIM_TIPO_3))))
+                                            (HP_INIMIGO_2 * (QNTD_INIM_TIPO_2) + HP_INIMIGO_3 * (QNTD_INIM_TIPO_3))))
         {
             if (chefe_2 != NULL && chefe_2->hp > 0)
             {
