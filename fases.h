@@ -27,16 +27,23 @@ extern bool venceu_fase;          // Flag de vitória
 /* PROTÓTIPOS DE FUNÇÕES AUXILIARES */
 
 // Função que verifica se um projétil acertou um inimigo, a cada acerto o jogador ganha 10 pontos
-unsigned char verifica_acerto_em_inimigo(jogador *killer, inimigo *victim, unsigned int *score);
+unsigned char verifica_acerto_no_inimigo(jogador *killer, inimigo *victim, unsigned int *score);
 
 // Função que verifica se um projétil acertou um chefe, a cada acerto o jogador ganha 10 pontos
-unsigned char verifica_acerto_em_chefe(jogador *killer, chefe *victim, unsigned int *score);
+unsigned char verifica_acerto_no_chefe(jogador *killer, chefe *victim, unsigned int *score);
 
 // Função que verifica se um projétil inimigo acertou o jogador, cada acerto reduz 1 ponto de vida
 unsigned char verifica_acerto_no_jogador(inimigo **killer, jogador *victim);
 
 // Função que verifica se um projétil de chefe acertou o jogador, cada acerto reduz 2 pontos de vida
 unsigned char verifica_acerto_do_chefe_no_jogador(chefe *killer, jogador *victim);
+
+// Função que contem a lógica de ataque especial do jogador
+void logica_ataque_especial_fase1(jogador *jogador, simbolo_ataque_especial **simbolo_ptr, unsigned int delay,
+                            unsigned short max_x, unsigned short max_y);
+
+void logica_ataque_especial_fase2(jogador *jogador, simbolo_ataque_especial **simbolo_ptr, unsigned int delay,
+                            unsigned short max_x, unsigned short max_y);
 
 /*-------------------------------------------------------------------*/
 /* PROTÓTIPOS DE FUNÇÕES PRINCIPAIS */
