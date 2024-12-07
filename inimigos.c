@@ -9,7 +9,7 @@
 #include "inimigos.h"
 #include "configuracoes.h"
 
-/*-----------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* FUNÇÕES INIMIGO */
 
 // Função de criação de um inimigo
@@ -91,60 +91,70 @@ inimigo *criar_inimigo(unsigned char side, unsigned char face, short x, unsigned
 
     return novo_inimigo;
 }
+
 // Função de movimentação de um inimigo
 void mover_inimigo(inimigo *elemento, unsigned char steps, unsigned char *trajetoria, unsigned short max_x, unsigned short max_y)
 {
+    // Verifica se o inimigo é válido
     if (!elemento)
         return;
 
+    // Controle de movimento baseado no tipo do inimigo
     switch (elemento->tipo)
     {
     case 0: // Movimento simples para a esquerda (somente no eixo X)
-        elemento->x -= INIMIGO_STEP * steps;
-        break;
     case 1: // Movimento simples para a esquerda (somente no eixo X)
         elemento->x -= INIMIGO_STEP * steps;
         break;
-    case 2: // Movimento em círculo
-        // Movimento contínuo no eixo X
-        elemento->x -= INIMIGO2_STEP * steps; // Movimento para a esquerda
-        // Se o inimigo sair da tela pela esquerda, ele reaparece no lado direito
+
+    case 2: // Movimento circular
+        // Movimento contínuo no eixo X para a esquerda
+        elemento->x -= INIMIGO2_STEP * steps;
+
+        // Se o inimigo sair da tela pela esquerda, reposiciona no lado direito
         if (elemento->x + elemento->tam_lateral / 2 < 0)
         {
-            elemento->x = max_x; // Reposiciona no lado direito da tela
+            elemento->x = max_x;
         }
-        // Movimento circular no eixo Y com função seno
-        // Para dar um efeito de círculo, usamos um valor de X para calcular Y de forma contínua
-        elemento->y = max_y / 2 + 100 * sin(elemento->x / 50.0); // Ajustar o 50.0 para controlar a frequência da oscilação no Y
+
+        // Movimento no eixo Y com uma oscilação circular baseada na função seno
+        elemento->y = max_y / 2 + 100 * sin(elemento->x / 50.0); // A frequência pode ser ajustada com o valor de 50.0
         break;
-    case 3:                                   // Movimento em onda
-        elemento->x -= INIMIGO3_STEP * steps; // Movimento contínuo para a esquerda
-        // Garante que o inimigo não saia da tela pela esquerda
+
+    case 3: // Movimento em onda
+        // Movimento contínuo para a esquerda
+        elemento->x -= INIMIGO3_STEP * steps;
+
+        // Garante que o inimigo não saia da tela pela esquerda, reposicionando no lado direito
         if (elemento->x + elemento->tam_lateral / 2 < 0)
         {
-            elemento->x = max_x; // Reposiciona no lado direito da tela
+            elemento->x = max_x;
         }
-        // Movimento em onda (efeito suave no eixo Y)
-        elemento->y = max_y / 2 + 100 * sin(elemento->x / 100.0); // Função seno para onda suave
+
+        // Movimento suave em onda no eixo Y usando função seno
+        elemento->y = max_y / 2 + 100 * sin(elemento->x / 100.0); // Ajuste de frequência com o valor de 100.0
         break;
+
     default:
-        return;
+        return; // Se o tipo de movimento não for reconhecido, não faz nada
     }
 
-    // Disparo automático com cooldown
+    // Lógica de disparo automático com cooldown
     if (elemento->arma->timer == 0)
     {
-        inimigo_atira(elemento);                       // Inimigo realiza o disparo
-        elemento->arma->timer = ARMA_COOLDOWN_INIMIGO; // Define um cooldown para o próximo disparo
+        inimigo_atira(elemento);                       // O inimigo realiza o disparo
+        elemento->arma->timer = ARMA_COOLDOWN_INIMIGO; // Define o tempo de cooldown para o próximo disparo
     }
     else
     {
         elemento->arma->timer--; // Decrementa o cooldown a cada frame
     }
 
-    mover_projetil(&elemento->arma->shots); // Atualiza a posição dos projéteis do inimigo
+    // Atualiza a posição dos projéteis disparados pelo inimigo
+    mover_projetil(&elemento->arma->shots);
 }
-// Função de desenho de um inimigo
+
+// Função de desenho do inimigo
 void desenhar_inimigo(inimigo *elemento)
 {
     if (!elemento || !elemento->sprite_info)
@@ -161,6 +171,7 @@ void desenhar_inimigo(inimigo *elemento)
     al_draw_bitmap_region(elemento->sprite_info->sprite, frame_x, frame_y, sprite_largura, sprite_altura,
                           elemento->x - sprite_largura / 2, elemento->y - sprite_altura / 2, 0);
 }
+
 // Função de atualização da animação do inimigo
 void atualizar_animacao_inimigo(inimigo *elemento, unsigned int delay)
 {
@@ -176,8 +187,6 @@ void atualizar_animacao_inimigo(inimigo *elemento, unsigned int delay)
 }
 
 // Função para adicionar um inimigo à lista
-// Função para adicionar inimigos na lista
-// Função para adicionar inimigos na lista
 void adicionar_inimigo_lista(inimigo **lista, unsigned char sprite, unsigned short tipo)
 {
     inimigo **atual = lista;
@@ -188,7 +197,6 @@ void adicionar_inimigo_lista(inimigo **lista, unsigned char sprite, unsigned sho
         atual = &(*atual)->proximo;
     }
 
-    // Determina a altura do sprite com base no tipo do inimigo
     int altura_sprite;
     switch (tipo)
     {
@@ -210,8 +218,8 @@ void adicionar_inimigo_lista(inimigo **lista, unsigned char sprite, unsigned sho
     }
 
     // Gera uma posição Y válida para o inimigo, garantindo que ele não sobreponha os corações
-    int pos_y = rand() % (Y_SCREEN - ESPACO_INTERFACE - altura_sprite);
-    
+    int pos_y = rand() % (Y_SCREEN - altura_sprite);
+
     if (pos_y < altura_sprite) // Ajusta para que o inimigo não fique acima da tela visível
     {
         pos_y = altura_sprite;
@@ -231,8 +239,6 @@ Na fase 1, devem ser criados todos os inimigos do tipo 0, para então serem cria
 Na fase 2, devem ser criados todos os inimigos do tipo 2, para então serem criados todos os inimigos do tipo 3
 */
 
-// Função de atualização da criação de inimigos
-// Função de atualização da criação de inimigos na fase 1
 void atualizar_criacao_inimigo_fase1(inimigo **lista)
 {
     static unsigned int intervalo_criacao = 0;                                       // Intervalo entre a criação de inimigos
@@ -263,10 +269,9 @@ void atualizar_criacao_inimigo_fase1(inimigo **lista)
     }
 
     // Define o próximo intervalo de criação
-    intervalo_criacao = rand() % MIN_INTERVALO_FASE01 + MAX_INTERVALO_FASE01; // Intervalo aleatorio entre 150 e 300
+    intervalo_criacao = rand() % MIN_INTERVALO_FASE01 + MAX_INTERVALO_FASE01;
 }
 
-// Função de atualização da criação de inimigos na fase 2
 void atualizar_criacao_inimigo_fase2(inimigo **lista)
 {
     static unsigned int intervalo_criacao = 0;                                       // Intervalo entre a criação de inimigos
@@ -304,11 +309,12 @@ void atualizar_criacao_inimigo_fase2(inimigo **lista)
 void inimigo_atira(inimigo *elemento)
 {
     if (!elemento->arma->timer && elemento->pode_atirar)
-    {                                                                   // Verifica se a arma do jogador não está em cooldown
+    {                                                                   // Verifica se a arma não está em cooldown
         disparo_arma(elemento->x - 80, elemento->y, 0, elemento->arma); // Realiza o disparo
         elemento->arma->timer = ARMA_COOLDOWN_INIMIGO;                  // Inicia o cooldown da arma
     }
 }
+
 // Função de destruição do inimigo
 void destroi_inimigo(inimigo *elemento)
 {
