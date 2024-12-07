@@ -7,7 +7,7 @@
 #include "joystick.h"
 #include "arma.h"
 
-/*---------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* DEFINIÇÕES */
 
 /* JOGADOR */
@@ -32,17 +32,24 @@
 #define NUM_FRAMES_SIMBOLO_ATAQUE_ESPECIAL 12							// Número total de quadros do sprite do símbolo do ataque especial
 #define TEMP_MAX 5000													// Tempo máximo do ataque especial 5 segundos
 
-/*---------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* ESTRUTURAS */
+
+/*
+RESUMO DAS ESTRUTURAS
+simbolo_ataque_especial: Representa o power-up no mapa.
+ataque_especial: Controla o estado do ataque especial no jogador.
+jogador: Contém um ponteiro para ataque_especial para gerenciar o estado do ataque.
+*/
 
 // Estrutura para o símbolo do ataque especial (apenas o "power-up")
 typedef struct
 {
-	int x;							// Posição X do símbolo
-	int y;							// Posição Y do símbolo
+	unsigned short x;				// Posição X do centro do símbolo
+	unsigned short y;				// Posição Y do centro do símbolo
 	int largura;					// Largura do quadro do sprite
 	int altura;						// Altura do quadro do sprite
-	int col_frames;
+	int col_frames;					// Número de colunas
 	int num_frames;					// Número total de quadros do sprite sheet
 	unsigned short frame_atual;		// Quadro atual no sprite sheet
 	unsigned int animation_counter; // Contador para gerenciar a animação
@@ -52,36 +59,32 @@ typedef struct
 // Estrutura para o ataque especial ativo (somente estado)
 typedef struct
 {
-	bool ativado;				 // Indica se o ataque especial está ativo
-	unsigned short x;			 // Posição X do centro do efeito do ataque especial
-	unsigned short y;			 // Posição Y do centro do efeito do ataque especial
-	unsigned int tempo_restante; // Tempo restante para o ataque especial (em milissegundos)
-	ALLEGRO_BITMAP *sprite;		 // Sprite para o efeito do ataque especial
+    bool ativo;                     // Indica se o ataque especial está ativo
+    unsigned int tempo_restante;      // Tempo restante do efeito especial (em milissegundos)
+    simbolo_ataque_especial *simbolo; // Referência ao símbolo antes de ser coletado
+    ALLEGRO_BITMAP *sprite;           // Sprite para representar o efeito do ataque especial
 } ataque_especial;
 
 // Estrutura para o jogador
 typedef struct
 {
-	unsigned char tam_lateral;		// Tamanho da lateral de um jogador
-	unsigned char face;				// A face principal, algo como a sua "frente"
-	unsigned char hp;				// Quantidade de vida do jogador, em unidades
-	unsigned short x;				// Posição X do centro do jogador
-	unsigned short y;				// Posição Y do centro do jogador
-	unsigned short frame_atual;		// Quadro atual (índice no sprite sheet)
-	unsigned int animation_counter; // Contador de animação do sprite do jogador
-	ALLEGRO_BITMAP *sprite;			// Ponteiro para o sprite do jogador
-	ALLEGRO_BITMAP *hp_sprite;		// Sprite do coração para representar o HP
-	// Para movimentar a nave
-	joystick *controle;
-	// Para atirar
-	arma *arma;
-	// Ataque especial ativo (estado do ataque após ser coletado)
-	ataque_especial *ataque_especial;
-	// Referência ao símbolo do ataque especial (para colisão)
-	simbolo_ataque_especial *simbolo_ataque_especial;
+    unsigned char tam_lateral;        // Tamanho da lateral de um jogador
+    unsigned char face;               // A face principal, algo como a sua "frente"
+    unsigned char hp;                 // Quantidade de vida do jogador, em unidades
+    unsigned short x;                 // Posição X do centro do jogador
+    unsigned short y;                 // Posição Y do centro do jogador
+    unsigned short frame_atual;       // Quadro atual (índice no sprite sheet)
+    unsigned int animation_counter;   // Contador de animação do sprite do jogador
+    ALLEGRO_BITMAP *sprite;           // Ponteiro para o sprite do jogador
+    ALLEGRO_BITMAP *hp_sprite;        // Sprite do coração para representar o HP
+    joystick *controle;               // Para movimentar a nave
+    arma *arma;                       // Para atirar
+    ataque_especial *especial;        // Controle do estado do ataque especial
+	// arma exclusiva do ataque especial
+	arma *arma_especial;              // Para atirar com o ataque especial
 } jogador;
 
-/*---------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* PROTÓTIPOS DE FUNÇÕES */
 
 // Função de criação de um jogador
@@ -108,17 +111,14 @@ void jogador_atira(jogador *elemento);
 // Função de destruição do jogador
 void destroi_jogador(jogador *elemento);
 
-
-/*---------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* PROTÓTIPO DE FUNÇÕES PARA CONTROLE DO ATAQUE ESPECIAL */
 
 // Função de criação do símbolo do ataque especial
 // Cria e inicializa o símbolo que representa o ataque especial no mapa
 simbolo_ataque_especial *criar_simbolo_ataque_especial(unsigned short x, unsigned short y, const char *sprite_path);
 
-// Função de movimentação do símbolo do ataque especial
-// Movimento simples (exemplo: deslizar para a esquerda)
-void mover_simbolo_ataque_especial(simbolo_ataque_especial *simbolo, int dx, int dy, unsigned short max_x, unsigned short max_y);
+ataque_especial* criar_ataque_especial();
 
 // Função de desenho do símbolo do ataque especial
 // Renderiza o sprite do símbolo na tela
@@ -141,7 +141,6 @@ bool verificar_colisao_jogador_simbolo(jogador *jogador, simbolo_ataque_especial
 void ativar_ataque_especial(jogador *jogador);
 
 // Atualizar o tempo restante do ataque especial
-void atualizar_tempo_ataque_especial(jogador *jogador);
-
+void atualizar_tempo_ataque_especial(jogador *jogador, unsigned int elapsed_time);
 
 #endif // Guardas de inclusão
