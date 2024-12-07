@@ -1,6 +1,6 @@
 #include "telaInicial.h"
 
-/*-----------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* FUNÇÕES */
 
 // Função de criação da tela inicial
@@ -49,7 +49,7 @@ void atualizar_animacao_tela_inicial(tela_inicial_sprite *tela_inicial, unsigned
     // Atualiza contador de animação
     if (++(*animation_counter) >= delay)
     {
-        tela_inicial->frame_atual = (tela_inicial->frame_atual + 1) % FRAMES;
+        tela_inicial->frame_atual = (tela_inicial->frame_atual + 1) % FRAMES_TELA_INICIAL;
         *animation_counter = 0; // Reseta o contador de animação
     }
 }
