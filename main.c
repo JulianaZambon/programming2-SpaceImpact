@@ -10,6 +10,7 @@
 // Inclusão de bibliotecas locais
 #include "configuracoes.h"
 #include "telaInicial.h"
+// #include "narrativa.h"
 #include "background.h"
 #include "jogador.h"
 #include "inimigos.h"
@@ -77,10 +78,7 @@ void inicializa_jogo(ALLEGRO_EVENT_QUEUE **queue, ALLEGRO_TIMER **timer,
     *disp = al_create_display(X_SCREEN, Y_SCREEN);
 
     if (!*timer || !*queue || !*font || !*disp)
-    {
-        fprintf(stderr, "Falha ao criar componentes do jogo.\n");
         exit(1);
-    }
 
     al_register_event_source(*queue, al_get_keyboard_event_source());
     al_register_event_source(*queue, al_get_display_event_source(*disp));
@@ -118,6 +116,8 @@ int main()
     if (!tela_inicial)
         return 1;
 
+    // tela_nave_ligando *nave_ligando = criar_tela_nave_ligando();
+
     /* VARIÁVEIS DE CONTROLE */
     bool jogo_rodando = true;
     bool tela_inicial_ativa = true;
@@ -153,10 +153,11 @@ int main()
                 if (event.keyboard.keycode == ALLEGRO_KEY_S)
                 {
                     tela_inicial_ativa = false;
+            
                     // Exibe mensagem antes de iniciar a Fase 1
                     const char *mensagens[] = {"Prepare-se para a Fase 1!"};
                     exibir_mensagem(font, mensagens, 1, 1.5, true, 0.1);
-
+                
                     /* Inicializa a Fase 1 */
                     inicializa_fase(&background, &jogador_1, &lista_inimigos_fase1,
                                     NULL, &chefe_1, &chefe_2, fase_atual);
@@ -179,12 +180,17 @@ int main()
                     if (fase_atual == 1) /* Se estava na Fase 1 */
                     {
                         /* Exibe mensagem de conclusão da Fase 1 */
-                        const char *mensagens[] = {"Fase 1 concluída!", "Prepare-se para a próxima fase!"};
-                        exibir_mensagem(font, mensagens, 2, 0, true, 0.1);
+                        const char *mensagens_fase1_concluida[] = {"Fase 1 concluída!", "Prepare-se para a próxima fase!"};
+                        exibir_mensagem(font, mensagens_fase1_concluida, 2, 0, true, 0.1);
 
                         /* Avança para a fase 2 */
                         fase_atual = 2;
                         venceu_fase = false; /* Reseta a variável para a nova fase */
+
+                        // Exibe mensagem antes de iniciar a Fase 2
+                        const char *mensagens_fase2[] = {"Prepare-se para a Fase 2!"};
+                        exibir_mensagem(font, mensagens_fase2, 1, 1.5, true, 0.1);
+
                         inicializa_fase(&background, &jogador_1, NULL, &lista_inimigos_fase2,
                                         &chefe_1, &chefe_2, fase_atual);
                         atualiza_fase(background, jogador_1, NULL, &lista_inimigos_fase2,
