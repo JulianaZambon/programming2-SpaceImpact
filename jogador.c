@@ -146,7 +146,6 @@ void destroi_jogador(jogador *elemento)
 
 /*---------------------------------------------------------------------------*/
 /* FUNÇÕES PARA CONTROLE DO ATAQUE ESPECIAL */
-
 // Função de criação do símbolo do ataque especial
 simbolo_ataque_especial *criar_simbolo_ataque_especial(unsigned short x, unsigned short y, const char *sprite_path)
 {
@@ -164,7 +163,8 @@ simbolo_ataque_especial *criar_simbolo_ataque_especial(unsigned short x, unsigne
     novo_simbolo->animation_counter = 0;
     novo_simbolo->sprite = al_load_bitmap(sprite_path);
 
-    if (!novo_simbolo->sprite) {
+    if (!novo_simbolo->sprite)
+    {
         free(novo_simbolo);
         return NULL; // Verifica se o sprite foi carregado corretamente
     }
@@ -173,29 +173,17 @@ simbolo_ataque_especial *criar_simbolo_ataque_especial(unsigned short x, unsigne
 }
 
 // Função para criar um ataque especial
-ataque_especial* criar_ataque_especial()
+ataque_especial *criar_ataque_especial()
 {
     ataque_especial *novo_ataque = malloc(sizeof(ataque_especial));
-    if (novo_ataque) {
+    if (novo_ataque)
+    {
         novo_ataque->ativado = false;
         novo_ataque->tempo_restante = TEMP_MAX;
-        novo_ataque->simbolo = NULL;  // Inicializa o símbolo como NULL
-        novo_ataque->sprite = NULL;   // Inicializa o sprite como NULL
+        novo_ataque->simbolo = NULL; // Inicializa o símbolo como NULL
+        novo_ataque->sprite = NULL;  // Inicializa o sprite como NULL
     }
     return novo_ataque;
-}
-
-// Função de movimentação do símbolo do ataque especial
-void mover_simbolo_ataque_especial(simbolo_ataque_especial *simbolo, int dx, int dy, unsigned short max_x, unsigned short max_y)
-{
-    if (!simbolo)
-        return;
-
-    if (simbolo->x + dx >= 0 && simbolo->x + dx <= max_x)
-        simbolo->x += dx;
-
-    if (simbolo->y + dy >= 0 && simbolo->y + dy <= max_y)
-        simbolo->y += dy;
 }
 
 // Função de desenho do símbolo do ataque especial
@@ -234,43 +222,51 @@ void destruir_simbolo_ataque_especial(simbolo_ataque_especial *simbolo)
     if (!simbolo)
         return;
 
-    if (simbolo->sprite)
-        al_destroy_bitmap(simbolo->sprite);
-
-    free(simbolo);
+    al_destroy_bitmap(simbolo->sprite); // Libera a memória do sprite
+    free(simbolo);                      // Libera a memória do símbolo
 }
 
 // Função de verificação de colisão do jogador com o símbolo do ataque especial
 bool verificar_colisao_jogador_simbolo(jogador *jogador, simbolo_ataque_especial *simbolo)
 {
-    if (!jogador || !simbolo)
-        return false;
-
-    return (jogador->x < simbolo->x + simbolo->largura &&
-            jogador->x + jogador->tam_lateral > simbolo->x &&
-            jogador->y < simbolo->y + simbolo->altura &&
-            jogador->y + jogador->tam_lateral > simbolo->y);
+    if (jogador->x + jogador->face / 2 > simbolo->x &&
+        jogador->x - jogador->face / 2 < simbolo->x + simbolo->largura &&
+        jogador->y + QUADRADO_SPRITE_JOGADOR / 2 > simbolo->y &&
+        jogador->y - QUADRADO_SPRITE_JOGADOR / 2 < simbolo->y + simbolo->altura)
+    {
+        return true; // Colisão detectada
+    }
+    return false; // Nenhuma colisão
 }
 
 // Função de ativação do ataque especial
 void ativar_ataque_especial(jogador *jogador)
 {
     if (!jogador)
+    {
         return;
+    }
 
+    // Verifica se o ataque especial ainda não foi ativado
     if (!jogador->especial)
+    {
+        // Aloca a estrutura de ataque especial apenas uma vez
         jogador->especial = (ataque_especial *)malloc(sizeof(ataque_especial));
+        if (!jogador->especial)
+        {
+            return; // Garante que o malloc foi bem-sucedido
+        }
 
-    if (!jogador->especial)
-        return; // Garante que o malloc foi bem-sucedido
+        // Inicializa os valores do ataque especial
+        jogador->especial->ativado = false;
+        jogador->especial->tempo_restante = 0;
+    }
 
-    jogador->especial->ativado = true;
-    jogador->especial->tempo_restante = TEMP_MAX; // Tempo em milissegundos
-    jogador->especial->sprite = al_load_bitmap(PATH_SIMBOLO_ATAQUE_ESPECIAL);
-
-    if (!jogador->especial->sprite) {
-        free(jogador->especial);
-        jogador->especial = NULL;
+    // Ativa o ataque especial
+    if (!jogador->especial->ativado)
+    {
+        jogador->especial->ativado = true;
+        jogador->especial->tempo_restante = TEMP_MAX; // Tempo máximo do ataque especial
     }
 }
 
@@ -280,8 +276,14 @@ void atualizar_tempo_ataque_especial(jogador *jogador, unsigned int elapsed_time
     if (!jogador || !jogador->especial || !jogador->especial->ativado)
         return;
 
+    // Decrementa o tempo restante do ataque especial
     if (jogador->especial->tempo_restante > elapsed_time)
+    {
         jogador->especial->tempo_restante -= elapsed_time;
+    }
     else
-        jogador->especial->ativado = false;
+    {
+        jogador->especial->ativado = false; // Desativa o ataque especial quando o tempo expira
+        jogador->especial->tempo_restante = 0; // Reseta o tempo restante
+    }
 }
