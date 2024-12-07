@@ -38,21 +38,21 @@
 #define CONTADOR_ZERADO 0 // Contador zerado
 
 #define HP_INIMIGO_0 2 // Vida do inimigo 0
-#define HP_INIMIGO_1 1 // Vida do inimigo 1
+#define HP_INIMIGO_1 2 // Vida do inimigo 1
 #define HP_INIMIGO_2 2 // Vida do inimigo 2
-#define HP_INIMIGO_3 1 // Vida do inimigo 3
+#define HP_INIMIGO_3 2 // Vida do inimigo 3
 
-#define QNTD_INIM_TIPO_0 10 // Quantidade de inimigos do tipo 0
-#define QNTD_INIM_TIPO_1 10 // Quantidade de inimigos do tipo 1
-#define QNTD_INIM_TIPO_2 10 // Quantidade de inimigos do tipo 2
-#define QNTD_INIM_TIPO_3 10 // Quantidade de inimigos do tipo 3
+#define QNTD_INIM_TIPO_0 15 // Quantidade de inimigos do tipo 0
+#define QNTD_INIM_TIPO_1 15 // Quantidade de inimigos do tipo 1
+#define QNTD_INIM_TIPO_2 15 // Quantidade de inimigos do tipo 2
+#define QNTD_INIM_TIPO_3 15 // Quantidade de inimigos do tipo 3
 
 // Intervalo de criação de inimigos na fase 1 e 2
 // rand() % MIN_INTERVALO_FASE01 + MAX_INTERVALO_FASE01;
-#define MIN_INTERVALO_FASE01 150 // Intervalo mínimo entre a criação de inimigos na fase 1
+#define MIN_INTERVALO_FASE01 50 // Intervalo mínimo entre a criação de inimigos na fase 1
 #define MAX_INTERVALO_FASE01 100 // Intervalo máximo entre a criação de inimigos na fase 1
-#define MIN_INTERVALO_FASE02 150 // Intervalo mínimo entre a criação de inimigos na fase 2
-#define MAX_INTERVALO_FASE02 200 // Intervalo máximo entre a criação de inimigos na fase 2
+#define MIN_INTERVALO_FASE02 100 // Intervalo mínimo entre a criação de inimigos na fase 2
+#define MAX_INTERVALO_FASE02 150 // Intervalo máximo entre a criação de inimigos na fase 2
 
 /*-------------------------------------------------------------------*/
 /* ESTRUTURAS */
