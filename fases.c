@@ -297,7 +297,7 @@ unsigned char verifica_acerto_do_chefe_no_jogador(chefe *killer, jogador *victim
 
 // Função principal da lógica do ataque especial para a fase 01
 void logica_ataque_especial_fase1(jogador *jogador, simbolo_ataque_especial **simbolo_ptr, unsigned int delay,
-                            unsigned short max_x, unsigned short max_y)
+                                  unsigned short max_x, unsigned short max_y)
 {
     if (!jogador || !simbolo_ptr || !*simbolo_ptr)
         return;
@@ -360,7 +360,7 @@ void logica_ataque_especial_fase1(jogador *jogador, simbolo_ataque_especial **si
 
 // Função principal da lógica do ataque especial para a fase 02
 void logica_ataque_especial_fase2(jogador *jogador, simbolo_ataque_especial **simbolo_ptr, unsigned int delay,
-                            unsigned short max_x, unsigned short max_y)
+                                  unsigned short max_x, unsigned short max_y)
 {
     if (!jogador || !simbolo_ptr || !*simbolo_ptr)
         return;
@@ -420,6 +420,60 @@ void logica_ataque_especial_fase2(jogador *jogador, simbolo_ataque_especial **si
         }
     }
 }
+
+// Implementação da função que verifica se um projétil especial acertou um chefe
+unsigned char verifica_acerto_no_chefe_com_ataque_especial(jogador *killer, chefe *victim, unsigned int *score)
+{
+    projetil *anterior = NULL;
+    projetil *index = killer->arma->shots;
+
+    // Itera sobre todos os projéteis disparados pelo jogador
+    while (index != NULL)
+    {
+        if (killer->especial->ativo){
+        // Verifica se o projétil é especial e se colidiu com o chefe no eixo X e Y
+        if ((index->especial || index->x >= victim->x - victim->sprite_info->largura / 2) &&
+            (index->x <= victim->x + victim->sprite_info->largura / 2) &&
+            (index->y >= victim->y - victim->sprite_info->altura / 2) &&
+            (index->y <= victim->y + victim->sprite_info->altura / 2))
+        {
+            // Reduz o hp do chefe em 5 pontos
+            victim->hp -= 5;
+            *score += 50; // Aumenta a pontuação do jogador
+
+            // Remove o projétil da lista
+            if (anterior)
+            {
+                anterior->proximo = index->proximo; // Se não for o primeiro, ajusta o ponteiro do anterior
+            }
+            else
+            {
+                killer->arma->shots = (projetil *)index->proximo; // Se for o primeiro, ajusta o início da lista
+            }
+
+            destruir_projetil(index); // Destrói o projétil que colidiu
+
+            // Verifica se o chefe ainda está vivo
+            if (victim->hp > 0)
+            {
+                return 0; // Chefe sofreu dano, mas ainda não morreu
+            }
+            else
+            {
+                return 1; // Chefe morreu, mas não destrói imediatamente
+            }
+        }
+        }
+
+        // Atualiza o controle para o próximo projétil
+        anterior = index;
+        index = (projetil *)index->proximo;
+    }
+
+    return 0; // Não houve colisão com nenhum projétil
+}
+
+
 
 /*---------------------------------------------------------------------------*/
 /* Funções de inicialização, atualização e finalização de cada fase */
@@ -573,8 +627,6 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
             atual = proximo; // Avança para o próximo inimigo
         }
 
-        // logica_ataque_especial(jogador_1, &jogador_1->especial->simbolo, ANIMATION_DELAY_SIMBOLO_ATAQUE_ESPECIAL, X_SCREEN, Y_SCREEN);
-
         /* LÓGICA DO CHEFE - FASE 01 */
         // Verifica se todos os inimigos foram derrotados para então o chefe aparecer
         if (score >= (10 * (HP_INIMIGO_0 * (QNTD_INIM_TIPO_0) + HP_INIMIGO_1 * (QNTD_INIM_TIPO_1))))
@@ -583,6 +635,7 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
             {
                 /* LÓGICA DO ATAQUE ESPECIAL ADQUIRIDO NO MAPA PELO JOGADOR */
                 /* para ajudar na luta contra o chefe */
+                logica_ataque_especial_fase1(jogador_1, &jogador_1->especial->simbolo, ANIMATION_DELAY_SIMBOLO_ATAQUE_ESPECIAL, X_SCREEN, Y_SCREEN);
 
                 atualizar_animacao_chefe(chefe_1, &chefe_1->animation_counter, ANIMATION_DELAY_CHEFE);
                 mover_chefe(chefe_1, CHEFE0_STEP, 0, X_SCREEN, Y_SCREEN_MOVIMENTO);
@@ -595,6 +648,17 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
                 for (projetil *p = chefe_1->arma2->shots; p != NULL; p = (projetil *)p->proximo)
                     desenhar_projetil2_chefe_0(p);
 
+                // Verifica se o projétil do jogador acertou o chefe
+                if (verifica_acerto_no_chefe(jogador_1, chefe_1, &score) || 
+                    verifica_acerto_no_chefe_com_ataque_especial(jogador_1, chefe_1, &score))
+                {
+                    if (chefe_1->hp <= 0)
+                    {
+                        venceu_fase = true; // Sinaliza que o jogador venceu a fase
+                        fase = 2;           // Avança para a próxima fase
+                    }
+                } 
+                
                 // Verifica se o projétil do jogador acertou o chefe
                 if (verifica_acerto_no_chefe(jogador_1, chefe_1, &score))
                 {
