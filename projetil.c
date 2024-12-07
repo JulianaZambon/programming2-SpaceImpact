@@ -7,7 +7,7 @@
 #include "configuracoes.h"
 #include "projetil.h"
 
-/*-----------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* FUNÇÕES */
 
 // Função de criação de um projetil
@@ -30,16 +30,32 @@ void mover_projetil(projetil **elements)
     projetil *anterior = NULL;
     projetil *atual = *elements; // Começa a partir do primeiro projetil na lista
 
+    // Percorre a lista de projéteis
     while (atual != NULL)
     {
-        // Movimenta o projetil baseado na sua trajetória
-        if (atual->trajetoria == 0) // Esquerda
+        // movimenta o projetil conforme a trajetória
+        switch (atual->trajetoria)
         {
-            atual->x -= PROJETIL_MOVE; // Move o projetil para a esquerda
-        }
-        else if (atual->trajetoria == 1) // Direita
-        {
-            atual->x += PROJETIL_MOVE; // Move o projetil para a direita
+        case 0:
+            atual->x -= PROJETIL_MOVE; // Movimenta o projetil para a esquerda
+            break;
+        case 1:
+            atual->x += PROJETIL_MOVE; // Movimenta o projetil para a direita
+            break;
+        case 2:                        // Movimento em Onda Cosenoidal Decrescente
+            atual->x -= PROJETIL_MOVE; // Move o projétil para a esquerda
+            atual->y = (Y_SCREEN / 2) + (50 / (1 + atual->x / 100.0)) * cos(atual->x / 30.0);
+            break;
+        case 3:
+            atual->x -= PROJETIL_MOVE;                             // Move o projétil para a esquerda
+            atual->y = (Y_SCREEN / 2) + 50 * sin(atual->x / 20.0); // Move o projétil em onda senoidal
+            break;
+        case 4:
+            atual->x -= PROJETIL_MOVE;                             // Move o projétil para a esquerda
+            atual->y = (Y_SCREEN / 2) + 50 * tan(atual->x / 50.0); // Move o projétil em onda tangente
+            break;
+        default:
+            break;
         }
 
         // Verifica se o projetil saiu da tela (no eixo X)
@@ -63,7 +79,6 @@ void mover_projetil(projetil **elements)
         }
     }
 }
-
 // Função de destruição de um projetil
 void destruir_projetil(projetil *element)
 {
@@ -73,11 +88,7 @@ void destruir_projetil(projetil *element)
     }
 }
 
-/*-----------------------------------------------------------------------------------------*/
-/* DESENHO DE PROJETEIS*/
-
-/* JOGADOR*/
-
+/*-------------------------------------------------------------------*/
 /* FUNÇÕES AUXILIARES PARA DESENHO DE PROJETIL */
 
 ALLEGRO_COLOR cor(int r, int g, int b)
@@ -97,8 +108,8 @@ void desenhar_retorno_pulsante(float variacao, float x, float y, ALLEGRO_COLOR c
 
 void desenhar_projetil_jogador(projetil *projetil)
 {
-    ALLEGRO_COLOR cor_vermelho_escuro = cor(139, 0, 0);
-    ALLEGRO_COLOR cor_vermelho_claro = cor(255, 0, 0);
+    ALLEGRO_COLOR cor_vermelho_escuro = cor(80, 13, 6);
+    ALLEGRO_COLOR cor_vermelho_claro = cor(167, 52, 50);
 
     al_draw_filled_rectangle(projetil->x - 10, projetil->y - 3, projetil->x + 10, projetil->y + 3, cor_vermelho_escuro);
     al_draw_rectangle(projetil->x - 10, projetil->y - 3, projetil->x + 10, projetil->y + 3, cor_vermelho_claro, 1);
@@ -106,9 +117,9 @@ void desenhar_projetil_jogador(projetil *projetil)
 
 void desenhar_projetil_especial_jogador_1(projetil *projetil)
 {
-    ALLEGRO_COLOR cor_azul = cor(0, 0, 255);
+    ALLEGRO_COLOR cor_azul = cor(23, 97, 124);
     ALLEGRO_COLOR cor_branco = cor(255, 255, 255);
-    ALLEGRO_COLOR cor_azul_claro = cor(173, 216, 230);
+    ALLEGRO_COLOR cor_azul_claro = cor(82, 161, 200);
 
     al_draw_filled_rectangle(projetil->x - 15, projetil->y - 4, projetil->x + 15, projetil->y + 4, cor_azul);
     al_draw_filled_rectangle(projetil->x - 12, projetil->y - 3, projetil->x + 12, projetil->y + 3, cor_azul_claro);
@@ -132,8 +143,8 @@ void desenhar_projetil_especial_jogador_2(projetil *projetil)
 
 void desenhar_projetil_inimigo_fase_1(projetil *projetil)
 {
-    ALLEGRO_COLOR cor_verde_escuro = cor(0, 100, 0);
-    ALLEGRO_COLOR cor_verde_claro = cor(0, 255, 0);
+    ALLEGRO_COLOR cor_verde_escuro = cor(88, 83, 48);
+    ALLEGRO_COLOR cor_verde_claro = cor(124, 120, 49);
 
     al_draw_filled_rectangle(projetil->x - 10, projetil->y - 3, projetil->x + 10, projetil->y + 3, cor_verde_escuro);
     al_draw_rectangle(projetil->x - 10, projetil->y - 3, projetil->x + 10, projetil->y + 3, cor_verde_claro, 1);
@@ -141,8 +152,8 @@ void desenhar_projetil_inimigo_fase_1(projetil *projetil)
 
 void desenhar_projetil_inimigo_fase_2(projetil *projetil)
 {
-    ALLEGRO_COLOR cor_rosa_escuro = cor(255, 20, 147);
-    ALLEGRO_COLOR cor_rosa_claro = cor(255, 105, 180);
+    ALLEGRO_COLOR cor_rosa_escuro = cor(197, 84, 146);
+    ALLEGRO_COLOR cor_rosa_claro = cor(231, 114, 178);
 
     al_draw_filled_rectangle(projetil->x - 10, projetil->y - 3, projetil->x + 10, projetil->y + 3, cor_rosa_escuro);
     al_draw_rectangle(projetil->x - 10, projetil->y - 3, projetil->x + 10, projetil->y + 3, cor_rosa_claro, 1);
@@ -182,11 +193,11 @@ void desenhar_projetil_chefe_1(projetil *projetil)
 {
     float variacao = sin(al_get_time() * 10) * 2;
 
-    ALLEGRO_COLOR cor_azul_claro = cor(173, 216, 230);
-    ALLEGRO_COLOR cor_azul = cor(135, 206, 235);
-    ALLEGRO_COLOR cor_roxo = cor(128, 0, 128);
+    ALLEGRO_COLOR cor_branco = cor(255, 255, 255);
+    ALLEGRO_COLOR cor_roxo_claro = cor(122, 105, 223);
+    ALLEGRO_COLOR cor_roxo = cor(104, 37, 150);
 
-    desenhar_retorno_pulsante(variacao, projetil->x, projetil->y, cor_azul_claro, cor_azul, cor_roxo);
+    desenhar_retorno_pulsante(variacao, projetil->x, projetil->y, cor_branco, cor_roxo_claro, cor_roxo);
 }
 
 void desenhar_projetil2_chefe_1(projetil *projetil)
