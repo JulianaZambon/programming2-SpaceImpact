@@ -3,30 +3,25 @@
 
 #include <allegro5/allegro.h>
 
-/*-----------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* DEFINIÇÕES */
-#define PROJETIL_MOVE 5 // Velocidade do projetil (quanto maior, mais rápido)
 
-/*-----------------------------------------------------------------------------------------*/
+#define PROJETIL_MOVE 4 // Velocidade do projetil (quanto maior, mais rápido)
+
+/*-------------------------------------------------------------------*/
 /* ESTRUTURAS */
-
-// Estrutura para o ataque especial
-typedef struct ataque_especial
-{
-    int tempo; // Tempo em que o ataque especial dura (max de 5s)
-} ataque_especial;
 
 // Estrutura para o projetil
 typedef struct projetil
 {
     unsigned short x;          // Local, no eixo x, onde se localiza o projetil
     unsigned short y;          // Local, no eixo y, onde se localiza o projetil
-    unsigned char trajetoria;  // Trajetória da projetil
-    struct projetil *proximo;  // Próxima projetil, se houver, formando uma lista encadeada
-    ataque_especial *especial; // Projetil especial (adquirido no mapa!)
+    unsigned char trajetoria;  // Trajetória da projetil (0 = esquerda, 1 = direita, 2 = sinuoso ...)
+    struct projetil *proximo;  // Próximo projetil, se houver, formando uma lista encadeada
+    bool especial;             // Flag para indicar se o projetil é especial
 } projetil;
 
-/*-----------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------*/
 /* PROTÓTIPOS DE FUNÇÕES */
 
 // Função de criação de um projetil
@@ -36,8 +31,8 @@ void mover_projetil(projetil **elements);
 // Função de destruição de um projetil
 void destruir_projetil(projetil *element);
 
-/*-----------------------------------------------------------------------------------------*/
-/* DESENHO DE PROJETEIS */
+/*-------------------------------------------------------------------*/
+/* FUNÇÕES AUXILIARES PARA DESENHO DE PROJETIL */
 
 /* Funções de desenho de projéteis do jogador */
 void desenhar_projetil_jogador(projetil *projetil);
