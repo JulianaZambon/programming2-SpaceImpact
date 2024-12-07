@@ -25,11 +25,11 @@
 #define COLUNAS_SPRITE_SHEET_CHEFE_1 8 // Número de colunas no sprite do chefe 1
 #define SPRITE_SHEET_CHEFE_1 16        // Número total de quadros no sprite
 
-#define HP_CHEFE_0 15 // Vida do chefe 0
-#define HP_CHEFE_1 15 // Vida do chefe 1
+#define HP_CHEFE_0 20 // Vida do chefe 0
+#define HP_CHEFE_1 30 // Vida do chefe 1
 
-#define ARMA1_COOLDOWN_CHEFE 40 // Tempo de cooldown da arma do chefe (quanto maior, mais lento)
-#define ARMA2_COOLDOWN_CHEFE 45 // Tempo de cooldown da segunda arma do chefe (quanto maior, mais lento)
+#define ARMA1_COOLDOWN_CHEFE 80 // Tempo de cooldown da arma do chefe (quanto maior, mais lento)
+#define ARMA2_COOLDOWN_CHEFE 80 // Tempo de cooldown da segunda arma do chefe (quanto maior, mais lento)
 
 /*-------------------------------------------------------------------*/
 /* ESTRUTURAS */
