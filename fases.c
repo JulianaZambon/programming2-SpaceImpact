@@ -522,9 +522,13 @@ void inicializa_fase(ALLEGRO_BITMAP **background, jogador **jogador_1, inimigo *
         if (!*background)
             return;
 
-        *jogador_1 = criar_jogador(20, 60, 80, Y_SCREEN / 2, X_SCREEN, Y_SCREEN_MOVIMENTO);
-        if (!*jogador_1)
-            return;
+        // jogador já foi inicializado na fase 1
+        // o jogador é o mesmo, apenas a fase muda
+        // portanto, deve manter o hp e a pontuação
+        // e reiniciar a posição
+        (*jogador_1)->x = 80;
+        (*jogador_1)->y = Y_SCREEN / 2;
+        
 
         (*jogador_1)->sprite = al_load_bitmap(PATH_JOGADOR);
         if (!(*jogador_1)->sprite)
