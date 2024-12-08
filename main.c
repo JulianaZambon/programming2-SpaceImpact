@@ -175,7 +175,11 @@ int main()
                         "destruir a cidade e tudo o que ele ama."};
                     exibir_mensagem(font, narrativa_fase_1, 5, 1.5, true, 0.1);
 
-                    al_flush_event_queue(queue); /* Limpa a fila de eventos */
+                    while (!al_is_event_queue_empty(queue))
+                    {
+                        ALLEGRO_EVENT unused_event;
+                        al_get_next_event(queue, &unused_event);
+                    }
 
                     bool animacao_ativa = true;
                     while (animacao_ativa)
@@ -204,7 +208,11 @@ int main()
             if (event.type == ALLEGRO_EVENT_TIMER)
             {
                 /* Atualiza a fase */
-                al_flush_event_queue(queue); /* Limpa a fila de eventos */
+                while (!al_is_event_queue_empty(queue))
+                {
+                    ALLEGRO_EVENT unused_event;
+                    al_get_next_event(queue, &unused_event);
+                }
                 atualiza_fase(background, jogador_1, &lista_inimigos_fase1,
                               &lista_inimigos_fase2, chefe_1, chefe_2, fase_atual);
 
@@ -215,7 +223,7 @@ int main()
                     {
                         /* MENSAGEM DE VITÓRIA - FASE 1 */
                         const char *mensagem_vitoria_fase_1[] = {
-                            "Vitória! A Fase 1 concluída.",
+                            "VITÓRIA ! Fase 1 concluída.",
                             "Você derrotou o Espectro do Fogo e salvou a cidade por agora.",
                             "Mas a batalha está longe de terminar...",
                             "A ameaça dos Espectros cresce cada vez mais.",
@@ -252,7 +260,11 @@ int main()
                             }
                         }
 
-                        al_flush_event_queue(queue); /* Limpa a fila de eventos */
+                        while (!al_is_event_queue_empty(queue))
+                        {
+                            ALLEGRO_EVENT unused_event;
+                            al_get_next_event(queue, &unused_event);
+                        }
                         inicializa_fase(&background, &jogador_1, NULL, &lista_inimigos_fase2,
                                         &chefe_1, &chefe_2, fase_atual);
                         atualiza_fase(background, jogador_1, NULL, &lista_inimigos_fase2,
