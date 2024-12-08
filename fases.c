@@ -531,6 +531,17 @@ void inicializa_fase(ALLEGRO_BITMAP **background, jogador **jogador_1, inimigo *
             return;
 
         // Inicializa o ataque especial do jogador na fase 2
+        (*jogador_1)->especial = criar_ataque_especial();
+        if (!(*jogador_1)->especial)
+            return;
+
+        // Inicializa o símbolo do ataque especial
+        (*jogador_1)->especial->simbolo = criar_simbolo_ataque_especial(X_SCREEN - 100, Y_SCREEN / 2, PATH_SIMBOLO_ATAQUE_ESPECIAL);
+        if (!(*jogador_1)->especial->simbolo)
+        {
+            free((*jogador_1)->especial); // Libera a memória caso a criação falhe
+            return;
+        }
 
         // Inicializa a lista de inimigos da fase 2
         *lista_inimigos_fase2 = NULL;
@@ -634,7 +645,8 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
             {
                 /* LÓGICA DO ATAQUE ESPECIAL ADQUIRIDO NO MAPA PELO JOGADOR */
                 /* para ajudar na luta contra o chefe */
-                logica_ataque_especial_fase1(jogador_1, &jogador_1->especial->simbolo, ANIMATION_DELAY_SIMBOLO_ATAQUE_ESPECIAL, X_SCREEN, Y_SCREEN);
+                logica_ataque_especial_fase1(jogador_1, &jogador_1->especial->simbolo,
+                                             ANIMATION_DELAY_SIMBOLO_ATAQUE_ESPECIAL, X_SCREEN, Y_SCREEN);
 
                 atualizar_animacao_chefe(chefe_1, &chefe_1->animation_counter, ANIMATION_DELAY_CHEFE);
                 mover_chefe(chefe_1, CHEFE0_STEP, 0, X_SCREEN, Y_SCREEN_MOVIMENTO);
@@ -731,13 +743,12 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
         }
 
         /* LÓGICA DO CHEFE - FASE 02 */
-        int animation_counter_chefe = 0;
-
         // Verifica se todos os inimigos foram derrotados
-        if (score >= (10 * (HP_INIMIGO_0 * (QNTD_INIM_TIPO_0) + HP_INIMIGO_1 * (QNTD_INIM_TIPO_1) + (HP_CHEFE_0)) + 10 *
-                                                                                                                        (HP_INIMIGO_2 * (QNTD_INIM_TIPO_2) + HP_INIMIGO_3 * (QNTD_INIM_TIPO_3))))
+        // Checagem para iniciar o chefe somente após atingir o score necessário
+        if (score >= (10 * (HP_INIMIGO_0 * QNTD_INIM_TIPO_0 + HP_INIMIGO_1 * QNTD_INIM_TIPO_1 + HP_CHEFE_0) +
+                      10 * (HP_INIMIGO_2 * QNTD_INIM_TIPO_2 + HP_INIMIGO_3 * QNTD_INIM_TIPO_3)))
         {
-            if (chefe_2 != NULL && chefe_2->hp > 0)
+            if (chefe_2 != NULL)
             {
                 /* LÓGICA DO ATAQUE ESPECIAL ADQUIRIDO NO MAPA PELO JOGADOR */
                 /* para ajudar na luta contra o chefe */
@@ -755,10 +766,10 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
                     desenhar_projetil2_chefe_1(p);
 
                 // Verifica se o projétil do jogador acertou o chefe
-                if (verifica_acerto_no_chefe(jogador_1, chefe_1, &score) ||
-                    verifica_acerto_no_chefe_com_ataque_especial(jogador_1, chefe_1, &score))
+                if (verifica_acerto_no_chefe(jogador_1, chefe_2, &score) ||
+                    verifica_acerto_no_chefe_com_ataque_especial(jogador_1, chefe_2, &score))
                 {
-                    if (chefe_1->hp <= 0)
+                    if (chefe_2->hp <= 0)
                     {
                         venceu_fase = true; // Sinaliza que o jogador venceu a fase
                         fase = 2;           // Avança para a próxima fase
@@ -767,7 +778,7 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
 
                 // Verifica se o projétil do chefe acertou o jogador
                 // Se o jogador morreu, exibe a tela de game over e o jogo acaba
-                if (verifica_acerto_do_chefe_no_jogador(chefe_1, jogador_1))
+                if (verifica_acerto_do_chefe_no_jogador(chefe_2, jogador_1))
                 {
                     if (jogador_1->hp <= 0)
                     {
@@ -782,8 +793,13 @@ void atualiza_fase(ALLEGRO_BITMAP *background, jogador *jogador_1, inimigo **lis
     /* TELA DE GAME OVER */
     if (game_over)
     {
-        const char *mensagem_game_over[] = {"GAME OVER!"};
-        exibir_mensagem_game_over(font, mensagem_game_over, 7, 0, true, 0.1);
+        const char *mensagem_game_over[] = {
+            "GAME OVER!",
+            "Você falhou em proteger a cidade.",
+            "Os Espectros venceram, e a ameaça se espalha.",
+            "Sua jornada termina aqui, mas o futuro ainda pode ser reescrito.",
+            "Tente novamente e vença essa batalha!"};
+        exibir_mensagem_game_over(font, mensagem_game_over, 5, 1.5, true, 0.1);
     }
 
     al_flip_display();     // Atualiza a tela
