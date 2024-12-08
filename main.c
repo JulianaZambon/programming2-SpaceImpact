@@ -116,7 +116,9 @@ int main()
     if (!tela_inicial)
         return 1;
 
+    /* INICIALIZAÇÃO DAS NARRATIVAS */
     tela_nave_ligando *nave_ligando = criar_tela_nave_ligando();
+    tela_velocidade_luz *velocidade_luz = criar_tela_velocidade_luz();
 
     /* VARIÁVEIS DE CONTROLE */
     bool jogo_rodando = true;
@@ -154,36 +156,39 @@ int main()
                 {
                     tela_inicial_ativa = false;
 
-                    // Exibe mensagem antes de iniciar a Fase 1
-                    const char *mensagens[] = {"Prepare-se para a Fase 1!"};
-                    exibir_mensagem(font, mensagens, 1, 1.5, true, 0.1);
+                    const char *mensagens[] = {
+                        "SPACE IMPACT: Maxive Galaxy",
+                        "explore, trade, fight!",
+                        "Pressione as setas para mover a nave e a barra de espaço para atirar."};
+                    exibir_mensagem(font, mensagens, 3, 1.5, true, 0.1);
+
+                    const char *prologo[] = {
+                        "PRÓLOGO"};
+                    exibir_mensagem(font, prologo, 1, 1.5, true, 0.2);
 
                     // Narrativa
-                    const char *narrativa[] = {"Em um futuro distante, a humanidade enfrenta uma ameaça alienígena.",
-                                               "A bordo da nave espacial 'Falcon', você é o último piloto de elite",
-                                               "capaz de salvar a Terra. Sua missão: destruir a nave-mãe alienígena."};
-                    exibir_mensagem(font, narrativa, 3, 1.5, true, 0.1);
+                    const char *narrativa_fase_1[] = {
+                        "Kai Takeda, um piloto de 28 anos e mecânico, sonha em se juntar às forças de defesa da cidade,",
+                        "onde sua amiga de infância, Haruka, é comandante. Quando criaturas misteriosas chamadas Espectros",
+                        "começam a atacar a cidade, Kai se vê no meio da luta para protegê-la. Determinado a cumprir sua",
+                        "promessa a Haruka, Kai deve confrontar os Espectros enquanto lida com a crescente ameaça que pode",
+                        "destruir a cidade e tudo o que ele ama."};
+                    exibir_mensagem(font, narrativa_fase_1, 5, 1.5, true, 0.1);
 
                     al_flush_event_queue(queue); /* Limpa a fila de eventos */
 
                     bool animacao_ativa = true;
-
                     while (animacao_ativa)
                     {
-                        al_clear_to_color(al_map_rgb(0, 0, 0)); // Limpa a tela
-
+                        al_clear_to_color(al_map_rgb(0, 0, 0));
                         atualizar_animacao_tela_nave_ligando(nave_ligando, &nave_ligando->animation_counter,
-                                                            1);
+                                                             1);
                         desenhar_tela_nave_ligando(nave_ligando);
                         al_flip_display();
-
-                        al_rest(0.05); // Controla o tempo entre atualizações (ajuste conforme necessário)
-
-                        // Finaliza após exibir todos os quadros (uma ou mais vezes)
+                        al_rest(0.05);
+                        // Finaliza após exibir todos os quadros
                         if (nave_ligando->frame_atual == 95 - 1)
-                        {
                             animacao_ativa = false; // Sai do loop
-                        }
                     }
 
                     /* Inicializa a Fase 1 */
@@ -208,17 +213,44 @@ int main()
                 {
                     if (fase_atual == 1) /* Se estava na Fase 1 */
                     {
-                        /* Exibe mensagem de conclusão da Fase 1 */
-                        const char *mensagens_fase1_concluida[] = {"Fase 1 concluída!", "Prepare-se para a próxima fase!"};
-                        exibir_mensagem(font, mensagens_fase1_concluida, 2, 0, true, 0.1);
+                        /* MENSAGEM DE VITÓRIA - FASE 1 */
+                        const char *mensagem_vitoria_fase_1[] = {
+                            "Vitória! A Fase 1 concluída.",
+                            "Você derrotou o Espectro do Fogo e salvou a cidade por agora.",
+                            "Mas a batalha está longe de terminar...",
+                            "A ameaça dos Espectros cresce cada vez mais.",
+                            "Prepare-se para o próximo desafio, piloto!"};
+                        exibir_mensagem(font, mensagem_vitoria_fase_1, 5, 1.5, true, 0.1);
 
                         /* Avança para a fase 2 */
                         fase_atual = 2;
                         venceu_fase = false; /* Reseta a variável para a nova fase */
 
-                        // Exibe mensagem antes de iniciar a Fase 2
-                        const char *mensagens_fase2[] = {"Prepare-se para a Fase 2!"};
-                        exibir_mensagem(font, mensagens_fase2, 1, 1.5, true, 0.1);
+                        /* NARRATIVA FASE 2 */
+                        const char *narrativa_fase_2[] = {
+                            "Após a vitória contra o Espectro do Fogo, novas ameaças surgem.",
+                            "Kai Takeda se prepara para enfrentar o Espectro do Vento, mais rápido e imprevisível.",
+                            "Rumores dizem que ele é um inimigo ainda mais perigoso, desafiando até os melhores pilotos.",
+                            "A cidade está em alerta máximo, e Kai será testado como nunca antes.",
+                            "A luta pela sobrevivência continua e Kai deve proteger a cidade a todo custo."};
+                        exibir_mensagem(font, narrativa_fase_2, 5, 1.5, true, 0.1);
+
+                        bool animacao_ativa_2 = true;
+                        while (animacao_ativa_2)
+                        {
+                            al_clear_to_color(al_map_rgb(0, 0, 0)); // Limpa a tela
+
+                            atualizar_animacao_tela_velocidade_luz(velocidade_luz, &velocidade_luz->animation_counter,
+                                                                   5);
+                            desenhar_tela_velocidade_luz(velocidade_luz);
+                            al_flip_display();
+                            al_rest(0.05);
+                            // Finaliza após exibir todos os quadros
+                            if ((velocidade_luz->frame_atual == 14 - 1))
+                            {
+                                animacao_ativa_2 = false; // Sai do loop
+                            }
+                        }
 
                         al_flush_event_queue(queue); /* Limpa a fila de eventos */
                         inicializa_fase(&background, &jogador_1, NULL, &lista_inimigos_fase2,
@@ -229,8 +261,15 @@ int main()
                     else if (fase_atual == 2) /* Se estava na Fase 2 */
                     {
                         /* Se o jogador venceu a Fase 2 exibe a mensagem de vitória */
-                        const char *mensagens[] = {"Você venceu!", "Parabéns!"};
-                        exibir_mensagem(font, mensagens, 2, 0, true, 0.1);
+                        /* MENSAGEM DE VITÓRIA */
+                        const char *mensagem_vitoria[] = {
+                            "VITÓRIA! Parabéns, Kai Takeda!",
+                            "Você derrotou os Espectros e salvou a cidade!",
+                            "Sua coragem foi essencial para proteger todos.",
+                            "A cidade está segura, mas o preço foi alto.",
+                            "Este é apenas o começo de uma nova era de esperança!"};
+                        exibir_mensagem(font, mensagem_vitoria, 5, 1.5, true, 0.2);
+
                         jogo_rodando = false; /* Encerra o jogo */
                     }
                 }
