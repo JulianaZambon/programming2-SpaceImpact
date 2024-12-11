@@ -10,6 +10,13 @@ Neste trabalho, será desenvolvida uma versão alternativa do *Space Impact*, in
 - **Tela Inicial do Jogo:**  
   ![Tela Inicial](https://github.com/user-attachments/assets/0a0213de-41ca-4d72-a7df-883093452061)
 
+- **Narrativa 1ª Fase**
+![nave](https://github.com/user-attachments/assets/5c227971-9535-48fe-b032-72131efb2ede)
+
+- **Narrativa 2ª Fase**
+![velocidadeLuz](https://github.com/user-attachments/assets/5187a20b-236e-47d2-90b9-b80a605ad61d)
+
+
 ---
 
 ### **1. Estrutura do Jogo**
